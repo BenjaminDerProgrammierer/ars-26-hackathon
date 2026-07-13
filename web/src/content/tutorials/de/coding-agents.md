@@ -9,7 +9,3 @@ eingesetzt, wird aus einem Wochenend-Prototyp etwas, das man wirklich zeigen
 kann.
 
 *Die vollständige deutsche Fassung folgt in Kürze.*
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat
-a ante venenatis dapibus posuere velit aliquet. Maecenas faucibus mollis
-interdum. Sed posuere consectetur est at lobortis.

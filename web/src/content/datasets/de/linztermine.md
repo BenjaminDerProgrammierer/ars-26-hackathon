@@ -9,5 +9,4 @@ order: 2
 
 Alles, was in Linz stattfindet: Veranstaltungen, Orte und Veranstalter:innen
 mit stabilen IDs (Ort 358 und Veranstalter 7 = Ars Electronica Center).
-*Die vollständige deutsche Fassung folgt in Kürze.* Lorem ipsum dolor sit
-amet, consectetur adipiscing elit.
+*Die vollständige deutsche Fassung folgt in Kürze.*

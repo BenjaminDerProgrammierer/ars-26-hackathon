@@ -17,7 +17,7 @@ const datasets = defineCollection({
     title: z.string(),
     summary: z.string(),
     provider: z.string(),
-    url: z.string().url(),
+    url: z.url(),
     group: z.enum(["festival", "linz"]),
     order: z.number(),
   }),

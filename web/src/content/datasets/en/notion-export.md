@@ -12,5 +12,4 @@ containing four interlinked databases: **projects** (~546), **contacts**
 (~240), **locations** (~111), and **calendar** (~178 time slots). Bilingual
 descriptions, categories, ticket requirements, venue coordinates, and the
 full festival schedule. Personal contact details are stripped for privacy.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit — refreshed exports
-are published at the same URL as the program evolves.
+Refreshed exports are published at the same URL as the program evolves.

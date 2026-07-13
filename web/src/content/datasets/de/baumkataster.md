@@ -9,5 +9,4 @@ order: 5
 
 Zehntausende Bäume mit Art, Dimensionen und Standort — etwa für schattige
 Routen zwischen Veranstaltungsorten im September. *Die vollständige deutsche
-Fassung folgt in Kürze.* Lorem ipsum dolor sit amet, consectetur adipiscing
-elit.
+Fassung folgt in Kürze.*
