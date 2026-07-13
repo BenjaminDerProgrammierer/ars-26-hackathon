@@ -14,4 +14,4 @@ Normalize street suffixes, umlauts, and address tokens. Mapping routes still nee
 an external street geometry/geocoder. Source descriptions are German-only.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/807645f0-2e80-4e24-b142-3673b108dde6) ·
-[Rainer review](../../2026-06-13-reviews-rainer/strassennamen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/strassennamen.md)

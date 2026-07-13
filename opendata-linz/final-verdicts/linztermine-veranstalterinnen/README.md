@@ -12,4 +12,4 @@ Convert XML to UTF-8 JSON and publish a small curated organizer match table. It 
 not independently geospatial and only a subset is festival-relevant.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/9c0a65e3-db8c-4784-98df-b856a9cd3576) ·
-[Rainer review](../../2026-06-13-reviews-rainer/linztermine-veranstalterinnen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/linztermine-veranstalterinnen.md)

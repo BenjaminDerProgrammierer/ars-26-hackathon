@@ -14,4 +14,4 @@ Convert XML to JSON and ship it with the crosswalk. It contains no events, dates
 or coordinates and should not appear independently in dataset discovery.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/fb08a46d-69ca-4fb0-baac-67557c933341) ·
-[Rainer review](../../2026-06-13-reviews-rainer/linztermine-schlagworte.md)
+[Rainer review](../../2026-07-13-reviews-rainer/linztermine-schlagworte.md)

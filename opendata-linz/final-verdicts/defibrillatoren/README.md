@@ -14,4 +14,4 @@ safety-critical and can change. Use only for an explicitly fictional/prototype
 demonstration unless the Red Cross or publisher supplies a current verified feed.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/866e3d0b-531b-42a0-a82a-3f36dd02b368) ·
-[Rainer review](../../2026-06-13-reviews-rainer/defibrillatoren.md)
+[Rainer review](../../2026-07-13-reviews-rainer/defibrillatoren.md)

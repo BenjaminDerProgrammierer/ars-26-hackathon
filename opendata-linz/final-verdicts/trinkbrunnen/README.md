@@ -16,4 +16,4 @@ Confirm the actual CRS and axis order with the publisher before conversion; see
 Do not treat water status or opening hours as current without verification.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/ee7668cf-46bc-4246-a6fa-4adfdb52a513) ·
-[Rainer review](../../2026-06-13-reviews-rainer/trinkbrunnen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/trinkbrunnen.md)

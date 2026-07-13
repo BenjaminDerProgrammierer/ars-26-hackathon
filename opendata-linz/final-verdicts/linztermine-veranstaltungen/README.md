@@ -15,4 +15,4 @@ The event feed has no coordinates; join through the locations feed and retain
 cleaned festival coordinates after name/address matching.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/dfa2ff35-d2c4-4196-9989-a1bdbeabbfed) ·
-[Rainer review](../../2026-06-13-reviews-rainer/linztermine-veranstaltungen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/linztermine-veranstaltungen.md)

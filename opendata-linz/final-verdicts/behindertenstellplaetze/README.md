@@ -15,4 +15,4 @@ DBF text, and retain addresses. The 2022 vintage must be visible; do not present
 as an authoritative guarantee of current accessible parking.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/9c01fb76-047e-47a9-be70-6e883daa92c1) ·
-[Rainer review](../../2026-06-13-reviews-rainer/behindertenstellplaetze.md)
+[Rainer review](../../2026-07-13-reviews-rainer/behindertenstellplaetze.md)

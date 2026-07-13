@@ -15,4 +15,4 @@ festival locations. There are no coordinates in this source, so it is not a
 standalone spatial dataset.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/3cca23c2-2aa6-4421-96db-8b914de62d56) ·
-[Rainer review](../../2026-06-13-reviews-rainer/linztermine-orte.md)
+[Rainer review](../../2026-07-13-reviews-rainer/linztermine-orte.md)

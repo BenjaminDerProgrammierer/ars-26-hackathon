@@ -13,4 +13,4 @@ Convert GML/GeoPackage to GeoJSON and split comma-joined line identifiers. Do no
 promise schedules or arrival feasibility without the separate EFA service.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/linien-fahrwege-und-haltestellen-der-linz-ag-linien-2025) ·
-[Rainer review](../../2026-06-13-reviews-rainer/linz-ag-linien-2025.md)
+[Rainer review](../../2026-07-13-reviews-rainer/linz-ag-linien-2025.md)

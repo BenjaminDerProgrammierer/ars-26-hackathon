@@ -15,4 +15,4 @@ service without an SLA. Implement the two-step StopFinder-to-departure flow,
 respect LINZ AG's extra terms, and never make the live API the only demo path.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/cc074ef6-bcc9-4c76-815c-81e349ee6a13) ·
-[Rainer review](../../2026-06-13-reviews-rainer/efa-fahrplanauskunft.md)
+[Rainer review](../../2026-07-13-reviews-rainer/efa-fahrplanauskunft.md)

@@ -16,4 +16,4 @@ signal.
 
 [Locations catalog](https://www.data.gv.at/katalog/datasets/b2068d46-de7f-4a22-a563-4dea59b1e6f2) ·
 [Usage catalog](https://www.data.gv.at/katalog/datasets/d849807f-d313-45fb-a7b6-af3f726a1673) ·
-[Rainer review](../../2026-06-13-reviews-rainer/hotspots.md)
+[Rainer review](../../2026-07-13-reviews-rainer/hotspots.md)

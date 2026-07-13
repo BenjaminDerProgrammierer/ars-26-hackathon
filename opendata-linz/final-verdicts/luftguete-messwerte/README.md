@@ -16,4 +16,4 @@ only a rolling 24-hour window. Track the publisher fix in
 [issue #6](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/6).
 
 [Catalog](https://www.data.gv.at/katalog/datasets/c312a9a9-fdbc-47e8-9da1-ad3be82dfbd6) ·
-[Rainer review](../../2026-06-13-reviews-rainer/luftguete-messwerte.md)
+[Rainer review](../../2026-07-13-reviews-rainer/luftguete-messwerte.md)
