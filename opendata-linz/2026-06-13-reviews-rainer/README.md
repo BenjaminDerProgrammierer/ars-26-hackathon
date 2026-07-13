@@ -7,6 +7,11 @@ This folder contains short reviews of open data datasets published by the City o
 1. **Is the data any good?** Can you actually download it, is it filled with real values, and is it reasonably up to date?
 2. **Does it fit our festival data?** Can it be meaningfully combined with the [Ars Electronica Festival 2026 dataset](../../ars-dataset/) (projects, artists, venues and event schedule) — for example via map locations, dates, or matching names?
 
+> These are source-level screening notes. The stricter, portfolio-level decision
+> is the [consolidated usability report](../2026-07-13-linz-open-data-hackathon-usability.md),
+> which also accounts for festival-export quality, safety/freshness risk, required
+> organizer preprocessing, and partial air-API failures observed on 2026-07-13.
+
 For every dataset we downloaded a real sample of the data (not just the catalog description) and wrote a one-page review. Each review lists what the data contains, how it can be combined with the festival data, and any pitfalls.
 
 ## How to read the verdicts

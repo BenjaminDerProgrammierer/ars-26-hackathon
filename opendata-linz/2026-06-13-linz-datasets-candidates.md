@@ -2,7 +2,11 @@
 
 **Date:** 2026-07-13
 **Source catalog:** [data.gv.at – Publisher "Stadt Linz"](https://www.data.gv.at/publisher?publisher=Stadt+Linz&locale=de)
-**Status:** First pass – candidates identified by title/description only; formats, licenses and data freshness not yet verified per dataset.
+**Status:** Superseded first pass – candidates identified by title/description only.
+
+> The final recommendation, incorporating hands-on source checks and the live
+> festival export, is
+> [Linz Open Data usability for the Ars Electronica Hackathon](2026-07-13-linz-open-data-hackathon-usability.md).
 
 ---
 
