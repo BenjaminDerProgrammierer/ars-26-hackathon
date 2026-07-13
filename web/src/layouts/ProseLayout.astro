@@ -1,0 +1,60 @@
+---
+import type { Lang } from "../i18n/ui";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  lang: Lang;
+  title: string;
+  intro?: string;
+  description?: string;
+  /** Role color for the title band; defaults to the identity orange. */
+  bandColor?: string;
+}
+
+const {
+  lang,
+  title,
+  intro,
+  description,
+  bandColor = "var(--color-identity)",
+} = Astro.props;
+---
+
+<BaseLayout lang={lang} title={title} description={description ?? intro}>
+  <section class="title-band" style={`background: ${bandColor}`}>
+    <div class="wrap">
+      <h1>{title}</h1>
+      {intro && <p class="intro">{intro}</p>}
+    </div>
+  </section>
+  <section>
+    <div class="wrap wrap--reading prose">
+      <slot />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .title-band {
+    color: var(--color-paper);
+    padding-block: var(--space-7);
+    margin-bottom: var(--space-7);
+  }
+
+  .title-band :global(:focus-visible) {
+    outline-color: var(--color-paper);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .intro {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    max-width: var(--width-reading);
+  }
+</style>

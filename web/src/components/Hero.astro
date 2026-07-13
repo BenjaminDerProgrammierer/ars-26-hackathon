@@ -1,0 +1,53 @@
+---
+interface Props {
+  /** Sub-event name, uppercase identity statement. */
+  title: string;
+  /** Relationship to the festival. */
+  kicker: string;
+  /** Date and place — must be immediately visible. */
+  datePlace: string;
+}
+
+const { title, kicker, datePlace } = Astro.props;
+---
+
+<section class="hero">
+  <div class="wrap">
+    <p class="kicker">{kicker}</p>
+    <h1>{title}</h1>
+    <p class="date-place">{datePlace}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    background: var(--color-identity);
+    color: var(--color-paper);
+    padding-block: var(--space-8);
+  }
+
+  .hero :global(:focus-visible) {
+    outline-color: var(--color-paper);
+  }
+
+  .kicker {
+    font-size: var(--text-lg);
+    font-weight: 500;
+    margin-bottom: var(--space-4);
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    text-transform: uppercase;
+    line-height: 1.02;
+    margin: 0;
+    max-width: 18ch;
+  }
+
+  .date-place {
+    margin-top: var(--space-5);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+</style>

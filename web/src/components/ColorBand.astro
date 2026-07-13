@@ -1,0 +1,38 @@
+---
+/**
+ * Full-bleed flat color field for thematic statements.
+ * `color` takes a role token, e.g. "var(--color-program)".
+ */
+interface Props {
+  color?: string;
+}
+
+const { color = "var(--color-identity)" } = Astro.props;
+---
+
+<section class="band" style={`background: ${color}`}>
+  <div class="wrap">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .band {
+    color: var(--color-paper);
+    padding-block: var(--space-8);
+    margin-block: var(--space-8);
+  }
+
+  .band :global(:focus-visible) {
+    outline-color: var(--color-paper);
+  }
+
+  .band :global(p) {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.15;
+    max-width: 24ch;
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+import { getCollection, render } from "astro:content";
+import { href, type Lang, useTranslations } from "../../../i18n/ui";
+import ProseLayout from "../../../layouts/ProseLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("tutorials");
+  return entries.map((entry) => {
+    const [lang, slug] = entry.id.split("/");
+    return { params: { lang, slug }, props: { entry } };
+  });
+}
+
+const { entry } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+
+const siblings = (
+  await getCollection("tutorials", (e) => e.id.startsWith(`${lang}/`))
+).sort((a, b) => a.data.order - b.data.order);
+const index = siblings.findIndex((e) => e.id === entry.id);
+const prev = index > 0 ? siblings[index - 1] : undefined;
+const next = index < siblings.length - 1 ? siblings[index + 1] : undefined;
+
+function tutorialHref(id: string): string {
+  return href(lang, `tutorials/${id.split("/")[1]}`);
+}
+---
+
+<ProseLayout
+  lang={lang}
+  title={entry.data.title}
+  intro={entry.data.description}
+  bandColor="var(--color-program)"
+>
+  <Content />
+
+  <nav class="pager" aria-label={t("nav.tutorials")}>
+    {
+      prev ? (
+        <a href={tutorialHref(prev.id)} rel="prev">
+          ← {prev.data.title}
+        </a>
+      ) : (
+        <a href={href(lang, "tutorials")} rel="up">
+          ← {t("nav.tutorials")}
+        </a>
+      )
+    }
+    {
+      next && (
+        <a href={tutorialHref(next.id)} rel="next">
+          {next.data.title} →
+        </a>
+      )
+    }
+  </nav>
+</ProseLayout>
+
+<style>
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-rule);
+    font-weight: 500;
+  }
+</style>

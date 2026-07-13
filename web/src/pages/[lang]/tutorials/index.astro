@@ -1,0 +1,121 @@
+---
+import { getCollection } from "astro:content";
+import { href, type Lang, useTranslations } from "../../../i18n/ui";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const tutorials = (
+  await getCollection("tutorials", (entry) => entry.id.startsWith(`${lang}/`))
+).sort((a, b) => a.data.order - b.data.order);
+
+const copy = {
+  en: {
+    intro:
+      "Three short guides that take you from raw festival export to a working prototype. Read them before the kick-off — or let your coding agent read them for you.",
+  },
+  de: {
+    intro:
+      "Drei kurze Anleitungen vom rohen Festival-Export zum funktionierenden Prototyp. Lest sie vor dem Kick-off — oder lasst sie euren Coding Agent lesen.",
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} title={t("nav.tutorials")} description={copy.intro}>
+  <section class="title-band">
+    <div class="wrap">
+      <h1>{t("nav.tutorials")}</h1>
+      <p class="intro">{copy.intro}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <ol class="tutorial-list">
+        {
+          tutorials.map((tutorial) => {
+            const slug = tutorial.id.split("/")[1];
+            return (
+              <li>
+                <span class="number">{String(tutorial.data.order).padStart(2, "0")}</span>
+                <div>
+                  <h2>
+                    <a href={href(lang, `tutorials/${slug}`)}>{tutorial.data.title}</a>
+                  </h2>
+                  <p>{tutorial.data.description}</p>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .title-band {
+    background: var(--color-program);
+    color: var(--color-paper);
+    padding-block: var(--space-7);
+    margin-bottom: var(--space-7);
+  }
+
+  .title-band :global(:focus-visible) {
+    outline-color: var(--color-paper);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .intro {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    max-width: var(--width-reading);
+  }
+
+  .tutorial-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tutorial-list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-5);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .tutorial-list li:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .number {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--color-program);
+    line-height: 1;
+  }
+
+  .tutorial-list h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .tutorial-list p {
+    margin: 0;
+    color: var(--color-muted);
+    max-width: var(--width-reading);
+  }
+</style>

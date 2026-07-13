@@ -1,0 +1,25 @@
+---
+import { getEntry, render } from "astro:content";
+import type { Lang } from "../../i18n/ui";
+import ProseLayout from "../../layouts/ProseLayout.astro";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const entry = await getEntry("pages", `${lang}/coding-agents`);
+if (!entry) {
+  throw new Error(`Missing content: pages/${lang}/coding-agents`);
+}
+const { Content } = await render(entry);
+---
+
+<ProseLayout
+  lang={lang}
+  title={entry.data.title}
+  intro={entry.data.intro}
+  bandColor="var(--color-context)"
+>
+  <Content />
+</ProseLayout>

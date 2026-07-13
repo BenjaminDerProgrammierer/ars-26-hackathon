@@ -1,0 +1,166 @@
+---
+import { getCollection, render } from "astro:content";
+import { type Lang, useTranslations } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const entries = (
+  await getCollection("datasets", (entry) => entry.id.startsWith(`${lang}/`))
+).sort((a, b) => a.data.order - b.data.order);
+
+const rendered = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+  })),
+);
+
+const groups = [
+  {
+    key: "festival",
+    items: rendered.filter(({ entry }) => entry.data.group === "festival"),
+  },
+  {
+    key: "linz",
+    items: rendered.filter(({ entry }) => entry.data.group === "linz"),
+  },
+] as const;
+
+const copy = {
+  en: {
+    intro:
+      "Everything you build on: the complete festival program as structured data, plus a curated selection of City of Linz open data.",
+    festival: "The festival dataset",
+    linz: "City of Linz open data",
+    source: "Source",
+    open: "Open dataset",
+  },
+  de: {
+    intro:
+      "Die Grundlage für alles, was ihr baut: das komplette Festivalprogramm als strukturierte Daten plus ausgewählte offene Daten der Stadt Linz.",
+    festival: "Der Festival-Datensatz",
+    linz: "Open Data der Stadt Linz",
+    source: "Quelle",
+    open: "Zum Datensatz",
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} title={t("nav.datasets")} description={copy.intro}>
+  <section class="title-band">
+    <div class="wrap">
+      <h1>{t("nav.datasets")}</h1>
+      <p class="intro">{copy.intro}</p>
+    </div>
+  </section>
+
+  {
+    groups.map((group) => (
+      <section class="group">
+        <div class="wrap">
+          <h2>{group.key === "festival" ? copy.festival : copy.linz}</h2>
+          {group.items.map(({ entry, Content }) => (
+            <article>
+              <header>
+                <h3>{entry.data.title}</h3>
+                <p class="meta">
+                  {copy.source}: {entry.data.provider}
+                </p>
+              </header>
+              <div class="body">
+                <p class="summary">{entry.data.summary}</p>
+                <div class="prose">
+                  <Content />
+                </div>
+                <p>
+                  <a class="button button--outline" href={entry.data.url}>
+                    {copy.open}
+                  </a>
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  .title-band {
+    background: var(--color-places);
+    color: var(--color-paper);
+    padding-block: var(--space-7);
+    margin-bottom: var(--space-7);
+  }
+
+  .title-band :global(:focus-visible) {
+    outline-color: var(--color-paper);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .intro {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    max-width: var(--width-reading);
+  }
+
+  .group {
+    margin-bottom: var(--space-7);
+  }
+
+  .group h2 {
+    font-size: var(--text-xl);
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--color-places);
+    padding-bottom: var(--space-3);
+  }
+
+  article {
+    display: grid;
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  @media (min-width: 48rem) {
+    article {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  article h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  .meta {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .summary {
+    font-weight: 500;
+  }
+
+  .body :global(p:last-of-type) {
+    margin-bottom: 0;
+  }
+
+  .body > p:last-child {
+    margin: var(--space-4) 0 0;
+  }
+</style>

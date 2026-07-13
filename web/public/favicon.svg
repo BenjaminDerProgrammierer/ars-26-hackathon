@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Favicons render outside the page's CSS context and cannot use custom
+       properties. Keep these literals in sync with the tokens in
+       src/styles/global.css: --color-paper, --color-identity. -->
+  <rect width="32" height="32" fill="#ffffff"/>
+  <circle cx="16" cy="16" r="12" fill="#E73E07"/>
+</svg>

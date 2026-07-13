@@ -1,0 +1,151 @@
+---
+import LoginForm from "../../components/react/LoginForm";
+import { type Lang, useTranslations } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const strings = {
+  tabSignin: t("login.tab.signin"),
+  tabRegister: t("login.tab.register"),
+  name: t("login.name"),
+  email: t("login.email"),
+  password: t("login.password"),
+  confirm: t("login.confirm"),
+  submitSignin: t("login.submit.signin"),
+  submitRegister: t("login.submit.register"),
+  submitting: t("login.submitting"),
+  errorName: t("login.error.name"),
+  errorEmail: t("login.error.email"),
+  errorPassword: t("login.error.password"),
+  errorConfirm: t("login.error.confirm"),
+  successSignin: t("login.success.signin"),
+  successRegister: t("login.success.register"),
+  successNote: t("login.success.note"),
+  reset: t("login.reset"),
+};
+---
+
+<BaseLayout lang={lang} title={t("login.title")} description={t("login.intro")}>
+  <section class="title-band">
+    <div class="wrap">
+      <h1>{t("login.title")}</h1>
+      <p class="intro">{t("login.intro")}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap wrap--reading">
+      <LoginForm client:load strings={strings} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .title-band {
+    background: var(--color-action);
+    color: var(--color-ink);
+    padding-block: var(--space-7);
+    margin-bottom: var(--space-7);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .intro {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    max-width: var(--width-reading);
+  }
+</style>
+
+<style is:global>
+  .login-form {
+    border: 1px solid var(--color-rule);
+    max-width: 28rem;
+  }
+
+  .login-form .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-form .tabs button {
+    font: inherit;
+    font-weight: 600;
+    padding: var(--space-3);
+    background: var(--color-wash);
+    color: var(--color-muted);
+    border: none;
+    border-bottom: 3px solid var(--color-rule);
+    cursor: pointer;
+  }
+
+  .login-form .tabs button[aria-pressed="true"] {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    border-bottom-color: var(--color-action);
+  }
+
+  .login-form form {
+    padding: var(--space-5);
+  }
+
+  .login-form .field {
+    margin-bottom: var(--space-4);
+  }
+
+  .login-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+  }
+
+  .login-form input {
+    width: 100%;
+    font: inherit;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-muted);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .login-form input[aria-invalid="true"] {
+    border: 2px solid var(--color-places);
+  }
+
+  .login-form .error {
+    color: var(--color-places);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    margin: var(--space-1) 0 0;
+  }
+
+  .login-form button[type="submit"] {
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+
+  .login-form button[type="submit"]:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .login-form--success {
+    padding: var(--space-5);
+  }
+
+  .login-form--success .success-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import { type Lang, languages, useTranslations } from "../i18n/ui";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const targets = (Object.keys(languages) as Lang[]).map((code) => ({
+  code,
+  label: languages[code],
+  url: Astro.url.pathname.replace(/^\/(en|de)(\/|$)/, `/${code}/`),
+  current: code === lang,
+}));
+---
+
+<nav class="lang-switch" aria-label={t("lang.switch.label")}>
+  {
+    targets.map((target) => (
+      <a
+        href={target.url}
+        lang={target.code}
+        hreflang={target.code}
+        aria-current={target.current ? "true" : undefined}
+      >
+        {target.label}
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .lang-switch {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--color-muted);
+  }
+
+  a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+
+  a[aria-current="true"] {
+    color: var(--color-ink);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+</style>

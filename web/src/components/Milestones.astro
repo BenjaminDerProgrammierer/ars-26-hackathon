@@ -1,0 +1,83 @@
+---
+interface Milestone {
+  date: string;
+  title: string;
+  detail: string;
+}
+
+interface Props {
+  heading: string;
+  items: Milestone[];
+}
+
+const { heading, items } = Astro.props;
+---
+
+<section class="milestones">
+  <div class="wrap">
+    <h2>{heading}</h2>
+    <ol>
+      {
+        items.map((item) => (
+          <li>
+            <span class="date">{item.date}</span>
+            <span class="what">
+              <strong>{item.title}</strong>
+              <span class="detail">{item.detail}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .milestones {
+    padding-block: var(--space-7);
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    text-transform: uppercase;
+  }
+
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    display: grid;
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  li:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  @media (min-width: 48rem) {
+    li {
+      grid-template-columns: 12rem 1fr;
+    }
+  }
+
+  .date {
+    font-weight: 700;
+  }
+
+  .what {
+    display: block;
+  }
+
+  .what strong {
+    display: block;
+  }
+
+  .detail {
+    color: var(--color-muted);
+  }
+</style>
