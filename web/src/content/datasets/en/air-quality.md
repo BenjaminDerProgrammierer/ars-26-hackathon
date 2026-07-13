@@ -9,6 +9,4 @@ order: 4
 
 Live environmental measurements — particulates, ozone, temperature, wind —
 from monitoring stations across the city. Pairs naturally with outdoor
-festival venues and the festival's environmental themes. Vestibulum id
-ligula porta felis euismod semper, lorem ipsum dolor sit amet, consectetur
-adipiscing elit.
+festival venues and the festival's environmental themes.

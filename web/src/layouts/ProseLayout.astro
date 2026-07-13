@@ -9,6 +9,8 @@ interface Props {
   description?: string;
   /** Role color for the title band; defaults to the identity orange. */
   bandColor?: string;
+  /** Accessible foreground paired with the selected role color. */
+  textColor?: string;
 }
 
 const {
@@ -17,11 +19,15 @@ const {
   intro,
   description,
   bandColor = "var(--color-identity)",
+  textColor = "var(--color-on-identity)",
 } = Astro.props;
 ---
 
 <BaseLayout lang={lang} title={title} description={description ?? intro}>
-  <section class="title-band" style={`background: ${bandColor}`}>
+  <section
+    class="title-band"
+    style={`background: ${bandColor}; color: ${textColor}; --band-focus: ${textColor}`}
+  >
     <div class="wrap">
       <h1>{title}</h1>
       {intro && <p class="intro">{intro}</p>}
@@ -36,13 +42,12 @@ const {
 
 <style>
   .title-band {
-    color: var(--color-paper);
     padding-block: var(--space-7);
     margin-bottom: var(--space-7);
   }
 
   .title-band :global(:focus-visible) {
-    outline-color: var(--color-paper);
+    outline-color: var(--band-focus);
   }
 
   h1 {

@@ -1,7 +1,6 @@
 ---
 import ColorBand from "../../components/ColorBand.astro";
 import Hero from "../../components/Hero.astro";
-import HubSymbol from "../../components/HubSymbol.astro";
 import Milestones from "../../components/Milestones.astro";
 import SplitSection from "../../components/SplitSection.astro";
 import { href, type Lang, useTranslations } from "../../i18n/ui";
@@ -26,17 +25,17 @@ const copy = {
     statement: "Two data worlds. One city. Seventy-two hours.",
     datasets: {
       heading: "The festival, as data",
-      body: "Around 546 projects, 240 artists, 111 venues, and 178 scheduled slots — the entire Negotiating Humanity program as one JSON file, joined with transit stops, trees, air quality, and historical maps of Linz. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      body: "Around 546 projects, 240 artists and organizations, 111 venues, and 178 scheduled slots — the entire Negotiating Humanity program as one JSON file, ready to combine with transit stops, trees, air quality, and historical maps of Linz.",
       link: "Explore the datasets",
     },
     tutorials: {
       heading: "Learn the ropes first",
-      body: "Three short tutorials take you from raw export to a working prototype: understanding the festival dataset, joining it with city data, and building with coding agents. Integer posuere erat a ante venenatis dapibus.",
+      body: "Three short tutorials take you from raw export to a working prototype: understanding the festival dataset, joining it with city data, and building with coding agents.",
       link: "Read the tutorials",
     },
     agents: {
       heading: "Agents included",
-      body: "Every team gets hosted AI coding agents — no local setup, no API keys. Describe what you want to build and iterate together. Cras justo odio, dapibus ac facilisis in, egestas eget quam.",
+      body: "Every team gets hosted AI coding agents — no local setup, no API keys. Describe what you want to build and iterate together.",
       link: "About the coding agents",
     },
     milestonesHeading: "What happens when",
@@ -44,7 +43,7 @@ const copy = {
       {
         date: "July 2026",
         title: "Registration opens",
-        detail: "Placeholder — exact date follows. Lorem ipsum dolor sit amet.",
+        detail: "The exact registration date will be announced here.",
       },
       {
         date: "September 2026, Day 1",
@@ -76,17 +75,17 @@ const copy = {
     statement: "Zwei Datenwelten. Eine Stadt. 72 Stunden.",
     datasets: {
       heading: "Das Festival als Daten",
-      body: "Rund 546 Projekte, 240 Künstler:innen, 111 Orte und 178 Zeitslots — das gesamte Programm von Negotiating Humanity als eine JSON-Datei, kombiniert mit Haltestellen, Bäumen, Luftgüte und historischen Karten von Linz. Lorem ipsum dolor sit amet.",
+      body: "Rund 546 Projekte, 240 Künstler:innen und Organisationen, 111 Orte und 178 Zeitslots — das gesamte Programm von Negotiating Humanity als eine JSON-Datei, bereit zur Kombination mit Haltestellen, Bäumen, Luftgüte und historischen Karten von Linz.",
       link: "Zu den Datensätzen",
     },
     tutorials: {
       heading: "Zuerst die Grundlagen",
-      body: "Drei kurze Tutorials führen vom rohen Export zum funktionierenden Prototyp: den Festival-Datensatz verstehen, mit Stadtdaten verbinden und mit Coding Agents bauen. Integer posuere erat a ante venenatis dapibus.",
+      body: "Drei kurze Tutorials führen vom rohen Export zum funktionierenden Prototyp: den Festival-Datensatz verstehen, mit Stadtdaten verbinden und mit Coding Agents bauen.",
       link: "Zu den Tutorials",
     },
     agents: {
       heading: "Agents inklusive",
-      body: "Jedes Team erhält gehostete AI Coding Agents — ohne lokales Setup, ohne API-Keys. Beschreibt, was ihr bauen wollt, und iteriert gemeinsam. Cras justo odio, dapibus ac facilisis in.",
+      body: "Jedes Team erhält gehostete AI Coding Agents — ohne lokales Setup, ohne API-Keys. Beschreibt, was ihr bauen wollt, und iteriert gemeinsam.",
       link: "Über die Coding Agents",
     },
     milestonesHeading: "Was passiert wann",
@@ -94,8 +93,7 @@ const copy = {
       {
         date: "Juli 2026",
         title: "Anmeldung öffnet",
-        detail:
-          "Platzhalter — das genaue Datum folgt. Lorem ipsum dolor sit amet.",
+        detail: "Das genaue Anmeldedatum wird hier bekannt gegeben.",
       },
       {
         date: "September 2026, Tag 1",
@@ -134,7 +132,7 @@ const copy = {
 
   <SplitSection>
     <div slot="media" class="media-field">
-      <HubSymbol symbol="circle" size={160} />
+      <span class="section-mark section-mark--identity" aria-hidden="true">01</span>
     </div>
     <h2>{copy.datasets.heading}</h2>
     <p>{copy.datasets.body}</p>
@@ -147,7 +145,7 @@ const copy = {
 
   <SplitSection flip>
     <div slot="media" class="media-field">
-      <HubSymbol symbol="triangle" size={160} />
+      <span class="section-mark section-mark--program" aria-hidden="true">02</span>
     </div>
     <h2>{copy.tutorials.heading}</h2>
     <p>{copy.tutorials.body}</p>
@@ -156,7 +154,7 @@ const copy = {
 
   <SplitSection>
     <div slot="media" class="media-field">
-      <HubSymbol symbol="square" size={160} />
+      <span class="section-mark section-mark--context" aria-hidden="true">03</span>
     </div>
     <h2>{copy.agents.heading}</h2>
     <p>{copy.agents.body}</p>
@@ -190,5 +188,23 @@ const copy = {
     align-items: center;
     justify-content: center;
     aspect-ratio: 3 / 2;
+  }
+
+  .section-mark {
+    font-size: clamp(5rem, 16vw, 10rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .section-mark--identity {
+    color: var(--color-identity);
+  }
+
+  .section-mark--program {
+    color: var(--color-program);
+  }
+
+  .section-mark--context {
+    color: var(--color-context);
   }
 </style>

@@ -11,7 +11,8 @@ export default defineConfig({
     locales: ["en", "de"],
     routing: {
       prefixDefaultLocale: true,
-      redirectToDefaultLocale: true,
+      // The explicit root page provides a static-host-compatible redirect.
+      redirectToDefaultLocale: false,
     },
   },
   fonts: [

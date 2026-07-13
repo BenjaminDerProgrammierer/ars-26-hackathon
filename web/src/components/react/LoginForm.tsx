@@ -1,4 +1,4 @@
-import { type FormEvent, useId, useState } from "react";
+import { type SyntheticEvent, useId, useState } from "react";
 
 export interface LoginFormStrings {
   tabSignin: string;
@@ -97,7 +97,7 @@ export default function LoginForm({ strings }: Props) {
     setErrors({});
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
     const nextErrors: Errors = {};
     for (const field of fieldsForMode()) {

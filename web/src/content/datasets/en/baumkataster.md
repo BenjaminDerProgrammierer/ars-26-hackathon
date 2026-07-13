@@ -9,5 +9,4 @@ order: 5
 
 Tens of thousands of trees, each with species, dimensions, and location.
 Think shaded walking routes between venues in a warm September, or
-green-city visualizations that fit the Negotiating Humanity theme. Aenean
-lacinia bibendum nulla sed consectetur, lorem ipsum dolor sit amet.
+green-city visualizations that fit the Negotiating Humanity theme.

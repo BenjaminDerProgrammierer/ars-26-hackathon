@@ -9,7 +9,3 @@ Stadtdaten: Geokoordinaten der Veranstaltungsorte, einen Veranstaltungskalender
 mit Zeiten und Dauern sowie zweisprachige Texte mit Kategorien.
 
 *Die vollständige deutsche Fassung folgt in Kürze.*
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae elit
-libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum
-faucibus dolor auctor. Maecenas sed diam eget risus varius blandit.

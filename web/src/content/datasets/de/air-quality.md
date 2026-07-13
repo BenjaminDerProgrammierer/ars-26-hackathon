@@ -8,5 +8,4 @@ order: 4
 ---
 
 Live-Umweltdaten — Feinstaub, Ozon, Temperatur, Wind — von Messstationen im
-Stadtgebiet. *Die vollständige deutsche Fassung folgt in Kürze.* Lorem ipsum
-dolor sit amet, consectetur adipiscing elit.
+Stadtgebiet. *Die vollständige deutsche Fassung folgt in Kürze.*
