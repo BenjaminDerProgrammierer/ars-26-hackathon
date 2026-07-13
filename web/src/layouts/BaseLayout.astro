@@ -1,0 +1,58 @@
+---
+import { Font } from "astro:assets";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import LocalNav from "../components/LocalNav.astro";
+import { type Lang, languages, useTranslations } from "../i18n/ui";
+import "../styles/global.css";
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description?: string;
+}
+
+const { lang, title, description } = Astro.props;
+const t = useTranslations(lang);
+
+const alternates = (Object.keys(languages) as Lang[]).map((code) => ({
+  code,
+  url: new URL(
+    Astro.url.pathname.replace(/^\/(en|de)(\/|$)/, `/${code}/`),
+    Astro.url,
+  ),
+}));
+
+const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
+
+const siteName = `${t("site.title")} — ${t("site.affiliation")}`;
+const pageTitle =
+  title === t("site.title") ? siteName : `${title} // ${siteName}`;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    {description && <meta name="description" content={description} />}
+    {
+      alternates.map((alt) => (
+        <link rel="alternate" hreflang={alt.code} href={alt.url} />
+      ))
+    }
+    <Font cssVariable="--font-plex" preload />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{skipLabel}</a>
+    <Header lang={lang} />
+    <LocalNav lang={lang} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

@@ -1,0 +1,61 @@
+---
+/**
+ * Asymmetrical two-column story section: media ~2/3, text ~1/3.
+ * Set `flip` to alternate the media side between sections.
+ * On narrow screens the heading comes before the media.
+ */
+interface Props {
+  flip?: boolean;
+}
+
+const { flip = false } = Astro.props;
+---
+
+<section class:list={["split", { flip }]}>
+  <div class="wrap grid">
+    <div class="media">
+      <slot name="media" />
+    </div>
+    <div class="text">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .split {
+    padding-block: var(--space-7);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: 2fr 1fr;
+    }
+
+    .flip .grid {
+      grid-template-columns: 1fr 2fr;
+    }
+
+    .flip .media {
+      order: 2;
+    }
+  }
+
+  .media :global(> *) {
+    width: 100%;
+  }
+
+  .text :global(h2) {
+    font-size: var(--text-xl);
+  }
+
+  .text :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

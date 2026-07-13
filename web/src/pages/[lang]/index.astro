@@ -1,0 +1,194 @@
+---
+import ColorBand from "../../components/ColorBand.astro";
+import Hero from "../../components/Hero.astro";
+import HubSymbol from "../../components/HubSymbol.astro";
+import Milestones from "../../components/Milestones.astro";
+import SplitSection from "../../components/SplitSection.astro";
+import { href, type Lang, useTranslations } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const copy = {
+  en: {
+    title: "AI Hackathon",
+    heroKicker:
+      "A sub-event of Ars Electronica Festival 2026 // Future Begins / Negotiating Humanity",
+    intro:
+      "Build apps, maps, and installations that combine the festival's complete program data with open data from the City of Linz — supported by hosted AI coding agents. Three days, one festival, two data worlds.",
+    primaryAction: "Create your account",
+    secondaryAction: "How the hackathon works",
+    statement: "Two data worlds. One city. Seventy-two hours.",
+    datasets: {
+      heading: "The festival, as data",
+      body: "Around 546 projects, 240 artists, 111 venues, and 178 scheduled slots — the entire Negotiating Humanity program as one JSON file, joined with transit stops, trees, air quality, and historical maps of Linz. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      link: "Explore the datasets",
+    },
+    tutorials: {
+      heading: "Learn the ropes first",
+      body: "Three short tutorials take you from raw export to a working prototype: understanding the festival dataset, joining it with city data, and building with coding agents. Integer posuere erat a ante venenatis dapibus.",
+      link: "Read the tutorials",
+    },
+    agents: {
+      heading: "Agents included",
+      body: "Every team gets hosted AI coding agents — no local setup, no API keys. Describe what you want to build and iterate together. Cras justo odio, dapibus ac facilisis in, egestas eget quam.",
+      link: "About the coding agents",
+    },
+    milestonesHeading: "What happens when",
+    milestones: [
+      {
+        date: "July 2026",
+        title: "Registration opens",
+        detail: "Placeholder — exact date follows. Lorem ipsum dolor sit amet.",
+      },
+      {
+        date: "September 2026, Day 1",
+        title: "Kick-off & team matching",
+        detail: "Meet the data, the agents, and your future teammates.",
+      },
+      {
+        date: "Day 2–3",
+        title: "Hacking",
+        detail:
+          "Build, test, and demo-proof your prototype with mentor support.",
+      },
+      {
+        date: "Day 3, evening",
+        title: "Jury & awards",
+        detail:
+          "Present your project to festival curators and city representatives.",
+      },
+    ],
+  },
+  de: {
+    title: "AI Hackathon",
+    heroKicker:
+      "Ein Sub-Event des Ars Electronica Festival 2026 // Future Begins / Negotiating Humanity",
+    intro:
+      "Baut Apps, Karten und Installationen, die die Programmdaten des Festivals mit offenen Daten der Stadt Linz verbinden — unterstützt von gehosteten AI Coding Agents. Drei Tage, ein Festival, zwei Datenwelten.",
+    primaryAction: "Konto erstellen",
+    secondaryAction: "So funktioniert der Hackathon",
+    statement: "Zwei Datenwelten. Eine Stadt. 72 Stunden.",
+    datasets: {
+      heading: "Das Festival als Daten",
+      body: "Rund 546 Projekte, 240 Künstler:innen, 111 Orte und 178 Zeitslots — das gesamte Programm von Negotiating Humanity als eine JSON-Datei, kombiniert mit Haltestellen, Bäumen, Luftgüte und historischen Karten von Linz. Lorem ipsum dolor sit amet.",
+      link: "Zu den Datensätzen",
+    },
+    tutorials: {
+      heading: "Zuerst die Grundlagen",
+      body: "Drei kurze Tutorials führen vom rohen Export zum funktionierenden Prototyp: den Festival-Datensatz verstehen, mit Stadtdaten verbinden und mit Coding Agents bauen. Integer posuere erat a ante venenatis dapibus.",
+      link: "Zu den Tutorials",
+    },
+    agents: {
+      heading: "Agents inklusive",
+      body: "Jedes Team erhält gehostete AI Coding Agents — ohne lokales Setup, ohne API-Keys. Beschreibt, was ihr bauen wollt, und iteriert gemeinsam. Cras justo odio, dapibus ac facilisis in.",
+      link: "Über die Coding Agents",
+    },
+    milestonesHeading: "Was passiert wann",
+    milestones: [
+      {
+        date: "Juli 2026",
+        title: "Anmeldung öffnet",
+        detail:
+          "Platzhalter — das genaue Datum folgt. Lorem ipsum dolor sit amet.",
+      },
+      {
+        date: "September 2026, Tag 1",
+        title: "Kick-off & Team-Matching",
+        detail: "Lernt die Daten, die Agents und eure künftigen Teams kennen.",
+      },
+      {
+        date: "Tag 2–3",
+        title: "Hacken",
+        detail:
+          "Bauen, testen und den Prototyp demo-fest machen — mit Mentoring.",
+      },
+      {
+        date: "Tag 3, Abend",
+        title: "Jury & Preise",
+        detail:
+          "Präsentiert euer Projekt vor Kurator:innen und Stadtvertreter:innen.",
+      },
+    ],
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} title={copy.title} description={copy.intro}>
+  <Hero title={copy.title} kicker={copy.heroKicker} datePlace={t("site.datePlace")} />
+
+  <section class="intro">
+    <div class="wrap wrap--reading">
+      <p>{copy.intro}</p>
+      <p class="actions">
+        <a class="button button--action" href={href(lang, "login")}>{copy.primaryAction}</a>
+        <a class="secondary" href={href(lang, "hackathon")}>{copy.secondaryAction}</a>
+      </p>
+    </div>
+  </section>
+
+  <SplitSection>
+    <div slot="media" class="media-field">
+      <HubSymbol symbol="circle" size={160} />
+    </div>
+    <h2>{copy.datasets.heading}</h2>
+    <p>{copy.datasets.body}</p>
+    <p><a href={href(lang, "datasets")}>{copy.datasets.link}</a></p>
+  </SplitSection>
+
+  <ColorBand color="var(--color-program)">
+    <p>{copy.statement}</p>
+  </ColorBand>
+
+  <SplitSection flip>
+    <div slot="media" class="media-field">
+      <HubSymbol symbol="triangle" size={160} />
+    </div>
+    <h2>{copy.tutorials.heading}</h2>
+    <p>{copy.tutorials.body}</p>
+    <p><a href={href(lang, "tutorials")}>{copy.tutorials.link}</a></p>
+  </SplitSection>
+
+  <SplitSection>
+    <div slot="media" class="media-field">
+      <HubSymbol symbol="square" size={160} />
+    </div>
+    <h2>{copy.agents.heading}</h2>
+    <p>{copy.agents.body}</p>
+    <p><a href={href(lang, "coding-agents")}>{copy.agents.link}</a></p>
+  </SplitSection>
+
+  <Milestones heading={copy.milestonesHeading} items={copy.milestones} />
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-block: var(--space-7) 0;
+  }
+
+  .intro p:first-child {
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    margin-top: var(--space-5);
+  }
+
+  .media-field {
+    background: var(--color-wash);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 3 / 2;
+  }
+</style>

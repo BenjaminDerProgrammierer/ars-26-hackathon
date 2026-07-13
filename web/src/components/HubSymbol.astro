@@ -1,0 +1,33 @@
+---
+/**
+ * The festival's elementary hub geometry: plum square (OK QUARTER),
+ * orange circle (MED CAMPUS), green triangle (DANUBE TRIANGLE).
+ * Always pair with a visible text label when the shape carries meaning.
+ */
+interface Props {
+  symbol: "square" | "circle" | "triangle";
+  label?: string;
+  size?: number;
+}
+
+const { symbol, label, size = 48 } = Astro.props;
+
+const fills = {
+  square: "var(--color-context)",
+  circle: "var(--color-identity)",
+  triangle: "var(--color-program)",
+} as const;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 48 48"
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+>
+  {symbol === "square" && <rect x="4" y="4" width="40" height="40" fill={fills.square} />}
+  {symbol === "circle" && <circle cx="24" cy="24" r="20" fill={fills.circle} />}
+  {symbol === "triangle" && <polygon points="24,4 44,44 4,44" fill={fills.triangle} />}
+</svg>
