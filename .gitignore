@@ -2,3 +2,4 @@ notion_export.json
 
 # agent worktrees
 .agents/worktrees/
+__pycache__/
