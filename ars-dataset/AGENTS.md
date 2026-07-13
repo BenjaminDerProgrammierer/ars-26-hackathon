@@ -1,10 +1,13 @@
 # Ars Electronica Festival - Dataset
 
-This folder contains a dataset about events of the Ars Electronica Festival 2026.
+This folder holds the local snapshot of the Ars Electronica Festival 2026 dataset.
 
-* `hackathon_database_docs.md` - Documentation of the hackathon database
-* `hackathon_metadata.json` - Technical metadata of the dataset including columns, data type, etc.
-* `hackathon_schema.json` - JSON schema of the dataset
-* `discussions/*.md` - Discussions about the dataset and its usage
+* `notion_export.json` - the dataset snapshot (gitignored; download it if missing)
+* `discussions/*.md` - feedback and correspondence with the data provider
 
-URL to download the latest version of the dataset: https://ars.electronica.art/negotiatinghumanity/hackathondata/ (redirect to JSON file, approx. 2MB)
+Everything else about the dataset - download URL, data model and field docs,
+JSON schema, known data-quality issues, and tooling for download/summary/
+verify/diff - lives in the `ars-dataset` skill.
+
+Quick download of the latest version:
+https://ars.electronica.art/negotiatinghumanity/hackathondata/ (redirects to a JSON file, approx. 2 MB)
