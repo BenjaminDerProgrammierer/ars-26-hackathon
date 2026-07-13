@@ -14,4 +14,4 @@ The publisher fix is tracked in
 Reassess only after a complete public download and CRS definition are available.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/35538aec-3486-4ef1-9b15-840b359c5a5e) ·
-[Rainer review](../../2026-06-13-reviews-rainer/hundezonen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/hundezonen.md)

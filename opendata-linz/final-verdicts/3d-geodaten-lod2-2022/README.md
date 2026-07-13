@@ -14,4 +14,4 @@ corrected festival venue coordinates. Source imagery is from 2019-2021, stated
 accuracy is about +/-2 m, and recent buildings may be missing.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/d0500244-6b9e-4d3c-9def-70703c013b3f) ·
-[Rainer review](../../2026-06-13-reviews-rainer/3d-geodaten-lod2-2022.md)
+[Rainer review](../../2026-07-13-reviews-rainer/3d-geodaten-lod2-2022.md)

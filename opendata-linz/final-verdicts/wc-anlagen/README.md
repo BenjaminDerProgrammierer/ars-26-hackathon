@@ -15,4 +15,4 @@ CSV and preserve German free-text hours rather than claiming fully reliable
 machine-readable opening status. Mark the 2023/2024 freshness.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/461b3bd7-346d-4401-91d6-8009538c54a1) ·
-[Rainer review](../../2026-06-13-reviews-rainer/wc-anlagen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/wc-anlagen.md)

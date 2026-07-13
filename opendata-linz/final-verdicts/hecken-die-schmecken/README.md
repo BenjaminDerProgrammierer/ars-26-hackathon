@@ -13,4 +13,4 @@ warns that species details may change; do not claim current availability or edib
 safety.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/d587eab4-6c96-4d48-978d-2d5d12c57f15) ·
-[Rainer review](../../2026-06-13-reviews-rainer/hecken-die-schmecken.md)
+[Rainer review](../../2026-07-13-reviews-rainer/hecken-die-schmecken.md)

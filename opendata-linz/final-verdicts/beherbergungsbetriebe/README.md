@@ -14,4 +14,4 @@ including it in the curated bundle. Use the separate guest-origin dataset for th
 stronger country-based story.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/29b3204e-49e8-4728-9cff-9447f1b6c29e) ·
-[Rainer review](../../2026-06-13-reviews-rainer/beherbergungsbetriebe.md)
+[Rainer review](../../2026-07-13-reviews-rainer/beherbergungsbetriebe.md)

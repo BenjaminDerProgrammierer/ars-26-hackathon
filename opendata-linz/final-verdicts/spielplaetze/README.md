@@ -16,4 +16,4 @@ columns. The equipment-level 2023 resources use internal `file://` paths; see
 
 [CSV catalog](https://www.data.gv.at/katalog/datasets/b77d0b46-306c-46da-b26d-6e4dd718fde7) ·
 [2023 catalog](https://www.data.gv.at/katalog/datasets/b5c88eba-dcd7-4e1f-85cb-640d3eeec359) ·
-[Rainer review](../../2026-06-13-reviews-rainer/spielplaetze.md)
+[Rainer review](../../2026-07-13-reviews-rainer/spielplaetze.md)

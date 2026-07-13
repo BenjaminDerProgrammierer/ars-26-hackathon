@@ -14,4 +14,4 @@ Convert the complete Shapefile to WGS84 GeoJSON and label the 2022 vintage. Do n
 imply current tariffs or enforcement without publisher verification.
 
 [Catalog](https://www.data.gv.at/katalog/datasets/bb992195-d827-48d4-a676-f3d680840a1c) ·
-[Rainer review](../../2026-06-13-reviews-rainer/kurzparkzonen.md)
+[Rainer review](../../2026-07-13-reviews-rainer/kurzparkzonen.md)
