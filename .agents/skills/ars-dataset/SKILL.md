@@ -1,6 +1,6 @@
 ---
 name: ars-dataset
-description: Handle the Ars Electronica Festival 2026 hackathon dataset - download the latest export, update the repo snapshot, verify an export against the JSON schema, detect schema/field drift between versions, and look up what fields and databases mean. Use this skill whenever the user mentions the ars dataset, ars-dataset, notion_export.json, the hackathon dataset/export, or asks to download/refresh/validate festival data, check whether the dataset changed, or understand a field in it. Read this BEFORE touching the dataset; it has non-obvious ID semantics and known data-quality issues.
+description: Handle the Ars Electronica Festival 2026 hackathon dataset - download the latest export, update the repo snapshot, verify an export against the JSON schema, detect schema/field drift between versions, look up what fields and databases mean, and build analyses on the data via an importable module (joined event rows with parsed datetimes and coordinates). Use this skill whenever the user mentions the ars dataset, ars-dataset, notion_export.json, the hackathon dataset/export, or asks to download/refresh/validate festival data, check whether the dataset changed, understand a field in it, or analyze/visualize festival events, times, or locations. Read this BEFORE touching the dataset; it has non-obvious ID semantics and known data-quality issues.
 ---
 
 # Ars Electronica Festival 2026 – Hackathon Dataset Handling
@@ -72,6 +72,11 @@ The essentials, because naive code gets them wrong:
 - **The calendar is the authoritative source of time slots** via
   `calendar."Linked Projects"` (resolves 100%). `projects."Linked Calendar"`
   is broken (~25% resolve) and `projects.Times` is display-only.
+- **No field carries a machine-readable event date.** `Start Time`/`End Time`
+  are bare `HH:MM`; the full date exists only inside the calendar `Time`
+  display string (`"9. September 2026 15:15 (MESZ) → 16:15"`). Use
+  `parse_event_datetime()` or the `start_dt`/`end_dt` fields on `event_rows()`
+  output instead of parsing it yourself.
 - **Ids are not reliably unique or present**: some locations/calendar rows
   have `id: null`; generic floors share location ids; recurring events share
   one calendar id across slots.
@@ -85,7 +90,10 @@ The essentials, because naive code gets them wrong:
 ## Task: data cleansing or building on the data
 
 This skill's module is importable for downstream work
-(`from ars_dataset import load, build_indexes, event_rows, parse_coord, fix_url, is_test_content`) —
-these functions already encode the join and cleansing rules above. Read
+(`from ars_dataset import load, build_indexes, event_rows, parse_event_datetime, parse_coord, fix_url, is_test_content`) —
+these functions already encode the join and cleansing rules above. For
+time/place analyses, `event_rows()` rows come with ready-to-use `start_dt`/
+`end_dt` (tz-aware datetimes) and `lat`/`lon` (parsed floats from the first
+location with a complete coordinate pair). Read
 `references/data-quality.md` first; it lists every known pitfall with the
 recommended workaround.

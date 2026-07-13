@@ -145,12 +145,18 @@ Individual time slots. Each entry links to (at most) one project via
 running on three days). **This database is the authoritative source of event
 times** — derive timetables from here, not from `projects."Linked Calendar"`.
 
+**There is no machine-readable date field.** `Start Time`/`End Time` are bare
+`HH:MM` and `Weekday` is a display label; the full date exists only inside the
+`Time` display string. Use the skill module's `parse_event_datetime()` (or the
+`start_dt`/`end_dt` fields on `event_rows()` output) instead of parsing it
+yourself.
+
 | Field | Type | Description | Example |
 |---|---|---|---|
 | `id` | string | Bare hash; **null on ~13 records, and recurring events share one id across slots** (165 keyed slots, only 42 distinct ids) — never treat as a unique slot key | — |
 | `Linked Projects` | array | The associated project → `projects` (resolves 100% via hash) | — |
 | `Status Web` | enum | `pending`, `done` | — |
-| `Time` | string | Full human-readable range | `"9. September 2026 15:15 (MESZ) → 16:15"` |
+| `Time` | string | Full human-readable range — the **only** field carrying the event date; parse with `parse_event_datetime()` | `"9. September 2026 15:15 (MESZ) → 16:15"` |
 | `Arrive by` | string | Recommended arrival time (human-readable) | — |
 | `Registration URL` | string (URL) | Registration link for this specific slot | — |
 | `Category` | string | Rollup from the linked project | `"Workshop"` |

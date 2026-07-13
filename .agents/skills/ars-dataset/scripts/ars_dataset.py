@@ -16,7 +16,7 @@ Importable helpers (they encode the dataset's join and cleansing rules —
 see the skill's SKILL.md and references/data-quality.md):
 
     load, build_indexes, key_of, links, parse_coord, fix_url,
-    is_test_content, event_rows
+    is_test_content, parse_event_datetime, event_rows
 """
 
 import json
@@ -24,7 +24,7 @@ import re
 import sys
 import urllib.request
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 DATASET_URL = "https://ars.electronica.art/negotiatinghumanity/hackathondata/"
@@ -106,6 +106,61 @@ def fix_url(value):
     return "https://" + value
 
 
+_MONTHS_DE = {
+    "Januar": 1, "Februar": 2, "März": 3, "April": 4, "Mai": 5, "Juni": 6,
+    "Juli": 7, "August": 8, "September": 9, "Oktober": 10, "November": 11,
+    "Dezember": 12,
+}
+_DT_RE = re.compile(r"(\d{1,2})\.\s*([A-Za-zÄÖÜäöüß]+)\s*(\d{4})\s+(\d{1,2}):(\d{2})")
+_TIME_ONLY_RE = re.compile(r"(\d{1,2}):(\d{2})")
+# The export labels all times "(MESZ)" = CEST; a fixed offset matches that.
+CEST = timezone(timedelta(hours=2), "CEST")
+
+
+def parse_event_datetime(time_text):
+    """(start, end) datetimes from a calendar 'Time' display string.
+
+    The 'Time' string is the ONLY place the export carries a full event date
+    ('Start Time'/'End Time' are bare HH:MM, 'Weekday' is a label). Formats:
+
+        '9. September 2026 15:15 (MESZ) → 16:15'                       same day
+        '8. September 2026 16:00 (MESZ) → 12. September 2026 18:00 (MESZ)'
+
+    Returns (None, None) if unparseable, (start, None) if the end is missing.
+    Datetimes are timezone-aware with a fixed +02:00 (CEST/MESZ) offset.
+    """
+    if not time_text:
+        return None, None
+
+    def to_dt(match):
+        day, month_name, year, hh, mm = match.groups()
+        month = _MONTHS_DE.get(month_name)
+        if not month:
+            return None
+        try:
+            return datetime(int(year), month, int(day), int(hh), int(mm), tzinfo=CEST)
+        except ValueError:
+            return None
+
+    left, _, right = time_text.partition("→")
+    m = _DT_RE.search(left)
+    start = to_dt(m) if m else None
+    if start is None:
+        return None, None
+
+    end = None
+    m = _DT_RE.search(right)
+    if m:
+        end = to_dt(m)
+    else:
+        m = _TIME_ONLY_RE.search(right)
+        if m:
+            end = start.replace(hour=int(m.group(1)), minute=int(m.group(2)))
+            if end < start:  # crosses midnight
+                end += timedelta(days=1)
+    return start, end
+
+
 def is_test_content(project):
     """True for test/internal projects that should not appear in user-facing apps."""
     name = project.get("Name EN")
@@ -120,6 +175,11 @@ def event_rows(data, indexes=None):
     Uses the authoritative direction calendar → project. Venue comes from the
     calendar rollup when it resolves, else from the project. Slots whose
     project is missing or test content are skipped.
+
+    'start_dt'/'end_dt' are the parsed full datetimes (see
+    parse_event_datetime; None when the 'Time' string is missing).
+    'lat'/'lon' are parsed floats from the first location with a complete
+    coordinate pair (both None otherwise).
     """
     idx = indexes or build_indexes(data)
     rows = []
@@ -132,9 +192,22 @@ def event_rows(data, indexes=None):
         if project is None or is_test_content(project):
             continue
         loc_keys = links(slot, "Linked Location") or links(project, "Linked Location")
+        locations = [idx["locations"][k] for k in loc_keys if k in idx["locations"]]
+        start_dt, end_dt = parse_event_datetime(slot.get("Time"))
+        lat = lon = None
+        for loc in locations:
+            lat = parse_coord(loc.get("Latitude"))
+            lon = parse_coord(loc.get("Longitude"))
+            if lat is not None and lon is not None:
+                break
+            lat = lon = None
         rows.append({
             "project": project,
-            "locations": [idx["locations"][k] for k in loc_keys if k in idx["locations"]],
+            "locations": locations,
+            "start_dt": start_dt,
+            "end_dt": end_dt,
+            "lat": lat,
+            "lon": lon,
             "weekday": slot.get("Weekday"),
             "start": slot.get("Start Time"),
             "end": slot.get("End Time"),
@@ -313,7 +386,12 @@ def summary(data):
                  f"{rate([(r, 'Linked Projects') for r in data.get('contacts', [])], 'projects')}")
     test = sum(1 for p in data.get("projects", []) if is_test_content(p))
     lines.append(f"test/internal projects (filtered by is_test_content): {test}")
-    lines.append(f"joined event rows (event_rows): {len(event_rows(data, idx))}")
+    rows = event_rows(data, idx)
+    timed = sum(1 for r in rows if r["start_dt"] is not None)
+    geo = sum(1 for r in rows if r["lat"] is not None)
+    lines.append(f"joined event rows (event_rows): {len(rows)}")
+    lines.append(f"  with parsed datetime (start_dt): {timed}/{len(rows)}")
+    lines.append(f"  with coordinates (lat/lon): {geo}/{len(rows)}")
     return "\n".join(lines)
 
 
