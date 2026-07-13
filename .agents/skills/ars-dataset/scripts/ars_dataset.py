@@ -24,6 +24,7 @@ import re
 import sys
 import urllib.request
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
 DATASET_URL = "https://ars.electronica.art/negotiatinghumanity/hackathondata/"
@@ -149,58 +150,106 @@ def event_rows(data, indexes=None):
 
 # ------------------------------------------------------------ schema check
 
-def _check_value(prop, value, defs):
-    """True if value satisfies this schema fragment (subset used by schema.json)."""
+def _is_datetime(value):
+    """True for an RFC 3339-style timestamp accepted by JSON Schema."""
+    if not isinstance(value, str):
+        return False
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return "T" in value and parsed.tzinfo is not None
+
+
+def _schema_violations(prop, value, defs, path=()):
+    """Yield (path, kind) violations for the schema subset used here."""
     if "$ref" in prop:
-        return _check_value(defs[prop["$ref"].rsplit("/", 1)[-1]], value, defs)
+        target = defs[prop["$ref"].rsplit("/", 1)[-1]]
+        yield from _schema_violations(target, value, defs, path)
+        return
+
     if "oneOf" in prop:
-        return any(_check_value(branch, value, defs) for branch in prop["oneOf"])
-    if "enum" in prop:
-        return value in prop["enum"]
-    t = prop.get("type")
-    if t == "null":
-        return value is None
-    if t == "string":
-        return isinstance(value, str)
-    if t == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if t == "array":
-        return isinstance(value, list) and all(
-            _check_value(prop.get("items", {}), v, defs) for v in value)
-    if t == "object":
-        return isinstance(value, dict)
-    return True  # no constraint we understand -> accept
+        matching = [
+            branch for branch in prop["oneOf"]
+            if not list(_schema_violations(branch, value, defs, path))
+        ]
+        if len(matching) != 1:
+            yield path, "invalid value"
+        return
+
+    if "enum" in prop and value not in prop["enum"]:
+        yield path, "invalid value"
+        return
+
+    expected = prop.get("type")
+    valid_type = {
+        "null": value is None,
+        "string": isinstance(value, str),
+        "integer": isinstance(value, int) and not isinstance(value, bool),
+        "array": isinstance(value, list),
+        "object": isinstance(value, dict),
+    }.get(expected, True)
+    if not valid_type:
+        yield path, "invalid value"
+        return
+
+    if expected == "string" and prop.get("format") == "date-time":
+        if not _is_datetime(value):
+            yield path, "invalid value"
+        return
+
+    if expected == "array":
+        item_schema = prop.get("items", {})
+        for index, item in enumerate(value):
+            yield from _schema_violations(item_schema, item, defs, path + (index,))
+        return
+
+    if expected == "object":
+        properties = prop.get("properties", {})
+        for field in prop.get("required", []):
+            if field not in value:
+                yield path + (field,), "missing required field"
+        additional = prop.get("additionalProperties", {})
+        for field, item in value.items():
+            if field in properties:
+                yield from _schema_violations(
+                    properties[field], item, defs, path + (field,))
+            elif additional is False:
+                yield path + (field,), "unknown field"
+            elif isinstance(additional, dict):
+                yield from _schema_violations(
+                    additional, item, defs, path + (field,))
+
+
+def _violation_key(path, kind):
+    """Map a schema path to the public aggregated violation key."""
+    if not path:
+        return "<root>", "<root>", kind
+    if path[0] in DATABASES:
+        if len(path) == 1:
+            return "<root>", path[0], kind
+        field = path[2] if len(path) > 2 else "<record>"
+        return path[0], str(field), kind
+    if path[0] == "_meta":
+        if len(path) == 1:
+            return "<root>", "_meta", kind
+        return "_meta", ".".join(map(str, path[1:])), kind
+    return "<root>", str(path[0]), kind
 
 
 def verify(data, schema):
-    """Validate all records against the schema; return Counter of violations.
+    """Validate an export against the schema; return Counter of violations.
 
     Keys are (database, field, kind) where kind is 'unknown field',
     'missing required field', or 'invalid value'.
     """
     defs = schema.get("$defs", {})
     violations = Counter()
-    for db in DATABASES:
-        items = schema["properties"][db]["items"]
-        record_schema = defs[items["$ref"].rsplit("/", 1)[-1]] if "$ref" in items else items
-        props = record_schema.get("properties", {})
-        required = record_schema.get("required", [])
-        strict = record_schema.get("additionalProperties") is False
-        for rec in data.get(db, []):
-            for field in rec:
-                if field == "_key":
-                    continue  # added by build_indexes, not part of the export
-                if field not in props:
-                    if strict:
-                        violations[(db, field, "unknown field")] += 1
-                elif not _check_value(props[field], rec[field], defs):
-                    violations[(db, field, "invalid value")] += 1
-            for field in required:
-                if field not in rec:
-                    violations[(db, field, "missing required field")] += 1
-    for key in schema.get("required", []):
-        if key not in data:
-            violations[("<root>", key, "missing required field")] += 1
+    for path, kind in _schema_violations(schema, data, defs):
+        # build_indexes adds this internal field; it is not export drift.
+        if len(path) > 2 and path[0] in DATABASES and path[2] == "_key":
+            continue
+        violations[_violation_key(path, kind)] += 1
     return violations
 
 

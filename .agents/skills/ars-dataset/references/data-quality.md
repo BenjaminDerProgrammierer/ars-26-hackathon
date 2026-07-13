@@ -16,7 +16,7 @@ verified otherwise). These issues have been reported to the data provider
 258 of 258. Same pattern for every relation touching projects/contacts.
 
 **Workaround:** normalize every id to its trailing 32-hex-char hash before
-joining (`id.split('-')[-1]`, or regex `[0-9a-f]{32}$`). `scripts/load_dataset.py`
+joining (`id.split('-')[-1]`, or regex `[0-9a-f]{32}$`). `scripts/ars_dataset.py`
 does this (`_key` field).
 
 ## 2. Locations: missing and duplicate ids
