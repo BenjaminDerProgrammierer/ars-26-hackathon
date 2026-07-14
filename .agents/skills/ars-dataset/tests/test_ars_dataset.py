@@ -1,5 +1,6 @@
 import importlib.util
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 
@@ -30,6 +31,66 @@ def valid_export():
         "locations": [],
         "calendar": [],
     }
+
+
+class ParseEventDatetimeTests(unittest.TestCase):
+    def test_same_day_range(self):
+        start, end = ars_dataset.parse_event_datetime(
+            "9. September 2026 15:15 (MESZ) → 16:15")
+
+        self.assertEqual(
+            start, datetime(2026, 9, 9, 15, 15, tzinfo=ars_dataset.CEST))
+        self.assertEqual(
+            end, datetime(2026, 9, 9, 16, 15, tzinfo=ars_dataset.CEST))
+
+    def test_full_date_range(self):
+        start, end = ars_dataset.parse_event_datetime(
+            "8. September 2026 16:00 (MESZ) → "
+            "12. September 2026 18:00 (MESZ)")
+
+        self.assertEqual(
+            start, datetime(2026, 9, 8, 16, 0, tzinfo=ars_dataset.CEST))
+        self.assertEqual(
+            end, datetime(2026, 9, 12, 18, 0, tzinfo=ars_dataset.CEST))
+
+    def test_time_only_end_crosses_midnight(self):
+        start, end = ars_dataset.parse_event_datetime(
+            "9. September 2026 23:30 (MESZ) → 01:15")
+
+        self.assertEqual(
+            start, datetime(2026, 9, 9, 23, 30, tzinfo=ars_dataset.CEST))
+        self.assertEqual(
+            end, datetime(2026, 9, 10, 1, 15, tzinfo=ars_dataset.CEST))
+
+    def test_missing_or_garbage_input_is_unparseable(self):
+        for value in (None, "", "not a festival time"):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    ars_dataset.parse_event_datetime(value), (None, None))
+
+    def test_invalid_start_time_is_unparseable(self):
+        self.assertEqual(
+            ars_dataset.parse_event_datetime(
+                "9. September 2026 99:99 (MESZ) → 16:15"),
+            (None, None),
+        )
+
+    def test_invalid_full_date_end_returns_start_only(self):
+        start, end = ars_dataset.parse_event_datetime(
+            "9. September 2026 15:15 (MESZ) → "
+            "10. September 2026 99:99 (MESZ)")
+
+        self.assertEqual(
+            start, datetime(2026, 9, 9, 15, 15, tzinfo=ars_dataset.CEST))
+        self.assertIsNone(end)
+
+    def test_invalid_time_only_end_returns_start_only(self):
+        start, end = ars_dataset.parse_event_datetime(
+            "9. September 2026 15:15 (MESZ) → 99:99")
+
+        self.assertEqual(
+            start, datetime(2026, 9, 9, 15, 15, tzinfo=ars_dataset.CEST))
+        self.assertIsNone(end)
 
 
 class VerifyTests(unittest.TestCase):

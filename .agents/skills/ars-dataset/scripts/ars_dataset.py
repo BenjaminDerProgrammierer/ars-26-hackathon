@@ -155,8 +155,11 @@ def parse_event_datetime(time_text):
     else:
         m = _TIME_ONLY_RE.search(right)
         if m:
-            end = start.replace(hour=int(m.group(1)), minute=int(m.group(2)))
-            if end < start:  # crosses midnight
+            try:
+                end = start.replace(hour=int(m.group(1)), minute=int(m.group(2)))
+            except ValueError:
+                end = None
+            if end is not None and end < start:  # crosses midnight
                 end += timedelta(days=1)
     return start, end
 
