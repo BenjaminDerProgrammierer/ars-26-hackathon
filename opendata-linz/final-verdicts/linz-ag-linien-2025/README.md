@@ -74,6 +74,11 @@ order. Validate the resulting extent around roughly 48.21–48.35 N and
 - The static IDs may not be identical to EFA API IDs. Create an explicit
   crosswalk; do not join them solely because both look numeric.
 
+The data provider explicitly asked the hackathon team to approach LINZ AG
+directly for additional LINZ AG-controlled data. This does not change the scope
+of the published 2025 layer and should not be read as a promise that timetable or
+realtime data will be supplied.
+
 ## Using it with the Ars Electronica dataset
 
 ### Join strategy
@@ -111,6 +116,9 @@ reviewed static-ID-to-EFA-ID crosswalk.
    geometry types and a sample of known stops.
 5. Precompute venue-to-stop candidates, manually review major festival zones and
    publish provenance, edition date, license and LINZ AG terms.
+6. Ask LINZ AG for current GTFS or NeTEx, realtime/service-status data, stable
+   stop-ID crosswalks, and permission/terms suitable for hackathon redistribution.
+   Keep the static-only fallback if that request is declined or arrives too late.
 
 ## Decision rationale
 

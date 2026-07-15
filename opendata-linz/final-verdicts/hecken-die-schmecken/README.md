@@ -69,6 +69,8 @@ After manual geocoding, compare verified hedge points with cleaned Ars venue coo
 2. Parse as UTF-8 CSV, trim text, preserve German labels, and create a deterministic local row key.
 3. Geocode `Standort` with `Beschreibung`, then manually verify every point and record confidence and provenance.
 4. Package a small WGS84 GeoJSON/CSV snapshot with `source_vintage=2022`, `geometry_source=derived`, and a visible safety disclaimer.
+5. Use the provider's invitation for data requests to ask whether a newer,
+   geocoded inventory exists. Do not delay the core bundle if it does not.
 
 ## Decision rationale
 

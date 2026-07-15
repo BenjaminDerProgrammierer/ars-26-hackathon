@@ -2,7 +2,8 @@
 
 > **Final verdict: OPTIONAL SHOWCASE SOURCE.** Offer only preselected, web-ready
 > venue tiles to teams that explicitly want aerial-image or time-travel work. Do
-> not distribute a complete raw vintage as the default.
+> not distribute a complete raw vintage as the default. Inclusion is conditional
+> on an organizer decision to prepare those tiles before the hackathon.
 
 ## At a glance
 
@@ -91,6 +92,8 @@ vintages use the same visible extent and pixel alignment.
 - Aerial then-and-now sliders, especially 1988 versus 2019.
 - Venue-area change stories or image backdrops for selected festival zones.
 - A prepared visual showcase comparing orthophotos with historical city plans.
+- AI-assisted visual classification or change detection on a bounded, prepared
+  training/evaluation area, with human validation of published inferences.
 
 ### Do not use it for
 
@@ -112,6 +115,18 @@ vintages use the same visible extent and pixel alignment.
 5. Publish a manifest with capture year, flight/source notes, tile IDs, processing
    parameters, retrieval date, license and attribution.
 
+If the organizer does not commit to steps 1–5 before the event, do not advertise
+orthophoto image recognition as a ready-to-use dataset track. Teams should not be
+expected to turn the roughly 11.8 GB 2019 source into web tiles during the event.
+
+## Related image-source request
+
+The data provider suggested that the Tabakfabrik, museums, and other Linz
+institutions may have image archives they could make available for AI-recognition
+experiments. Treat this as a separate discovery and rights-clearance task, not as
+part of the orthophoto license. Ask for a curated sample, machine-readable
+metadata, permitted AI uses, attribution rules, and publication constraints.
+
 ## Decision rationale
 
 Rainer found the time-travel concept visually compelling but the delivery heavy
@@ -119,6 +134,10 @@ and projection-specific. The approximately 11.8 GB 2019 scale confirms that raw
 distribution is unsuitable for most teams. A small organizer-prepared set can be
 excellent, so the final decision remains an optional showcase rather than
 exclusion.
+
+The 2026-07-15 stakeholder follow-up leaves preparation explicitly **TBD**. The
+dataset remains optional unless and until the organizer commits to the web-tile
+work.
 
 ## Sources
 

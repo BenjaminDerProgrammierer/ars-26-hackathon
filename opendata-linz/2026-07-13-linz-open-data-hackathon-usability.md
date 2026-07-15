@@ -1,7 +1,7 @@
 # Linz Open Data usability for the Ars Electronica Hackathon
 
 **Date:** 2026-07-13
-**Status:** Consolidated recommendation
+**Status:** Consolidated recommendation, updated after publisher fixes on 2026-07-15
 **Scope:** All 820 Stadt Linz catalog records, 25 hands-on dataset reviews, and the
 live Ars Electronica Festival 2026 export
 
@@ -23,7 +23,9 @@ depth for useful apps and enough visual character for Ars Electronica projects.
 
 The practical constraint is data preparation. Several otherwise strong datasets
 use GML, Shapefile, CityGML, GeoTIFF, ISO-8859-1, German comma decimals, or
-EPSG:31255. Live APIs have availability and schema quirks. A small organizer-made
+EPSG:31255. Live APIs have availability and schema quirks. Several catalog defects
+found in the original review were repaired on 2026-07-15; see the
+[affected final verdicts](final-verdicts/README.md). A small organizer-made
 normalization layer will save teams from spending the event on GIS and encoding
 work.
 
@@ -150,10 +152,11 @@ These layers support nearest accessible toilet, Eurokey/changing-table filters,
 hydration stops, accessible parking, and family breaks. They complement the
 festival's venue, schedule, and visitor-information fields.
 
-Preparation: publish one normalized WGS84 GeoJSON/CSV bundle. WC coordinates are
-EPSG:31255; accessible parking is Shapefile in a projected CRS; fountain metadata
-mislabels projected coordinates as WGS84; playground CSV is Latin-1 but already
-contains WGS84 WKT.
+Preparation: publish one normalized WGS84 GeoJSON/CSV bundle. WC and fountain
+coordinates are EPSG:31255; accessible parking is Shapefile in a projected CRS;
+playground CSV is Latin-1 but already contains WGS84 WKT. The fountain catalog's
+former WGS84 error was corrected on 2026-07-15, but its axis convention should
+still be validated during conversion.
 
 Freshness is 2022-2024 and opening hours are free text. Present the result as a
 prototype directory, not an authoritative accessibility guarantee.
@@ -165,8 +168,9 @@ prototype directory, not an authoritative accessibility guarantee.
 Use [air-quality and meteorological measurements](https://www.data.gv.at/katalog/datasets/c312a9a9-fdbc-47e8-9da1-ad3be82dfbd6).
 
 The rolling JSON data can add air, temperature, wind, and rain context to outdoor
-events. Five catalog station URLs returned HTTP 200 on 2026-07-13 (`S184`, `S425`,
-`S415`, `S416`, `S431`); four returned HTTP 400 (`L001`, `L002`, `L003`, `C001`).
+events. A fresh 2026-07-15 check returned HTTP 200 for `S184`, `S425`, `S415`,
+`S416`, and `S431`. `L001`, `L002`, `L003`, and `C001` returned HTTP 400 with a
+message that no measurements existed in the requested rolling 24-hour period.
 
 Preparation: publish station coordinates separately, parse epoch milliseconds and
 German comma-decimal values, monitor each endpoint, and cache the last successful
@@ -215,19 +219,20 @@ venue anchors. Source imagery is from 2019-2021 and stated accuracy is about +/-
 |---|---|---|
 | Orthophotos 1988-2021 | Prepared showcase only | Roughly 11.8 GB for the 2019 vintage; TIFF/GK reprojection and web tiling required. |
 | Defibrillators | Prototype-only supporting layer | Clean WGS84 data, but 2022 safety-critical locations must not be presented as current emergency guidance. |
-| Parking-ticket machines | Secondary utility | 2023 Shapefile, missing CRS declaration, and limited thematic value. Address geocoding is safer than raw coordinates. |
+| Parking-ticket machines | Do not prepare by default | The missing `.prj` was added and declares EPSG:31255, but the static layer still has limited thematic value. |
 | Short-term parking zones | Secondary utility | Valid but projected Shapefile-only data from 2022. |
 | Digital city map TMS/WMTS | Do not prepare | Non-standard 2016 GIF tile scheme adds no attributes; basemap.at/OSM is simpler. |
 | Hecken die Schmecken | Optional garnish | 26 named locations, no coordinates, 2022 vintage, and uncertain plant details. |
 | Linztermine tags | Helper only | Useful crosswalk of about 30 German terms, not a standalone dataset. |
+| Hundezonen | Optional prepared layer | Public access is repaired and the `.prj` declares EPSG:31255; use only as a dated prototype, not current legal guidance. |
+| Baulandreserven 2022 | Optional prepared layer | The incorrect 2012 links were replaced by a complete 2022 EPSG:31255 Shapefile; land availability remains time-sensitive. |
 
 ## Exclude from the hackathon bundle
 
 | Dataset | Reason |
 |---|---|
 | Beherbergungsbetriebe | Misleading title for this use: city-wide monthly totals, not hotel names or locations. |
-| Hundezonen | All published resources point to an internal `file://` share and are not publicly downloadable. |
-| 2023 playground Shapefile | Equipment-level resources also point to internal file paths; use the working playground/sports CSV instead. |
+| Altstoffsammelstellen and Altstoffsammelzentren | Both advertised CSVs redirect to Linz AG login. The publisher plans to retire the catalog records rather than restore open access. |
 | Most municipal budget/account records | 513 of 820 catalog entries are narrow annual budget/account tables. They overwhelm discovery and require schema normalization without a strong festival join. |
 
 ## Organizer preparation checklist
@@ -238,8 +243,8 @@ venue anchors. Source imagery is from 2019-2021 and stated accuracy is about +/-
    `linz-visitor-services.geojson` snapshots with source URLs and retrieval dates.
 3. Provide a coordinate helper for EPSG:31255 to EPSG:4326 and examples for comma
    decimals, WKT, and axis order.
-4. Provide an EFA example/proxy and cached fallback; health-check the five working
-   air endpoints immediately before the event.
+4. Provide an EFA example/proxy and cached fallback; health-check all nine air
+   endpoints immediately before the event and expose station-level failures.
 5. Pre-tile a small historical-map area and preconvert selected CityGML tiles for
    an optional visual track.
 6. Put `source_updated`, `retrieved_at`, `license`, `attribution`, and

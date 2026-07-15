@@ -62,6 +62,9 @@ Extract the street component from cleaned Ars venue addresses. Normalize Unicode
 - Hidden-history, renaming, or commemorative-name walks.
 - Audio/AR narratives using `Beschreibung` and reviewed Wikidata enrichment.
 - Analysis of namesake professions or gender, with completeness caveats.
+- A Linked Data interface inspired by
+  [Mapping Diversity](https://mappingdiversity.eu/), using the existing Wikidata
+  IDs as entity links while retaining the Linz narratives and provenance.
 
 ### Do not use it for
 
@@ -81,10 +84,15 @@ Extract the street component from cleaned Ars venue addresses. Normalize Unicode
 
 The final decision remains **USE** because the files are compact, technically simple, unusually rich in narrative content, and join directly to a field the Ars venue data already carries: address. Rainer's 2026-07-13 review rated them “Recommended.” The lack of geometry limits mapping but does not block venue-based storytelling; it simply makes external street geometry a separate, transparent dependency.
 
+The 2026-07-15 stakeholder follow-up confirmed that the Wikidata links were
+already part of the review and added Mapping Diversity as the concrete product
+reference. This strengthens the use case without changing the technical verdict.
+
 ## Sources
 
 - [Official data.gv.at catalog](https://www.data.gv.at/katalog/datasets/807645f0-2e80-4e24-b142-3673b108dde6)
 - [Official current-streets CSV](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-aktuell.csv)
 - [Official historical-streets CSV](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-historisch.csv)
+- [Mapping Diversity](https://mappingdiversity.eu/) (product and Linked Data reference)
 - [Hands-on source review](../../2026-07-13-reviews-rainer/strassennamen.md) (observations dated 2026-07-13)
 - [Consolidated usability report](../../2026-07-13-linz-open-data-hackathon-usability.md) (portfolio decision dated 2026-07-13)
