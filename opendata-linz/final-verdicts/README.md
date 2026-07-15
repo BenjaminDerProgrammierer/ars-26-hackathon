@@ -63,14 +63,3 @@ and a `prototype_only` flag where relevant.
 
 See the [consolidated usability report](../2026-07-13-linz-open-data-hackathon-usability.md)
 for the cross-dataset analysis.
-
-## Maintaining these pages
-
-Use the repository's [Linz dataset documentation skill](../skills/opendata-linz-docs/)
-for future source checks and README updates. It includes the required page
-template, a per-dataset context builder, and a consistency audit:
-
-```bash
-python opendata-linz/skills/opendata-linz-docs/scripts/prepare_context.py <dataset-slug>
-python opendata-linz/skills/opendata-linz-docs/scripts/audit_docs.py [dataset-slug ...]
-```

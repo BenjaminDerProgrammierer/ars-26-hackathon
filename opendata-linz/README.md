@@ -11,5 +11,3 @@ Supporting material:
 - [Rainer's hands-on source reviews](2026-07-13-reviews-rainer/)
 - [Benjamin's full 820-record catalog review](2026-07-13-reviews-benjamin/)
 - [Superseded title/description candidate pass](2026-07-13-linz-datasets-candidates.md)
-- [Reusable documentation skill](skills/opendata-linz-docs/) for researching,
-  updating, and auditing the final dataset pages
