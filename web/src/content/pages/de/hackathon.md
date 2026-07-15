@@ -1,6 +1,6 @@
 ---
 title: "Über den Hackathon"
-intro: "Drei Tage Bauen mit Festivaldaten, Stadtdaten und AI Coding Agents — mitten im Ars Electronica Festival 2026."
+intro: "Zwei Tage Bauen mit Festivaldaten, offenen Daten der Stadt Linz und AI Coding Agents — mitten im Ars Electronica Festival 2026."
 ---
 
 Der AI Hackathon ist ein offizielles Sub-Event des Ars Electronica Festival
@@ -8,4 +8,14 @@ Der AI Hackathon ist ein offizielles Sub-Event des Ars Electronica Festival
 Teams von zwei bis fünf Personen bauen Prototypen, die den Programmdatensatz
 des Festivals mit offenen Daten der Stadt Linz verbinden.
 
-*Die vollständige deutsche Fassung folgt in Kürze.*
+## Die Aufgabenstellung
+
+**Wie können wir Linz und das Festival neu erleben?**
+
+Entwickelt beim zweitägigen KI-Hackathon kreative digitale Projekte mit
+Festivaldaten und offenen Daten der Stadt Linz.
+
+Mithilfe von KI-Tools und begleitet von Mentor\*innen macht ihr aus euren Ideen
+konkrete Projekte: smarte Guides, interaktive Karten, Storytelling-Tools,
+künstlerische Arbeiten oder ganz neue Ansätze. Gesucht sind Projekte, die Linz
+und das Festival anders erlebbar machen.
