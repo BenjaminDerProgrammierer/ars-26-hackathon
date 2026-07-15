@@ -5,6 +5,14 @@ These are the authoritative dataset decisions for the Ars Electronica Festival
 decision after the full 820-record catalog review, live endpoint checks, festival
 export analysis, and GitHub defect handoff.
 
+Each dataset page now also documents the recommended distribution, observed
+schema and identifiers, access/format details, quality limits, Ars join strategy,
+preparation recipe, decision rationale, and source provenance. Current catalog
+evidence was reviewed on 2026-07-15. Where publisher hosts could not be reached
+from the execution environment, file- and endpoint-level claims remain explicitly
+dated to the successful 2026-07-13 source audit rather than being presented as a
+fresh live check.
+
 ## Decision meanings
 
 | Decision | Meaning |
