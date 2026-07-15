@@ -15,7 +15,7 @@
 | License | Creative Commons Attribution 4.0 according to the catalog |
 | Coverage | Air pollutants and meteorological components at nine named stations in/around Linz; components vary by station |
 | Data vintage | Rolling last 24 hours, not an archive; catalog modification dates are not the measurement timestamps |
-| Last verified | 2026-07-15: catalog and local evidence reviewed; endpoint health below was observed on 2026-07-13 and was not rechecked on 2026-07-15 because the Land OÖ host could not be resolved |
+| Last verified | 2026-07-15: all nine live station URLs rechecked; issue #6 remains open and was forwarded by the data provider to the responsible colleague |
 
 ## What the dataset contains
 
@@ -26,9 +26,9 @@ payloads. The set is mixed: depending on the station it can include pollutants,
 particulate matter, temperature, wind, rain and other meteorological components.
 Do not assume every station measures every component.
 
-The complete 2026-07-13 endpoint check showed a meaningful partial failure:
+The complete 2026-07-15 endpoint check showed the same partial failure:
 
-| Station code | Station name | Dated endpoint result |
+| Station code | Station name | Live endpoint result |
 |---|---|---|
 | `S184` | Stadtpark | HTTP 200 |
 | `S425` | Freinberg-Sender | HTTP 200 |
@@ -40,9 +40,10 @@ The complete 2026-07-13 endpoint check showed a meaningful partial failure:
 | `L003` | Sternwarte | HTTP 400 |
 | `C001` | Chemiepark | HTTP 400 |
 
-These status codes describe that check only. They do not prove permanent success
-or failure, and the organizer should not hide a working station merely because a
-different distribution fails.
+The four HTTP 400 payloads explicitly said that no measurements were available
+for the requested rolling 24-hour period. These statuses describe this check
+only; they do not prove permanent failure, and the organizer should not hide a
+working station merely because another distribution has no current values.
 
 ### Key fields and identifiers
 
@@ -73,9 +74,10 @@ reliable way to retain a festival-period history.
 
 ## Data quality and limitations
 
-- Four of nine catalog URLs returned HTTP 400 on 2026-07-13. This is a publisher
+- Four of nine catalog URLs returned HTTP 400 on 2026-07-15. This is a publisher
   defect or catalog/service mismatch under investigation in [issue #6](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/6),
-  not something documentation can repair.
+  not something documentation can repair. The provider escalation is not a
+  confirmed fix, so the fallback remains mandatory.
 - Station coordinates are absent from the measurement payload. Names alone are
   not a safe spatial join; publish a reviewed code-to-coordinate registry.
 - Component coverage and units vary. Never compare values across components or
@@ -122,6 +124,8 @@ be joined to measurements before they occur.
    during the festival; expose staleness and partial failures to clients.
 5. Publish a small proxy schema with `retrieved_at`, `observed_at`, station,
    component, value, unit, health state, license and attribution.
+6. Recheck issue #6 and all nine endpoints shortly before the event, but do not
+   remove the cache/fallback merely because one spot check succeeds.
 
 ## Decision rationale
 
