@@ -23,13 +23,17 @@ the festival differently.
 
 ## What you get
 
-- The complete festival dataset: ~546 projects, ~240 artists and
-  institutions, ~111 venues, and ~178 scheduled time slots — exported
-  directly from the festival's content system.
-- A curated selection of City of Linz open data: events, public transit,
-  air quality, trees, historical maps, and more.
-- Access to hosted AI coding agents so every team can build fast,
-  regardless of setup.
+- The current festival export: 546 project records, 240 contacts, 111 location
+  records, and 178 calendar rows — exported directly from the festival's
+  content system and accompanied by cleaning guidance.
+- A curated selection of City of Linz open data: events, trees, mobility,
+  visitor services, environmental readings, historical maps, and more. Sources
+  that need conversion or caching will be prepared centrally.
+- An optional development environment hosted in Austria that opens in your
+  browser, with the festival resources and pi.dev already set up.
+- Optional OpenRouter access to Mistral Medium 3.5 with a $20 budget per
+  attendee. This add-on is required if you choose the hosted environment.
+- The freedom to use other models through your own, self-funded accounts.
 - Mentoring from festival staff, city data specialists, and AI engineers.
 
 ## Who can take part

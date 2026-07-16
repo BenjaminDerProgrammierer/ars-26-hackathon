@@ -22,7 +22,7 @@ export const ui = {
     "nav.about": "About",
     "nav.tutorials": "Tutorials",
     "nav.datasets": "Datasets",
-    "nav.agents": "Coding Agents",
+    "nav.agents": "Development & AI",
     "nav.login": "Login",
     "nav.local.label": "Hackathon navigation",
 
@@ -36,7 +36,7 @@ export const ui = {
 
     "login.title": "Login / Create account",
     "login.intro":
-      "Attendee accounts unlock dataset downloads, coding-agent access, and your personal hackathon schedule. This page is a placeholder — no real account is created.",
+      "When registration opens, you can choose optional OpenRouter access or an Austrian-hosted development workspace, which requires the AI add-on. This page is a placeholder — no real account is created.",
     "login.tab.signin": "Sign in",
     "login.tab.register": "Create account",
     "login.name": "Full name",
@@ -68,7 +68,7 @@ export const ui = {
     "nav.about": "Über",
     "nav.tutorials": "Tutorials",
     "nav.datasets": "Datensätze",
-    "nav.agents": "Coding Agents",
+    "nav.agents": "Entwicklung & KI",
     "nav.login": "Login",
     "nav.local.label": "Hackathon-Navigation",
 
@@ -82,7 +82,7 @@ export const ui = {
 
     "login.title": "Login / Konto erstellen",
     "login.intro":
-      "Teilnehmer:innen-Konten bieten Zugang zu Dataset-Downloads, Coding Agents und dem persönlichen Hackathon-Programm. Diese Seite ist ein Platzhalter — es wird kein echtes Konto angelegt.",
+      "Sobald die Anmeldung öffnet, könnt ihr optional einen OpenRouter-Zugang oder eine in Österreich gehostete Entwicklungsumgebung wählen, für die das KI-Add-on erforderlich ist. Diese Seite ist ein Platzhalter — es wird kein echtes Konto angelegt.",
     "login.tab.signin": "Anmelden",
     "login.tab.register": "Konto erstellen",
     "login.name": "Vollständiger Name",

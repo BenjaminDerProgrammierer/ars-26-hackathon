@@ -1,34 +1,52 @@
 ---
-title: "Coding Agents"
-intro: "Every team gets access to hosted AI coding agents — no local setup, no API keys, no excuses."
+title: "Development Workspaces & AI"
+intro: "Choose the optional tools you need at signup: a complete development environment hosted in Austria and $20 of OpenRouter access."
 ---
 
-For the duration of the hackathon we provide each registered team with access
-to AI coding agents running in a managed environment. You describe what you
-want to build; the agent scaffolds, codes, debugs, and iterates with you.
+You are welcome to bring your own laptop and development setup. If you would
+rather start with everything ready, choose our hosted development environment
+and AI add-ons when you sign up for the hackathon.
 
-## What is provided
+## Hosted development environment
 
-- A hosted workspace per team, preloaded with the festival dataset and the
-  recommended Linz open data sources.
-- Terminal-based and browser-based coding agents, ready to use with your
-  team account.
-- Usage quotas for the hackathon weekend that support iterative prototyping.
-- Example prompts and starter repositories, maintained by the mentoring
-  team.
+This is a complete coding environment that opens in your web browser. You can
+edit files, run terminal commands, install packages, and preview your app
+without first installing development tools on your own computer. It is hosted
+in Austria and comes with the festival resources and [pi.dev](https://pi.dev)
+preinstalled as an AI coding assistant.
+
+The environment is optional and must be selected during signup. Because its
+preinstalled assistant needs a model, choosing the hosted environment also
+requires the AI API add-on described below.
+
+## AI API access
+
+The optional AI add-on provides an OpenRouter API key with access to **Mistral
+Medium 3.5** and a **$20 usage budget per attendee**. You can use it in the
+hosted environment or connect it to compatible tools in your own setup. You
+may select AI access without the hosted environment; the reverse is not
+possible.
+
+Prefer another model or provider? You are welcome to use your own model access
+and pay for that usage yourself. The hackathon's $20 budget applies only to the
+provided Mistral Medium 3.5 access.
 
 ## How to get access
 
-1. Register as an attendee and form or join a team.
-2. Sign in with your attendee account — your workspace is provisioned
-   automatically. See the login page once registration opens.
-3. Open the workspace link from your team dashboard and start building.
+1. During signup, choose no add-on, AI API access only, or the hosted
+   environment with AI API access.
+2. Sign in with your attendee account to find your environment link and API
+   credentials once they are ready.
+3. Open the development environment in your browser or configure the API in
+   your own tools and start building.
 
-## Fair use
+## Use the shared resources deliberately
 
-The agents are shared festival infrastructure. Automated crawling, crypto
-mining, and anything unrelated to your hackathon project will get your
-workspace suspended.
+Start with a plan, work in small verified steps, and avoid repeatedly sending
+large files or conversation histories. Keep API credentials in environment
+variables and out of source control. Automated crawling, crypto mining,
+credential sharing, and activity unrelated to your hackathon project may
+result in access being suspended.
 
-> The concrete agent lineup, quota numbers, and workspace URLs will be
-> published shortly before the event.
+> Environment links, API credentials, and final operating details will be
+> available through the attendee account before the event.
