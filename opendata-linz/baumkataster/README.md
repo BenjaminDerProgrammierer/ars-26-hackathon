@@ -13,17 +13,22 @@
 | License | CC BY 4.0, according to the official catalog and 2026-07-13 source review |
 | Coverage | Trees maintained by the City of Linz; point locations plus botanical and size attributes |
 | Data vintage | The reviewed current file contained `DatumExport=20260701` (1 July 2026) |
-| Last verified | 2026-07-15: official [CSVW metadata](https://data.linz.gv.at/katalog/umwelt/baumkataster/Baumkataster-metadata.json) reached; catalog and CSV contents could not be independently re-fetched in this run. CSV observations below are dated 2026-07-13. |
+| Last verified | 2026-07-16: the rolling CSV downloaded successfully and still contained 27,004 rows, 15 columns, and `DatumExport=20260701` |
 
 ## What the dataset contains
 
-The source review observed approximately 27,004 rows, one per city-maintained tree, on 2026-07-13. Records describe genus, species, cultivar, German common name, height, crown diameter, trunk circumference, tree type, two coordinate representations, a tree number, and an export date. The reviewed points lie in the Linz urban area and overlap the festival's venue extent.
+The 2026-07-16 check observed 27,004 inventory records. Records describe genus,
+species, cultivar, German common name, height, crown diameter, trunk
+circumference, tree type, two coordinate representations, a tree number, and an
+export date. The reviewed points lie in the Linz urban area and overlap the
+festival's venue extent. Record count must not be reported as a verified count
+of unique trees because the source identifiers are not globally unique.
 
 ### Key fields and identifiers
 
 | Field or concept | Meaning and integration relevance |
 |---|---|
-| `BaumNr` | Tree identifier. Treat it as a string and use it as the record key; the live CSVW metadata defines row subjects from this value. |
+| `BaumNr` | Locally reused tree number, not a record key: only 2,024 distinct values occur in 27,004 records. Treat it as a string. The live CSVW metadata defines row subjects from this value despite the collisions. |
 | `Flaeche` | Identifier for the managed area/location associated with the tree. |
 | `Gattung`, `Art`, `Sorte` | Genus, species, and cultivar; useful for botanical filtering and enrichment. |
 | `NameDeutsch` | German common name; retain the source text in user-facing outputs. |
@@ -45,7 +50,10 @@ The reviewed CSV uses `;` as its delimiter and dot decimals for `lon`/`lat`. Par
 
 ## Data quality and limitations
 
-- The current file was accessible and its contents were inspected on 2026-07-13; it was not successfully re-fetched on 2026-07-15. This is an unrechecked dated observation, not a claim that the source is now unavailable.
+- The current file was accessible and its contents were rechecked on 2026-07-16.
+- `BaumNr` is heavily reused. `(Flaeche, BaumNr)` is almost unique but still has
+  two duplicate combinations. `(Flaeche, BaumNr, lon, lat)` was unique in the
+  checked snapshot, but that does not establish stable identity across exports.
 - Catalog modification dates and annual distribution names do not establish the data's true vintage; use `DatumExport` from the acquired file.
 - `Sorte` contains inconsistent missing-value markers, and the CSVW schema does not exactly match the reviewed current header.
 - Tree dimensions describe an inventory, not direct measurements of shade, temperature, accessibility, or pedestrian comfort.
@@ -74,7 +82,10 @@ There is no shared identifier. Use a spatial proximity join: normalize venue coo
 
 1. Download `Baumkataster.csv`, record retrieval time, checksum, source URL, license, and `DatumExport`; retain a snapshot for the event.
 2. Parse as semicolon CSV, trim text fields, normalize cultivar placeholders to null, and parse numeric fields without changing identifiers.
-3. Validate `BaumNr` uniqueness, coordinate ranges, dimension ranges, row count, and the actual header; report any mismatch with the CSVW metadata.
+3. Preserve source fields and generate a snapshot-scoped record key. Validate
+   candidate composites, coordinate ranges, dimension ranges, row count, and
+   the actual header; report identifier collisions and any mismatch with the
+   CSVW metadata. Do not use `BaumNr` alone.
 4. Clean festival venue coordinates, then build indexed WGS84 point data or GeoJSON and precompute venue-radius summaries as needed.
 5. Publish provenance and describe crown-based outputs as estimates rather than observations of shade.
 

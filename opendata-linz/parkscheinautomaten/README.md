@@ -15,27 +15,29 @@
 | Format | ESRI Shapefile point layer; UTF-8 attributes |
 | CRS | MGI / Austria GK Central (EPSG:31255), declared by the added `.prj` |
 | License | CC BY 4.0 |
-| Coverage | 269 parking-ticket-machine records in central Linz |
-| Data vintage | 2023-06-23; a complete 2024 file set is also publicly listed but was not yet verified in catalog metadata |
-| Last verified | 2026-07-15; the new 2023 `.prj` is cataloged, downloads successfully, and declares EPSG:31255 |
+| Coverage | 251 records in the 2024 DBF; the 2023 edition contained 269 |
+| Data vintage | 2024-02-07; the complete 2024 file set supersedes the 2023-06-23 edition |
+| Last verified | 2026-07-16; the 2024 multipart layer and DBF record count were verified in the publisher directory |
 
 ## Contents and technical characteristics
 
 The source fields include machine number (`PSA`), address (`Standort`), parking
 duration zone (`Zone`), notes (`Anmerkung`), projected `X`/`Y`, and `GUID`. The
-publisher's new `.prj` resolves the original ambiguity: the geometry uses
-EPSG:31255 and can be transformed rather than geocoded or guessed.
+publisher's `.prj` resolves the original ambiguity: the geometry uses EPSG:31255
+and can be transformed rather than geocoded or guessed. The 2024 edition retains
+the same DBF record width and exposes 251 records, down from 269 in 2023; the
+reason for the difference is not documented and should not be inferred as a
+simple count of closures.
 
 Issue [#8](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/8)
 reported the missing projection definition. The `.prj` was added to the catalog
-on 2026-07-15. The publisher also exposed a complete 2024 five-file directory;
-use that newer layer only after its metadata, vintage, fields, and license are
-confirmed.
+on 2026-07-15. The publisher also exposed a complete 2024 five-file directory,
+which is now the recommended edition if a team chooses this source.
 
 ## Limitations and use
 
 - A machine point does not establish parking availability, price, current operation, accessibility, or legal restrictions.
-- Machine locations, NFC support, zones, and payment rules may have changed since the snapshot.
+- Machine locations, NFC support, zones, and payment rules may have changed since the 2024 snapshot.
 - The layer is multipart and needs EPSG:31255-to-EPSG:4326 conversion.
 - If used, preserve `PSA`, `Standort`, `Zone`, `Anmerkung`, and `GUID`, validate transformed points against known addresses, and label the source vintage.
 

@@ -15,6 +15,7 @@ The sequence was:
 
 Archived material:
 
+- [2026-07-16 catalog delta and remaining-candidate usability](2026-07-16-catalog-delta-usability.md)
 - [Consolidated usability report](2026-07-13-linz-open-data-hackathon-usability.md)
 - [Rainer's hands-on source reviews](2026-07-13-reviews-rainer/)
 - [Benjamin's full 820-record catalog review](2026-07-13-reviews-benjamin/)
