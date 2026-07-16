@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Hackathon API Key Manager</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon-512x512.png" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/vendor/lucide.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Hackathon API Key Manager home">
+          <img class="brand-mark" src="/favicon-96x96.png" alt="" />
+          <span>
+            <strong>Ars Electronica</strong>
+            <small>Festival 2026 // Internal admin</small>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connection-label">Connecting…</span>
+          <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh keys">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="dashboard-shell">
+        <aside class="sidebar">
+          <p class="eyebrow">Key manager</p>
+          <ul class="context-list">
+            <li class="active"><a href="#keys"><i data-lucide="key-round" aria-hidden="true"></i>API keys</a></li>
+            <li>
+              <span class="context-label"><i data-lucide="building-2" aria-hidden="true"></i>Workspace</span>
+              <strong id="workspace-name">Loading workspace…</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="shield-check" aria-hidden="true"></i>Guardrail</span>
+              <strong id="guardrail-name">Loading guardrail…</strong>
+            </li>
+            <li class="model-context">
+              <span class="context-label"><i data-lucide="cpu" aria-hidden="true"></i>Available models</span>
+              <ul id="sidebar-model-list"><li>Loading model access…</li></ul>
+            </li>
+          </ul>
+        </aside>
+
+        <main class="main" id="keys">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">Participant access</span>
+              <h1>API keys</h1>
+              <p>Manage access to the Hackathon OpenRouter workspace.</p>
+            </div>
+            <button class="button primary" id="create-button" type="button">
+              <i data-lucide="plus" aria-hidden="true"></i>Create keys
+            </button>
+          </div>
+
+          <section class="metrics" aria-label="API key summary">
+            <div class="metric-inline">
+              <strong><span id="metric-active">—</span>/<span id="metric-total">—</span></strong>
+              <span>active keys</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="metric-usage">—</strong>
+              <span>total usage</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="metric-models">—</strong>
+              <span>available models</span>
+            </div>
+          </section>
+
+          <section class="operations-panel" id="operations-panel" aria-labelledby="operations-title" hidden>
+            <div class="operations-heading">
+              <div>
+                <span class="eyebrow">Bulk operations</span>
+                <h2 id="operations-title">Recent activity</h2>
+              </div>
+              <div class="operations-heading-actions">
+                <span id="operations-summary">No changes running</span>
+                <button class="operation-view" id="clear-completed-button" type="button" hidden><i data-lucide="trash-2" aria-hidden="true"></i>Clear completed</button>
+              </div>
+            </div>
+            <p class="editing-lock-note" id="editing-lock-note" hidden>Editing is paused until the current bulk activity finishes.</p>
+            <div class="operations-list" id="operations-list"></div>
+          </section>
+
+          <section class="panel">
+          <div class="toolbar">
+            <div>
+              <span class="eyebrow">Key management</span>
+              <h2>All API keys</h2>
+            </div>
+            <label class="search"><span class="sr-only">Search API keys</span><i data-lucide="search" aria-hidden="true"></i><input id="search-input" type="search" placeholder="Search name or hash" /></label>
+            <span id="result-count" class="result-count"></span>
+          </div>
+
+          <div class="bulk-bar" id="bulk-bar" hidden>
+            <strong><span id="selected-count">0</span> selected</strong>
+            <div>
+              <button class="button subtle" id="bulk-edit-button" type="button"><i data-lucide="square-pen" aria-hidden="true"></i>Edit selected</button>
+              <button class="button enable" id="bulk-enable-button" type="button" hidden><i data-lucide="power" aria-hidden="true"></i><span class="button-label">Enable selected</span></button>
+              <button class="button disable" id="bulk-disable-button" type="button"><i data-lucide="ban" aria-hidden="true"></i><span class="button-label">Disable selected</span></button>
+              <button class="button danger-quiet" id="bulk-delete-button" type="button"><i data-lucide="trash-2" aria-hidden="true"></i><span class="button-label">Delete selected</span></button>
+              <button class="icon-button" id="clear-selection-button" type="button" aria-label="Clear selection"><i data-lucide="x" aria-hidden="true"></i></button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="checkbox-cell"><input id="select-all" type="checkbox" aria-label="Select all visible keys" /></th>
+                  <th>Key</th>
+                  <th>Usage / limit</th>
+                  <th>Created</th>
+                  <th>Expires</th>
+                  <th>Status</th>
+                  <th><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="keys-body"></tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" id="empty-state" hidden>
+            <img class="empty-icon" src="/favicon-96x96.png" alt="" />
+            <h2>No API keys found</h2>
+            <p>Create a participant key or adjust your search.</p>
+          </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <dialog id="create-dialog">
+      <form id="create-form">
+        <div class="dialog-header">
+          <div>
+            <span class="eyebrow">Participant access</span>
+            <h2>Create API keys</h2>
+          </div>
+          <button class="icon-button" type="button" data-close="create-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+
+        <fieldset class="mode-switch">
+          <legend class="sr-only">Creation mode</legend>
+          <button class="active" type="button" data-create-mode="single"><i data-lucide="key-round" aria-hidden="true"></i>Single key</button>
+          <button type="button" data-create-mode="bulk"><i data-lucide="list-plus" aria-hidden="true"></i>Bulk create</button>
+        </fieldset>
+
+        <div id="single-name-field" class="field">
+          <label for="create-name">Key name</label>
+          <input id="create-name" name="name" autocomplete="off" placeholder="Participant or team name" />
+        </div>
+
+        <div id="bulk-names-field" class="field" hidden>
+          <label for="create-names">Key names <span>one per line, up to 100</span></label>
+          <textarea id="create-names" name="names" rows="7" placeholder="Team Ada&#10;Team Turing&#10;Team Lamarr"></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="create-limit">Spending limit (USD)</label>
+            <input id="create-limit" name="limit" type="number" min="0" step="0.01" placeholder="Unlimited" />
+          </div>
+          <div class="field">
+            <label for="create-expires">Expires at</label>
+            <input id="create-expires" name="expiresAt" type="datetime-local" />
+          </div>
+        </div>
+
+        <div class="assignment-note">
+          <i data-lucide="shield-check" aria-hidden="true"></i>
+          Every new key will be assigned to <strong id="create-guardrail-name">hackathon member</strong>.
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="create-dialog">Cancel</button>
+          <button class="button primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i>Create and assign</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="edit-dialog">
+      <form id="edit-form">
+        <input id="edit-hash" type="hidden" />
+        <div class="dialog-header">
+          <div><span class="eyebrow">API key</span><h2>Edit key</h2></div>
+          <button class="icon-button" type="button" data-close="edit-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="edit-name">Key name</label>
+            <input id="edit-name" required />
+          </div>
+          <div class="field">
+            <label for="edit-limit">Spending limit (USD)</label>
+            <input id="edit-limit" type="number" min="0" step="0.01" placeholder="Unlimited" />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="edit-dialog">Cancel</button>
+          <button class="button primary" type="submit"><i data-lucide="check" aria-hidden="true"></i>Save changes</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="bulk-edit-dialog">
+      <form id="bulk-edit-form">
+        <div class="dialog-header">
+          <div><span class="eyebrow">Bulk action</span><h2>Edit selected keys</h2></div>
+          <button class="icon-button" type="button" data-close="bulk-edit-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <p class="dialog-copy">Only checked properties will be changed.</p>
+        <div class="bulk-change-row">
+          <input id="change-limit" type="checkbox" />
+          <label for="bulk-limit">Spending limit</label>
+          <input id="bulk-limit" type="number" min="0" step="0.01" placeholder="Unlimited" />
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="bulk-edit-dialog">Cancel</button>
+          <button class="button primary" id="bulk-edit-submit" type="submit"><i data-lucide="check" aria-hidden="true"></i><span class="button-label">Apply to selected</span></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="secrets-dialog" class="wide-dialog">
+      <div class="dialog-header">
+        <div><span class="eyebrow">Shown once</span><h2>Save the new API keys</h2></div>
+        <button class="icon-button" type="button" data-close="secrets-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <div class="secret-warning">OpenRouter will not show these plaintext keys again.</div>
+      <div id="secrets-list" class="secrets-list"></div>
+      <div class="dialog-actions split">
+        <button class="button subtle" id="download-csv-button" type="button"><i data-lucide="download" aria-hidden="true"></i>Download CSV</button>
+        <div>
+          <button class="button subtle" id="copy-all-button" type="button"><i data-lucide="copy" aria-hidden="true"></i>Copy all</button>
+          <button class="button primary" type="button" data-close="secrets-dialog"><i data-lucide="check" aria-hidden="true"></i>Done</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <div class="confirm-dialog-content">
+        <span class="eyebrow">Confirm action</span>
+        <div class="confirm-title-row"><i data-lucide="triangle-alert" aria-hidden="true"></i><h2 id="confirm-title">Delete API key?</h2></div>
+        <p id="confirm-message"></p>
+        <div class="dialog-actions">
+          <button class="button subtle" id="confirm-cancel-button" type="button">Cancel</button>
+          <button class="button danger" id="confirm-action-button" type="button"><i data-lucide="trash-2" aria-hidden="true"></i><span class="button-label">Delete key</span></button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>
