@@ -4,10 +4,10 @@ intro: "Two days of building with festival data, City of Linz open data, and AI 
 ---
 
 The AI Hackathon is an official sub-event of Ars Electronica Festival 2026,
-**Future Begins / Negotiating Humanity**, taking place in September 2026 in
-Linz, Austria. Teams of two to five people build working prototypes — apps,
-websites, installations, visualizations — that combine the festival's own
-program data with open data published by the City of Linz.
+**Future Begins / Negotiating Humanity**, taking place September 11–12, 2026,
+in Linz, Austria. Teams of two to five people build working prototypes —
+apps, websites, installations, visualizations — that combine the festival's
+own program data with open data published by the City of Linz.
 
 ## The challenge
 
@@ -44,5 +44,5 @@ A jury of festival curators, city representatives, and engineers reviews all
 submissions on the final afternoon. Projects are judged on idea, execution,
 and how meaningfully they connect the two data worlds.
 
-> Prize details, exact dates, the venue, and the registration deadline will be
-> announced here.
+> Prize details, the venue, and the registration deadline will be announced
+> here.
