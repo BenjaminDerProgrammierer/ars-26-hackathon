@@ -11,6 +11,7 @@ City of Linz.
 | --- | --- |
 | [`web/`](web/) | The hackathon website (Astro, EN/DE). `cd web && npm install && npm run dev` |
 | [`ai-proxy/`](ai-proxy/) | Prototype account portal and OpenAI-compatible Mistral proxy with a strict $20 contestant budget |
+| [`openrouter-key-manager/`](openrouter-key-manager/) | Local TypeScript/Express dashboard for managing OpenRouter API keys |
 | [`ars-dataset/`](ars-dataset/) | Snapshot folder for the festival dataset export (the JSON file itself is gitignored; see the folder README for the download link) |
 | [`opendata-linz/`](opendata-linz/) | Research on City of Linz open-data sets worth combining with the festival data, including ~30 per-dataset reviews |
 | `.agents/skills/` | Agent skills: work with the dataset (`ars-dataset`), design in the festival's visual language (`design-ars-festival-ui`) |
