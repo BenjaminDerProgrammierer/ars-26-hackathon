@@ -1,14 +1,18 @@
 # Final Linz Open Data verdicts
 
+The current consolidated assessment is the
+[2026-07-16 hackathon usability report](2026-07-16-hackathon-usability.md).
+
 These are the authoritative dataset decisions for the Ars Electronica Festival
 2026 hackathon. Each folder preserves Rainer's source verdict and adds the final
 decision after the full 820-record catalog review, live endpoint checks, festival
-export analysis, and GitHub defect handoff.
+export analysis, GitHub defect handoff, and a 2026-07-16 publisher-directory
+delta crawl.
 
 Each dataset page now also documents the recommended distribution, observed
 schema and identifiers, access/format details, quality limits, Ars join strategy,
 preparation recipe, decision rationale, and source provenance. Current catalog
-evidence was reviewed on 2026-07-15. The affected verdicts link to the publisher
+evidence was reviewed through 2026-07-16. The affected verdicts link to the publisher
 fixes and live endpoint checks recorded in the relevant GitHub issues. The
 verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data
 provider confirmed several fixes, escalated the air-quality failures, invited
@@ -61,7 +65,7 @@ remain optional, pending, or outside the festival portfolio.
 | [LINZ AG lines and stops](linz-ag-linien-2025/) | **USE WITH PREPARATION** | Static transit geometry; publish converted GeoJSON. |
 | [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Live routing/departures; provide proxy, example, and fallback. |
 | [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
-| [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Preconvert selected festival-area tiles for a showcase track. |
+| [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use the 2025 refresh and preconvert selected festival-area tiles; repair stale `/2022/` links in its index. |
 | [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Convert/reproject and label 2022 freshness. |
 | [Public toilets](wc-anlagen/) | **USE WITH PREPARATION** | Reproject and normalize accessibility/opening-hours data. |
 | [Drinking fountains](trinkbrunnen/) | **USE WITH PREPARATION** | EPSG:31255 is now documented; reproject and verify current service status. |
@@ -84,6 +88,8 @@ remain optional, pending, or outside the festival portfolio.
 
 | Candidate | Current status | Required decision or request |
 |---|---|---|
+| [Cycling counter measurements](radverkehr-zaehlstellen/) | **REQUEST METADATA, THEN USE WITH PREPARATION** | Confirm license, attribution, timezone/DST semantics, missing-value meaning, and update cadence for the new 2024–2025 hourly files. |
+| 2025 neighborhood statistics pack | **PREPARATION CANDIDATE** | Bundle population, one-year age counts, and 2014-system district geometry with encoding and blank-row cleanup. |
 | [Council transcripts](gemeinderatsprotokolle/) | **REASSESS** | Previously excluded despite an A-tier catalog review. |
 | [Pool occupancy](baederauslastung/) | **REQUEST DATA** | No open dataset was found. Ask LINZ AG for an anonymous feed or snapshot before considering a scraper. |
 | [Orthophoto image-recognition pack](orthofotos/) | **ORGANIZER DECISION PENDING** | Decide whether to prepare festival-area web tiles; raw 2019 imagery alone is about 11.8 GB. |
@@ -121,5 +127,8 @@ Open LINZ AG requests should cover timetable/GTFS or NeTEx data, realtime or
 service information, pool occupancy, and replacement access for recycling-point
 data. Scraping is a fallback only after an open feed request and a terms review.
 
-See the [consolidated usability report](archive/2026-07-13-linz-open-data-hackathon-usability.md)
-for the cross-dataset analysis.
+See the [current consolidated usability report](2026-07-16-hackathon-usability.md)
+for all current decisions. The
+[original cross-dataset analysis](archive/2026-07-13-linz-open-data-hackathon-usability.md)
+and [2026-07-16 catalog delta](archive/2026-07-16-catalog-delta-usability.md)
+remain as research provenance.

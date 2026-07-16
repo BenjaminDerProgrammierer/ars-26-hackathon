@@ -13,7 +13,9 @@
 | Example results | [Nationalratswahlen](https://www.data.gv.at/katalog/datasets/5f125543-f032-46e1-901d-05cd7b5678e6) |
 | Other reviewed series | Mayoral, municipal, state, presidential, European, and national elections |
 | Formats | CSV result tables and Shapefile precinct boundaries; some PDF duplicates exist |
-| Review depth | B-tier catalog/shortlist review; no dedicated hands-on normalized bundle yet |
+| Latest verified edition | 2025 Linz mayoral first-ballot and runoff CSVs with matching 2025 precinct Shapefile |
+| Last verified | 2026-07-16 publisher-directory crawl; no normalized join bundle was built |
+| Review depth | B-tier catalog/shortlist review plus current-file inventory; no dedicated hands-on normalized bundle yet |
 
 ## Suitable uses
 
@@ -32,6 +34,12 @@
    provenance alongside derived percentages.
 5. Avoid ecological claims about individual voters or neighborhoods. Use neutral
    language and clearly separate observation from interpretation.
+
+The current publisher directory exposes `BM25Sprengel.csv` and
+`BN25_engere_Wahl_Sprengel.csv` for the 2025 mayoral ballots, together with the
+`WSPR_2025_BM_WAHL` `.shp`, `.shx`, `.dbf`, `.prj`, and `.cpg` components. Treat
+that geometry as the 2025 mayoral-election edition only; its presence is not
+evidence that IDs or boundaries match another election or year.
 
 ## Decision rationale
 
