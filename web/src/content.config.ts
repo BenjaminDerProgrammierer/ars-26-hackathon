@@ -19,6 +19,7 @@ const datasets = defineCollection({
     provider: z.string(),
     url: z.url(),
     group: z.enum(["festival", "linz"]),
+    status: z.enum(["recommended", "preparation", "optional"]).optional(),
     order: z.number(),
   }),
 });

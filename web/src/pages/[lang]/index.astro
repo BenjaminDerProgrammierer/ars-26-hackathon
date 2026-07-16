@@ -24,9 +24,14 @@ const copy = {
     secondaryAction: "How the hackathon works",
     statement: "Two data worlds. One city. Two days.",
     datasets: {
-      heading: "The festival, as data",
-      body: "Around 546 projects, 240 artists and organizations, 111 venues, and 178 scheduled slots — the entire Negotiating Humanity program as one JSON file, ready to combine with transit stops, trees, air quality, and historical maps of Linz.",
-      link: "Explore the datasets",
+      heading: "Two data worlds, ready to combine",
+      festivalLabel: "Festival program export",
+      festivalBody:
+        "The current JSON export contains 546 project records, 240 contacts, 111 location records, and 178 calendar rows.",
+      openDataLabel: "Linz Open Data shortlist",
+      openDataBody:
+        "A review of all 820 city catalog records produced nine participant-facing bundles. Linztermine, trees, and guest origins are recommended; mobility, historical layers, visitor services, and air/weather need organizer preparation; public Wi-Fi and 3D city data are optional showcase sources.",
+      link: "Explore the datasets and readiness notes",
     },
     tutorials: {
       heading: "Learn the ropes first",
@@ -74,9 +79,14 @@ const copy = {
     secondaryAction: "So funktioniert der Hackathon",
     statement: "Zwei Datenwelten. Eine Stadt. Zwei Tage.",
     datasets: {
-      heading: "Das Festival als Daten",
-      body: "Rund 546 Projekte, 240 Künstler:innen und Organisationen, 111 Orte und 178 Zeitslots — das gesamte Programm von Negotiating Humanity als eine JSON-Datei, bereit zur Kombination mit Haltestellen, Bäumen, Luftgüte und historischen Karten von Linz.",
-      link: "Zu den Datensätzen",
+      heading: "Zwei Datenwelten zum Kombinieren",
+      festivalLabel: "Festivalprogramm-Export",
+      festivalBody:
+        "Der aktuelle JSON-Export enthält 546 Projekt-Datensätze, 240 Kontakte, 111 Orts-Datensätze und 178 Kalenderzeilen.",
+      openDataLabel: "Linz-Open-Data-Auswahl",
+      openDataBody:
+        "Die Prüfung aller 820 städtischen Katalogeinträge ergab neun nutzbare Pakete. Linztermine, Bäume und Herkunftsländer werden empfohlen; Mobilität, historische Ebenen, Besucherservices und Luft/Wetter brauchen zentrale Aufbereitung; öffentliches WLAN und 3D-Stadtdaten sind optionale Showcase-Quellen.",
+      link: "Zu den Datensätzen und Aufbereitungshinweisen",
     },
     tutorials: {
       heading: "Zuerst die Grundlagen",
@@ -135,7 +145,14 @@ const copy = {
       <span class="section-mark section-mark--identity" aria-hidden="true">01</span>
     </div>
     <h2>{copy.datasets.heading}</h2>
-    <p>{copy.datasets.body}</p>
+    <div class="data-world">
+      <h3>{copy.datasets.festivalLabel}</h3>
+      <p>{copy.datasets.festivalBody}</p>
+    </div>
+    <div class="data-world">
+      <h3>{copy.datasets.openDataLabel}</h3>
+      <p>{copy.datasets.openDataBody}</p>
+    </div>
     <p><a href={href(lang, "datasets")}>{copy.datasets.link}</a></p>
   </SplitSection>
 
@@ -206,5 +223,17 @@ const copy = {
 
   .section-mark--context {
     color: var(--color-context);
+  }
+
+  .data-world + .data-world {
+    border-top: 1px solid var(--color-rule);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+  }
+
+  .data-world h3 {
+    font-size: var(--text-base);
+    text-transform: uppercase;
+    margin-bottom: var(--space-2);
   }
 </style>

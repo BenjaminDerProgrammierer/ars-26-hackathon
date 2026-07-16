@@ -1,12 +1,15 @@
 ---
 title: "Baumkataster"
-summary: "Jeder von der Stadt gepflegte Baum in Linz mit Art, Höhe, Kronendurchmesser und Koordinaten."
+summary: "Rund 27.000 von der Stadt gepflegte Bäume mit Art, Dimensionen, Exportdatum und WGS84-Koordinaten."
 provider: "Stadt Linz / data.gv.at"
 url: "https://www.data.gv.at/katalog/datasets/f660cf3f-afa9-4816-aafb-0098a36ca57d"
 group: "linz"
-order: 5
+status: "recommended"
+order: 3
 ---
 
-Zehntausende Bäume mit Art, Dimensionen und Standort — etwa für schattige
-Routen zwischen Veranstaltungsorten im September. *Die vollständige deutsche
-Fassung folgt in Kürze.*
+Die geprüfte aktuelle CSV enthielt rund 27.004 Bäume mit Exportdatum 1. Juli
+2026. Sie ist die stärkste Standardquelle aus Linz für räumliche Anreicherung:
+Verknüpft ihre WGS84-Punkte mit bereinigten Festival-Koordinaten. Der
+Kronendurchmesser kann eine geschätzte Kronenansicht unterstützen, misst aber
+weder Schatten noch Temperatur, Barrierefreiheit oder Gehkomfort.
