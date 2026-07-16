@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Hackathon AI access portal" />
+    <title>Hackathon AI Access</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">ARS ELECTRONICA 2026</a>
+      <span>AI ACCESS</span>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow">Future Begins / Negotiating Humanity</p>
+        <h1>One open model.<br /><em>$20 to build with.</em></h1>
+        <p class="lede">
+          Create your contestant account, issue an API key, and connect any client that supports
+          OpenAI chat completions.
+        </p>
+      </section>
+
+      <p id="message" class="message" role="status" hidden></p>
+
+      <section id="auth-view" class="auth-grid">
+        <form id="signup-form" class="panel">
+          <p class="number">01</p>
+          <h2>Create account</h2>
+          <label>Name <input name="name" autocomplete="name" required /></label>
+          <label>Email <input name="email" type="email" autocomplete="email" required /></label>
+          <label
+            >Password
+            <input name="password" type="password" minlength="10" autocomplete="new-password" required />
+          </label>
+          <button type="submit">Create account →</button>
+        </form>
+
+        <form id="login-form" class="panel panel-dark">
+          <p class="number">02</p>
+          <h2>Sign in</h2>
+          <label>Email <input name="email" type="email" autocomplete="email" required /></label>
+          <label
+            >Password <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Sign in →</button>
+        </form>
+      </section>
+
+      <section id="dashboard" hidden>
+        <div class="dashboard-heading">
+          <div>
+            <p class="eyebrow">Contestant console</p>
+            <h2 id="welcome">Your access</h2>
+          </div>
+          <button id="logout" class="button-secondary">Sign out</button>
+        </div>
+
+        <div class="stats">
+          <article><span>Spent</span><strong id="spent">—</strong></article>
+          <article><span>Remaining</span><strong id="remaining">—</strong></article>
+          <article><span>Limit</span><strong id="limit">—</strong></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel api-panel">
+            <p class="number">API</p>
+            <h2>Connect your tools</h2>
+            <dl>
+              <dt>Base URL</dt>
+              <dd><code id="endpoint"></code></dd>
+              <dt>Model</dt>
+              <dd><code id="model"></code></dd>
+              <dt>Current key</dt>
+              <dd id="key-status">No key issued</dd>
+            </dl>
+            <button id="create-key">Create API key</button>
+            <div id="new-key" class="secret" hidden>
+              <p>Copy this now. It will not be shown again.</p>
+              <code id="new-key-value"></code>
+              <button id="copy-key" class="button-secondary">Copy key</button>
+            </div>
+          </article>
+
+          <article class="panel">
+            <p class="number">LOG</p>
+            <h2>Recent requests</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Time</th><th>Status</th><th>Cost</th><th>Tokens</th></tr></thead>
+                <tbody id="usage-rows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <section id="admin" class="panel admin-panel" hidden>
+          <p class="number">ADMIN</p>
+          <h2>Contestant budgets</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Contestant</th><th>Spent</th><th>Reserved</th><th></th></tr></thead>
+              <tbody id="admin-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer><span>Open-weight model</span><span>Built for Linz</span><span>€uropean AI</span></footer>
+  </body>
+</html>
