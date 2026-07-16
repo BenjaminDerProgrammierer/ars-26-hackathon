@@ -83,6 +83,10 @@ if the contestant disconnects. If provider usage is unexpectedly missing or the
 network outcome is ambiguous, the full reservation is charged and marked
 `estimated`; this fail-closed behavior protects the hard cap.
 
+OpenRouter requests have a configurable overall deadline (five minutes by
+default) covering connection setup and the complete JSON or SSE response. A
+timeout releases the pending reservation by charging its conservative amount.
+
 Pricing is configuration, because OpenRouter prices can change. Verify and
 update `MODEL_INPUT_USD_PER_MILLION` and `MODEL_OUTPUT_USD_PER_MILLION` before
 the event.
@@ -102,7 +106,9 @@ the event.
 ```bash
 npm run dev             # development server with reload
 npm test                # unit and proxy integration tests
-npm run check           # TypeScript check
+npm run format          # format files with Biome
+npm run lint            # lint and verify formatting with Biome
+npm run check           # TypeScript and Biome checks
 npm run build           # compile production output
 npm start               # run the compiled service
 ```

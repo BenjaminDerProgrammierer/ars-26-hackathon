@@ -7,8 +7,38 @@ const requestSchema = z
     stream: z.boolean().optional(),
     max_tokens: z.number().int().positive().optional(),
     max_completion_tokens: z.number().int().positive().optional(),
+    temperature: z.number().optional(),
+    top_p: z.number().optional(),
+    stop: z.union([z.string(), z.array(z.string())]).optional(),
+    frequency_penalty: z.number().optional(),
+    presence_penalty: z.number().optional(),
+    seed: z.number().int().optional(),
+    response_format: z.record(z.string(), z.unknown()).optional(),
+    logit_bias: z.record(z.string(), z.number()).optional(),
+    logprobs: z.boolean().optional(),
+    top_logprobs: z.number().int().nonnegative().optional(),
+    tools: z.array(z.unknown()).optional(),
+    tool_choice: z.unknown().optional(),
+    parallel_tool_calls: z.boolean().optional(),
+    user: z.string().optional(),
   })
-  .passthrough();
+  // Keep this allowlist explicit: OpenRouter extensions can select fallback
+  // models or invoke separately billed services that the reservation cannot
+  // conservatively price.
+  .strict();
+
+const multimodalContentTypes = new Set([
+  "audio",
+  "file",
+  "image",
+  "image_url",
+  "input_audio",
+  "input_file",
+  "input_image",
+  "input_video",
+  "video",
+  "video_url",
+]);
 
 export class InvalidProxyRequestError extends Error {
   constructor(message: string) {
@@ -25,7 +55,10 @@ function assertTextOnly(value: unknown): void {
   }
 
   const record = value as Record<string, unknown>;
-  if (record.type === "image_url" || record.type === "input_image" || record.type === "image") {
+  if (
+    typeof record.type === "string" &&
+    multimodalContentTypes.has(record.type)
+  ) {
     throw new InvalidProxyRequestError(
       "This prototype accepts text requests only so the $20 limit can be reserved safely.",
     );
@@ -44,16 +77,24 @@ export function applyRequestPolicy(
 ) {
   const parsed = requestSchema.safeParse(input);
   if (!parsed.success) {
-    throw new InvalidProxyRequestError("Invalid OpenAI chat completions request");
+    throw new InvalidProxyRequestError(
+      "Invalid OpenAI chat completions request",
+    );
   }
 
-  if (parsed.data.model && parsed.data.model !== options.model && parsed.data.model !== "hackathon-model") {
+  if (
+    parsed.data.model &&
+    parsed.data.model !== options.model &&
+    parsed.data.model !== "hackathon-model"
+  ) {
     throw new InvalidProxyRequestError(`Only ${options.model} is available`);
   }
   assertTextOnly(parsed.data.messages);
 
   const requestedMax =
-    parsed.data.max_completion_tokens ?? parsed.data.max_tokens ?? options.maxOutputTokens;
+    parsed.data.max_completion_tokens ??
+    parsed.data.max_tokens ??
+    options.maxOutputTokens;
   const maxOutputTokens = Math.min(requestedMax, options.maxOutputTokens);
   const upstreamBody: Record<string, unknown> = {
     ...parsed.data,

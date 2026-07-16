@@ -83,37 +83,42 @@ export function reserveBudget(
     defaultLimitNanoUsd: number;
   },
 ): Reservation {
-  return db.transaction(() => {
-    ensureBudgetAccount(db, input.userId, input.defaultLimitNanoUsd);
-    const budget = getBudget(db, input.userId, input.defaultLimitNanoUsd);
-    if (input.amountNanoUsd > budget.remainingNanoUsd) {
-      throw new BudgetExceededError(budget.remainingNanoUsd, input.amountNanoUsd);
-    }
+  return db
+    .transaction(() => {
+      ensureBudgetAccount(db, input.userId, input.defaultLimitNanoUsd);
+      const budget = getBudget(db, input.userId, input.defaultLimitNanoUsd);
+      if (input.amountNanoUsd > budget.remainingNanoUsd) {
+        throw new BudgetExceededError(
+          budget.remainingNanoUsd,
+          input.amountNanoUsd,
+        );
+      }
 
-    const now = new Date().toISOString();
-    const eventId = randomUUID();
-    const requestId = `req_${randomUUID().replaceAll("-", "")}`;
-    db.prepare(
-      `UPDATE budget_account
+      const now = new Date().toISOString();
+      const eventId = randomUUID();
+      const requestId = `req_${randomUUID().replaceAll("-", "")}`;
+      db.prepare(
+        `UPDATE budget_account
        SET reserved_nano_usd = reserved_nano_usd + ?, updated_at = ?
        WHERE user_id = ?`,
-    ).run(input.amountNanoUsd, now, input.userId);
-    db.prepare(
-      `INSERT INTO usage_event
+      ).run(input.amountNanoUsd, now, input.userId);
+      db.prepare(
+        `INSERT INTO usage_event
        (id, request_id, user_id, api_key_id, model, status, reserved_nano_usd, created_at)
        VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)`,
-    ).run(
-      eventId,
-      requestId,
-      input.userId,
-      input.apiKeyId,
-      input.model,
-      input.amountNanoUsd,
-      now,
-    );
+      ).run(
+        eventId,
+        requestId,
+        input.userId,
+        input.apiKeyId,
+        input.model,
+        input.amountNanoUsd,
+        now,
+      );
 
-    return { eventId, requestId, reservedNanoUsd: input.amountNanoUsd };
-  }).immediate();
+      return { eventId, requestId, reservedNanoUsd: input.amountNanoUsd };
+    })
+    .immediate();
 }
 
 export function finalizeReservation(
@@ -125,10 +130,12 @@ export function finalizeReservation(
     const event = db
       .prepare("SELECT reserved_nano_usd, status FROM usage_event WHERE id = ?")
       .get(reservation.eventId) as EventRow | undefined;
-    if (!event || event.status !== "pending") return;
+    if (event?.status !== "pending") return;
 
     const chargedNanoUsd =
-      result.actualNanoUsd === null ? event.reserved_nano_usd : Math.max(0, result.actualNanoUsd);
+      result.actualNanoUsd === null
+        ? event.reserved_nano_usd
+        : Math.max(0, result.actualNanoUsd);
     const now = new Date().toISOString();
     db.prepare(
       `UPDATE budget_account

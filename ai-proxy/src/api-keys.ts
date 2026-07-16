@@ -14,10 +14,16 @@ interface ApiKeyRow {
 }
 
 export function hashApiKey(secret: string, pepper: string): string {
-  return createHash("sha256").update(`${pepper}:${secret}`, "utf8").digest("hex");
+  return createHash("sha256")
+    .update(`${pepper}:${secret}`, "utf8")
+    .digest("hex");
 }
 
-export function createApiKey(db: ProxyDatabase, userId: string, pepper: string) {
+export function createApiKey(
+  db: ProxyDatabase,
+  userId: string,
+  pepper: string,
+) {
   const secret = `ars_${randomBytes(32).toString("base64url")}`;
   const prefix = secret.slice(0, 12);
   const now = new Date().toISOString();
