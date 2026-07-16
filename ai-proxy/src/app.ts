@@ -1,10 +1,18 @@
 import path from "node:path";
-import express, { type NextFunction, type Request, type Response } from "express";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
-import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import {
+  authenticateApiKey,
+  createApiKey,
+  getActiveApiKey,
+} from "./api-keys.js";
 import { auth } from "./auth.js";
-import { authenticateApiKey, createApiKey, getActiveApiKey } from "./api-keys.js";
 import {
   BudgetExceededError,
   ensureBudgetAccount,
@@ -13,17 +21,25 @@ import {
   reserveBudget,
   resetBudget,
 } from "./budget.js";
-import { config, type AppConfig } from "./config.js";
+import { type AppConfig, config } from "./config.js";
 import type { ProxyDatabase } from "./db.js";
 import { forwardOpenRouterRequest } from "./openrouter.js";
-import { applyRequestPolicy, InvalidProxyRequestError } from "./request-policy.js";
+import {
+  applyRequestPolicy,
+  InvalidProxyRequestError,
+} from "./request-policy.js";
 import { db as defaultDb } from "./runtime.js";
 
 const publicDirectory = path.resolve(process.cwd(), "public");
 
 const usd = (nanoUsd: number) => nanoUsd / 1_000_000_000;
 
-function openAiError(response: Response, status: number, message: string, code: string) {
+function openAiError(
+  response: Response,
+  status: number,
+  message: string,
+  code: string,
+) {
   return response.status(status).json({
     error: { message, type: "invalid_request_error", param: null, code },
   });
@@ -71,9 +87,18 @@ export function createApp(dependencies?: {
   app.get("/api/account", async (request, response, next) => {
     try {
       const session = await sessionFor(request);
-      if (!session) return response.status(401).json({ error: "Not signed in" });
-      ensureBudgetAccount(database, session.user.id, appConfig.contestantBudgetNanoUsd);
-      const budget = getBudget(database, session.user.id, appConfig.contestantBudgetNanoUsd);
+      if (!session)
+        return response.status(401).json({ error: "Not signed in" });
+      ensureBudgetAccount(
+        database,
+        session.user.id,
+        appConfig.contestantBudgetNanoUsd,
+      );
+      const budget = getBudget(
+        database,
+        session.user.id,
+        appConfig.contestantBudgetNanoUsd,
+      );
       return response.json({
         user: { name: session.user.name, email: session.user.email },
         isAdmin: appConfig.adminEmails.has(session.user.email.toLowerCase()),
@@ -95,13 +120,27 @@ export function createApp(dependencies?: {
 
   app.post(
     "/api/account/api-key",
-    rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: "draft-8", legacyHeaders: false }),
+    rateLimit({
+      windowMs: 60_000,
+      limit: 5,
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+    }),
     async (request, response, next) => {
       try {
         const session = await sessionFor(request);
-        if (!session) return response.status(401).json({ error: "Not signed in" });
-        ensureBudgetAccount(database, session.user.id, appConfig.contestantBudgetNanoUsd);
-        const key = createApiKey(database, session.user.id, appConfig.apiKeyPepper);
+        if (!session)
+          return response.status(401).json({ error: "Not signed in" });
+        ensureBudgetAccount(
+          database,
+          session.user.id,
+          appConfig.contestantBudgetNanoUsd,
+        );
+        const key = createApiKey(
+          database,
+          session.user.id,
+          appConfig.apiKeyPepper,
+        );
         return response.status(201).json({
           apiKey: key.secret,
           prefix: key.prefix,
@@ -117,7 +156,8 @@ export function createApp(dependencies?: {
   app.get("/api/admin/accounts", async (request, response, next) => {
     try {
       const session = await sessionFor(request);
-      if (!session) return response.status(401).json({ error: "Not signed in" });
+      if (!session)
+        return response.status(401).json({ error: "Not signed in" });
       if (!appConfig.adminEmails.has(session.user.email.toLowerCase())) {
         return response.status(403).json({ error: "Admin access required" });
       }
@@ -131,7 +171,9 @@ export function createApp(dependencies?: {
            FROM "user" u LEFT JOIN budget_account b ON b.user_id = u.id
            ORDER BY u.createdAt DESC`,
         )
-        .all(appConfig.contestantBudgetNanoUsd) as Array<Record<string, unknown>>;
+        .all(appConfig.contestantBudgetNanoUsd) as Array<
+        Record<string, unknown>
+      >;
       return response.json(
         rows.map((row) => ({
           ...row,
@@ -148,24 +190,35 @@ export function createApp(dependencies?: {
     }
   });
 
-  app.post("/api/admin/accounts/:userId/reset", async (request, response, next) => {
-    try {
-      const session = await sessionFor(request);
-      if (!session) return response.status(401).json({ error: "Not signed in" });
-      if (!appConfig.adminEmails.has(session.user.email.toLowerCase())) {
-        return response.status(403).json({ error: "Admin access required" });
+  app.post(
+    "/api/admin/accounts/:userId/reset",
+    async (request, response, next) => {
+      try {
+        const session = await sessionFor(request);
+        if (!session)
+          return response.status(401).json({ error: "Not signed in" });
+        if (!appConfig.adminEmails.has(session.user.email.toLowerCase())) {
+          return response.status(403).json({ error: "Admin access required" });
+        }
+        ensureBudgetAccount(
+          database,
+          request.params.userId,
+          appConfig.contestantBudgetNanoUsd,
+        );
+        resetBudget(database, request.params.userId);
+        return response.json({ ok: true });
+      } catch (error) {
+        next(error);
       }
-      ensureBudgetAccount(database, request.params.userId, appConfig.contestantBudgetNanoUsd);
-      resetBudget(database, request.params.userId);
-      return response.json({ ok: true });
-    } catch (error) {
-      next(error);
-    }
-  });
+    },
+  );
 
   app.get("/v1/models", (request, response) => {
     const token = bearerToken(request);
-    if (!token || !authenticateApiKey(database, token, appConfig.apiKeyPepper)) {
+    if (
+      !token ||
+      !authenticateApiKey(database, token, appConfig.apiKeyPepper)
+    ) {
       return openAiError(response, 401, "Invalid API key", "invalid_api_key");
     }
     return response.json({
@@ -186,9 +239,15 @@ export function createApp(dependencies?: {
     const apiKey = token
       ? authenticateApiKey(database, token, appConfig.apiKeyPepper)
       : null;
-    if (!apiKey) return openAiError(response, 401, "Invalid API key", "invalid_api_key");
+    if (!apiKey)
+      return openAiError(response, 401, "Invalid API key", "invalid_api_key");
     if (!appConfig.openRouterApiKey) {
-      return openAiError(response, 503, "The provider key has not been configured", "proxy_not_configured");
+      return openAiError(
+        response,
+        503,
+        "The provider key has not been configured",
+        "proxy_not_configured",
+      );
     }
 
     try {
@@ -206,7 +265,10 @@ export function createApp(dependencies?: {
         defaultLimitNanoUsd: appConfig.contestantBudgetNanoUsd,
       });
       response.setHeader("x-request-id", reservation.requestId);
-      response.setHeader("x-ratelimit-limit-usd", usd(appConfig.contestantBudgetNanoUsd).toFixed(2));
+      response.setHeader(
+        "x-ratelimit-limit-usd",
+        usd(appConfig.contestantBudgetNanoUsd).toFixed(2),
+      );
       await forwardOpenRouterRequest({
         db: database,
         reservation,
@@ -215,11 +277,15 @@ export function createApp(dependencies?: {
         apiKey: appConfig.openRouterApiKey,
         siteUrl: appConfig.openRouterSiteUrl,
         appName: appConfig.openRouterAppName,
+        timeoutMs: appConfig.openRouterTimeoutMs,
         fetchImpl: dependencies?.fetchImpl,
       });
     } catch (error) {
       if (error instanceof BudgetExceededError) {
-        response.setHeader("x-ratelimit-remaining-usd", usd(error.remainingNanoUsd).toFixed(9));
+        response.setHeader(
+          "x-ratelimit-remaining-usd",
+          usd(error.remainingNanoUsd).toFixed(9),
+        );
         return openAiError(
           response,
           402,
@@ -236,11 +302,18 @@ export function createApp(dependencies?: {
 
   app.use(express.static(publicDirectory));
 
-  app.use((error: unknown, _request: Request, response: Response, _next: NextFunction) => {
-    console.error(error);
-    if (response.headersSent) return;
-    response.status(500).json({ error: "Internal server error" });
-  });
+  app.use(
+    (
+      error: unknown,
+      _request: Request,
+      response: Response,
+      _next: NextFunction,
+    ) => {
+      console.error(error);
+      if (response.headersSent) return;
+      response.status(500).json({ error: "Internal server error" });
+    },
+  );
 
   return app;
 }

@@ -9,9 +9,18 @@ const schema = z.object({
     blankAsUndefined,
     z.enum(["development", "test", "production"]).default("development"),
   ),
-  PORT: z.preprocess(blankAsUndefined, z.coerce.number().int().min(1).max(65535).default(8787)),
-  APP_BASE_URL: z.preprocess(blankAsUndefined, z.string().url().default("http://localhost:8787")),
-  DATABASE_PATH: z.preprocess(blankAsUndefined, z.string().default("./data/proxy.sqlite")),
+  PORT: z.preprocess(
+    blankAsUndefined,
+    z.coerce.number().int().min(1).max(65535).default(8787),
+  ),
+  APP_BASE_URL: z.preprocess(
+    blankAsUndefined,
+    z.string().url().default("http://localhost:8787"),
+  ),
+  DATABASE_PATH: z.preprocess(
+    blankAsUndefined,
+    z.string().default("./data/proxy.sqlite"),
+  ),
   OPENROUTER_API_KEY: z.string().default(""),
   OPENROUTER_MODEL: z.string().default("mistralai/mistral-medium-3-5"),
   BETTER_AUTH_SECRET: z.preprocess(
@@ -28,7 +37,15 @@ const schema = z.object({
   MODEL_INPUT_USD_PER_MILLION: z.coerce.number().nonnegative().default(1.5),
   MODEL_OUTPUT_USD_PER_MILLION: z.coerce.number().nonnegative().default(7.5),
   OPENROUTER_SITE_URL: z.string().default(""),
-  OPENROUTER_APP_NAME: z.string().default("Ars Electronica Festival 2026 Hackathon"),
+  OPENROUTER_APP_NAME: z
+    .string()
+    .default("Ars Electronica Festival 2026 Hackathon"),
+  OPENROUTER_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(1_800_000)
+    .default(300_000),
 });
 
 const parsed = schema.parse(process.env);
@@ -58,13 +75,15 @@ export const config = {
   outputNanoUsdPerToken: Math.ceil(parsed.MODEL_OUTPUT_USD_PER_MILLION * 1_000),
   openRouterSiteUrl: parsed.OPENROUTER_SITE_URL,
   openRouterAppName: parsed.OPENROUTER_APP_NAME,
+  openRouterTimeoutMs: parsed.OPENROUTER_TIMEOUT_MS,
 };
 
 export type AppConfig = typeof config;
 
 export function assertProductionConfig(): void {
   if (config.nodeEnv !== "production") return;
-  if (!config.openRouterApiKey) throw new Error("OPENROUTER_API_KEY is required in production");
+  if (!config.openRouterApiKey)
+    throw new Error("OPENROUTER_API_KEY is required in production");
   if (config.authSecret.startsWith("development-only")) {
     throw new Error("Set a secure BETTER_AUTH_SECRET in production");
   }

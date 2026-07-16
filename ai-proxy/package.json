@@ -11,7 +11,9 @@
     "dev": "NODE_ENV=development tsx watch src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc -p tsconfig.build.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "check": "tsc -p tsconfig.json --noEmit && biome check .",
     "test": "NODE_ENV=test DATABASE_PATH=:memory: vitest run",
     "db:migrate-auth": "NODE_ENV=development auth migrate --config ./src/auth.ts --yes"
   },
@@ -25,6 +27,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.3",
     "@types/better-sqlite3": "7.6.13",
     "@types/express": "5.0.6",
     "@types/node": "24.10.1",
