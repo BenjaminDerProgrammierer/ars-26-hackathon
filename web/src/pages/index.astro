@@ -1,21 +1,25 @@
 ---
 // Static-host-compatible redirect to the default locale. Astro's automatic
 // redirect is disabled because it conflicts with an explicit static root page.
+import { href } from "../i18n/ui";
+
+const englishUrl = href("en");
+const germanUrl = href("de");
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=/en/" />
-    <link rel="canonical" href="/en/" />
+    <meta http-equiv="refresh" content={`0; url=${englishUrl}`} />
+    <link rel="canonical" href={englishUrl} />
     <title>AI Hackathon — Ars Electronica Festival 2026</title>
   </head>
   <body>
     <h1>AI Hackathon — Ars Electronica Festival 2026</h1>
     <ul>
-      <li><a href="/en/">English</a></li>
-      <li><a href="/de/">Deutsch</a></li>
+      <li><a href={englishUrl}>English</a></li>
+      <li><a href={germanUrl}>Deutsch</a></li>
     </ul>
   </body>
 </html>
