@@ -4,6 +4,8 @@ import { defineConfig, fontProviders } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://benjaminderprogrammierer.github.io",
+  base: "/ars-26-hackathon",
   integrations: [react()],
   trailingSlash: "always",
   i18n: {

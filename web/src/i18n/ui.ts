@@ -114,9 +114,10 @@ export function useTranslations(lang: Lang) {
   };
 }
 
-/** Locale-prefixed internal link; central so a future `base` path is a one-line change. */
+/** Locale-prefixed internal link, including Astro's configured deployment base. */
 export function href(lang: Lang, path = ""): string {
+  const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   const clean = path.replace(/^\/+/, "");
   const suffix = clean === "" ? "" : clean.endsWith("/") ? clean : `${clean}/`;
-  return `/${lang}/${suffix}`;
+  return `${base}${lang}/${suffix}`;
 }

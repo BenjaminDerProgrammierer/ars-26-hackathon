@@ -17,9 +17,7 @@ const t = useTranslations(lang);
 
 const alternates = (Object.keys(languages) as Lang[]).map((code) => ({
   code,
-  // Keep alternates origin-relative until the deployment host is configured.
-  // Resolving against Astro.url during a static build leaks localhost:4321.
-  url: Astro.url.pathname.replace(/^\/(en|de)(\/|$)/, `/${code}/`),
+  url: Astro.url.pathname.replace(/\/(en|de)(\/|$)/, `/${code}$2`),
 }));
 
 const skipLabel = lang === "de" ? "Zum Inhalt springen" : "Skip to content";
