@@ -24,12 +24,21 @@ const targets = (Object.keys(languages) as Lang[]).map((code) => ({
         lang={target.code}
         hreflang={target.code}
         aria-current={target.current ? "true" : undefined}
+        data-language-switch-link
       >
         {target.label}
       </a>
     ))
   }
 </nav>
+
+<script>
+  for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    "[data-language-switch-link]",
+  )) {
+    link.search = window.location.search;
+  }
+</script>
 
 <style>
   .lang-switch {
