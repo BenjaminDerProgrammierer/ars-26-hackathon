@@ -9,11 +9,13 @@ decision after the full 820-record catalog review, live endpoint checks, festiva
 export analysis, GitHub defect handoff, and a 2026-07-16 publisher-directory
 delta crawl.
 
-Each dataset page now also documents the recommended distribution, observed
-schema and identifiers, access/format details, quality limits, Ars join strategy,
-preparation recipe, decision rationale, and source provenance. Current catalog
-evidence was reviewed through 2026-07-16. The affected verdicts link to the publisher
-fixes and live endpoint checks recorded in the relevant GitHub issues. The
+Each dataset page now provides compact frontmatter for status, format, license,
+and data vintage, followed by a short factual description, contact information,
+and source links. Detailed review evidence remains in the research archive and
+consolidated report. Current catalog evidence was reviewed through 2026-07-16;
+Orthofotos 2023 and Stadtplan Linz 2025 were added and checked on 2026-07-17.
+The affected verdicts link to the publisher fixes and live endpoint checks
+recorded in the relevant GitHub issues. The
 verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data
 provider confirmed several fixes, escalated the air-quality failures, invited
 requests for missing or fresher data, and asked the hackathon team to approach
@@ -64,7 +66,9 @@ remain optional, pending, or outside the festival portfolio.
 | [Playgrounds and sports facilities](spielplaetze/) | **USE** | Working geocoded CSV plus a repaired 2023 equipment Shapefile. |
 | [LINZ AG lines and stops](linz-ag-linien-2025/) | **USE WITH PREPARATION** | Static transit geometry; publish converted GeoJSON. |
 | [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Live routing/departures; provide proxy, example, and fallback. |
+| [Boudicca.Events public API](boudicca-events/) | **USE WITH PREPARATION** | Snapshot and normalize the multi-source event API; preserve per-source provenance, attribution and a cached fallback. |
 | [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
+| [Stadtplan Linz 2025](stadtplan-linz-2025/) | **OPTIONAL** | Current municipal cartographic raster; crop, reproject, and optimize one variant before browser use. |
 | [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use the 2025 refresh and preconvert selected festival-area tiles; repair stale `/2022/` links in its index. |
 | [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Convert/reproject and label 2022 freshness. |
 | [Public toilets](wc-anlagen/) | **USE WITH PREPARATION** | Reproject and normalize accessibility/opening-hours data. |
@@ -73,7 +77,7 @@ remain optional, pending, or outside the festival portfolio.
 | [Linztermine tags](linztermine-schlagworte/) | **USE WITH PREPARATION** | Helper taxonomy only, bundled with Linztermine events. |
 | [Defibrillators](defibrillatoren/) | **OPTIONAL** | Prototype-only safety layer; 2022 data is not operational guidance. |
 | [Public Wi-Fi](hotspots/) | **OPTIONAL** | Useful venue layer, but usage and locations are from 2022. |
-| [Orthophotos](orthofotos/) | **OPTIONAL** | Heavy experimental visual source requiring selection and web tiling. |
+| [Orthophotos](orthofotos/) | **OPTIONAL** | Heavy experimental visual source, now including the 2023 edition, requiring selection and web tiling. |
 | [Short-term parking zones](kurzparkzonen/) | **OPTIONAL** | Utility layer with projected Shapefile conversion. |
 | [Hecken die Schmecken](hecken-die-schmecken/) | **OPTIONAL** | Small playful garnish with no coordinates and 2022 data. |
 | [Dog zones](hundezonen/) | **OPTIONAL** | Public downloads are repaired; convert the dated EPSG:31255 polygons and avoid current-rule claims. |

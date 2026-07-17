@@ -1,57 +1,22 @@
-# Baulandreserven 2022
+---
+title: "Baulandreserven 2022"
+summary: "Unbebaute oder nur untergeordnet bebaute Baulandflächen in Linz"
+provider: "Stadt Linz / data.linz.gv.at"
+status: "in-progress"
+format: "ESRI Shapefile (Polygon)"
+license: "CC BY 4.0"
+data_vintage: "2022"
+---
 
-> **Final verdict: OPTIONAL, WITH PREPARATION.** The publisher corrected the
-> stale 2012 links. The complete 2022 Shapefile is now publicly downloadable,
-> but the layer is dated and has limited direct festival value.
+## Beschreibung
 
-## At a glance
+Der vollständige Polygon-Layer besteht aus `.shp`, `.shx`, `.dbf`, `.prj` und `.cpg`. Die Projektion ist EPSG:31255; für Webkarten ist eine Umprojektion notwendig. Wegen des Stands 2022 darf der Layer nicht als aktuelle Aussage über verfügbare Grundstücke verwendet werden.
 
-| Item | Details |
-|---|---|
-| Publisher | Stadt Linz |
-| Catalog | [Baulandreserven 2022 (Linz)](https://www.data.gv.at/katalog/datasets/f48d3329-fc06-4d84-86e8-e73946425e31) |
-| Data access | Public 2022 directory with `Baulandreserven.shp`, `.shx`, `.dbf`, `.prj`, and `.cpg` |
-| Format | ESRI Shapefile polygon layer; separate component downloads |
-| CRS | MGI / Austria GK Central (EPSG:31255), declared by `.prj` |
-| License | CC BY 4.0 |
-| Coverage | Undeveloped or only minimally built-on designated building-land parcels in Linz |
-| Data vintage | 2022; do not present as current land availability in 2026 |
-| Last verified | 2026-07-15; catalog links point to 2022 and the complete component set is publicly reachable |
+## Kontakt zur verantwortlichen Stelle
 
-## Contents and technical characteristics
+Magistrat Linz, Planung, Technik und Umwelt / Stadtplanung; [ptu@mag.linz.at](mailto:ptu@mag.linz.at)
 
-The catalog documents the attributes `HAUPTKAPIT`, `THEMA`, `THEMENGRUP`, and
-`UNTERKAPIT`. The catalog directly lists `.shp`, `.shx`, `.dbf`, and `.cpg`
-resources; the matching `.prj` is available in the same public directory even
-though it is not currently a catalog distribution. The `.prj` declares
-EPSG:31255.
-
-Issue [#9](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/9)
-originally identified a 2022-to-2012 link mismatch. The live catalog record was
-modified on 2026-07-15 and all listed data links now use the 2022 directory.
-
-## Using it with the Ars Electronica dataset
-
-Reproject the polygons from EPSG:31255 to EPSG:4326 and spatially relate them to
-cleaned festival venue coordinates. Keep the source year on every derived
-record. Suitable uses are exploratory land-use context or speculative urban
-storytelling; the layer is not suitable for planning, property, investment, or
-current-availability claims.
-
-## Preparation recipe
-
-1. Download the five matching Shapefile components and record retrieval date and checksums.
-2. Inspect feature count, geometry validity, attribute values, and any stable identifier.
-3. Reproject from EPSG:31255 to EPSG:4326 and validate sample polygons against Linz.
-4. Publish a dated GeoJSON extract with CC BY 4.0 attribution and a visible 2022-vintage label.
-
-## Decision rationale
-
-The access and resource-year defect is fixed, so exclusion is no longer
-necessary. The layer remains **OPTIONAL** because its subject is niche for the
-festival and land availability is time-sensitive.
-
-## Sources
+## Quellen
 
 - [Official catalog](https://www.data.gv.at/katalog/datasets/f48d3329-fc06-4d84-86e8-e73946425e31)
 - [Corrected 2022 directory](https://data.linz.gv.at/katalog/geodata/baulandreserven/2022/)
