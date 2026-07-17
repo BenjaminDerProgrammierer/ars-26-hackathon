@@ -7,6 +7,12 @@
       "skillPath": "skills/find-docs/SKILL.md",
       "computedHash": "a6ef6cee00e9ae9b18dce7133edc403d0ba8750ef1ac5f02af80431e060dd007"
     },
+    "microsoft-docs": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "skillPath": ".github/skills/microsoft-docs/SKILL.md",
+      "computedHash": "0acd8d2629937e021d605fd1426e641295909e13bab47cad1153793f5564e85e"
+    },
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",

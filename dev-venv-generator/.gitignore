@@ -1,0 +1,7 @@
+# Secrets & generated state — never commit
+.env
+.state/
+
+# Local Azure / bicep build artifacts
+*.tmp
+*.rendered
