@@ -57,6 +57,14 @@ export const ui = {
     "login.success.note":
       "This is a demo. Nothing was stored and no account exists.",
     "login.reset": "Back to the form",
+
+    "redeem.eyebrow": "Access code",
+    "redeem.title": "Redeem your code",
+    "redeem.intro":
+      "Enter the short code you received to reveal your access information.",
+    "redeem.code.label": "Redeem code",
+    "redeem.submit": "Redeem",
+    "redeem.result.label": "Your access information",
   },
   de: {
     "site.title": "AI Hackathon",
@@ -103,6 +111,14 @@ export const ui = {
     "login.success.note":
       "Dies ist eine Demo. Es wurde nichts gespeichert, es existiert kein Konto.",
     "login.reset": "Zurück zum Formular",
+
+    "redeem.eyebrow": "Zugangscode",
+    "redeem.title": "Code einlösen",
+    "redeem.intro":
+      "Gib den erhaltenen Kurzcode ein, um deine Zugangsinformationen anzuzeigen.",
+    "redeem.code.label": "Einlösecode",
+    "redeem.submit": "Einlösen",
+    "redeem.result.label": "Deine Zugangsinformationen",
   },
 } as const;
 
