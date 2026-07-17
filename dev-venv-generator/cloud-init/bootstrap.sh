@@ -12,15 +12,14 @@ echo "=== vcenv bootstrap starting $(date -u) ==="
 # --- Injected by deploy.sh or deploy-locally.sh (envsubst) ---
 student_user='${VC_STUDENT_USER}'
 student_password='${VC_STUDENT_PASSWORD}'
-code_server_fqdn='${VC_FQDN}'   # public DNS name, or __LOCAL__ for Multipass
+code_server_fqdn='${VC_FQDN}'   # public DNS name, or __CONTAINER__ at image-build time
 # -----------------------------------------
 
-if [[ "$code_server_fqdn" == "__LOCAL__" ]]; then
-  # A local VM has no publicly resolvable name, so serve plain HTTP and discover
-  # the address assigned by Multipass from inside the instance.
-  code_server_site=":80"
-  public_host="$(hostname -I | awk '{print $1}')"
-  access_note="This VM is local and its URLs are reachable from the host machine."
+container_runtime=false
+if [[ "$code_server_fqdn" == "__CONTAINER__" ]]; then
+  container_runtime=true
+  public_host="__PUBLIC_HOST__"
+  access_note="This container's URLs are published on its Docker host."
 else
   code_server_site="$code_server_fqdn"
   public_host="$code_server_fqdn"
@@ -34,18 +33,24 @@ home_dir="/home/$student_user"
 
 # Defensive: Azure normally creates the admin user before cloud-init runcmd.
 id "$student_user" >/dev/null 2>&1 || useradd -m -s /bin/bash "$student_user"
-# Azure sets this before cloud-init. Local VM providers do not, so also enforce it
-# here; doing so again on Azure is harmless and keeps both deployment paths equal.
+# Azure sets this before cloud-init; the container image build does not. Enforce
+# it here as well so both deployment paths initialize the account consistently.
 echo "$student_user:$student_password" | chpasswd
 
 echo "--- installing base packages ---"
 apt-get update -y
-apt-get install -y curl git unzip jq ca-certificates build-essential apt-transport-https gnupg \
+apt-get install -y curl git unzip jq ca-certificates build-essential apt-transport-https gnupg sudo \
   python3-pip python3-venv python-is-python3 imagemagick
+if $container_runtime; then
+  usermod -aG sudo "$student_user"
+  printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$student_user" > "/etc/sudoers.d/$student_user"
+  chmod 440 "/etc/sudoers.d/$student_user"
+fi
 
 echo "--- installing GitHub CLI ---"
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
+  https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
 chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
 arch="$(dpkg --print-architecture)"
@@ -55,9 +60,12 @@ apt-get update -y
 apt-get install -y gh
 
 echo "--- installing .NET 10 SDK ---"
-curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
-chmod +x /tmp/dotnet-install.sh
-/tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet
+if ! command -v dotnet >/dev/null 2>&1; then
+  curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
+    https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+  chmod +x /tmp/dotnet-install.sh
+  /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet
+fi
 ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 cat > /etc/profile.d/dotnet.sh <<'DOTNETEOF'
 export DOTNET_ROOT=/usr/share/dotnet
@@ -66,44 +74,53 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 DOTNETEOF
 
 echo "--- installing code-server ---"
-curl -fsSL https://code-server.dev/install.sh | sh
+curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
+  https://code-server.dev/install.sh | sh
 
-# code-server listens on localhost only; Caddy exposes and proxies to it.
+# Azure binds code-server to localhost behind Caddy. A container publishes the
+# code-server port directly because it does not run a full init system.
 mkdir -p "$home_dir/.config/code-server"
+if $container_runtime; then code_server_bind="0.0.0.0:9000"; else code_server_bind="127.0.0.1:9000"; fi
 cat > "$home_dir/.config/code-server/config.yaml" <<EOF
-bind-addr: 127.0.0.1:9000
+bind-addr: $code_server_bind
 auth: password
 password: "$student_password"
 cert: false
 EOF
 chown -R "$student_user:$student_user" "$home_dir/.config"
 
-systemctl daemon-reload
-systemctl enable --now "code-server@$student_user"
+if ! $container_runtime; then
+  systemctl daemon-reload
+  systemctl enable --now "code-server@$student_user"
+fi
 
-echo "--- installing Caddy (reverse proxy for code-server) ---"
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
-  | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
-  > /etc/apt/sources.list.d/caddy-stable.list
-apt-get update -y
-apt-get install -y caddy
+if ! $container_runtime; then
+  echo "--- installing Caddy (HTTPS reverse proxy for code-server) ---"
+  curl --retry 5 --retry-all-errors --connect-timeout 20 -1sLf \
+    'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
+    | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl --retry 5 --retry-all-errors --connect-timeout 20 -1sLf \
+    'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
+    > /etc/apt/sources.list.d/caddy-stable.list
+  apt-get update -y
+  apt-get install -y caddy
 
-# With a public FQDN, Caddy obtains and renews a Let's Encrypt certificate. In a
-# local Multipass VM, it serves HTTP on :80. Student dev work stays on HTTP :8080.
-cat > /etc/caddy/Caddyfile <<EOF
+  # Caddy obtains and renews a Let's Encrypt certificate for the public FQDN.
+  cat > /etc/caddy/Caddyfile <<EOF
 $code_server_site {
     reverse_proxy 127.0.0.1:9000
 }
 EOF
-systemctl enable caddy
-systemctl restart caddy
+  systemctl enable caddy
+  systemctl restart caddy
+fi
 
 echo "--- installing nvm + Node LTS + pi.dev (as $student_user) ---"
 sudo -u "$student_user" -H bash <<'USEREOF'
 set -euo pipefail
 export NVM_DIR="$HOME/.nvm"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
+  https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 . "$NVM_DIR/nvm.sh"
 nvm install --lts
 nvm alias default 'lts/*'
@@ -271,7 +288,7 @@ USEREOF
 # Personalise the workshop AGENTS.md with THIS VM's public dev URL so pi can hand
 # the student an exact browser link. The FQDN is known only here (render time); the
 # AGENTS.md above is a literal heredoc, hence the placeholder + sed substitution.
-dev_url="http://${public_host}:8080/"
+if $container_runtime; then dev_url="__DEV_URL__"; else dev_url="http://${public_host}:8080/"; fi
 agents_md="$home_dir/website/AGENTS.md"
 if [ -f "$agents_md" ]; then
   sed -i \

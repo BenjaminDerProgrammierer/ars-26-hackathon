@@ -73,21 +73,28 @@ COUNT=10 ./deploy.sh           # scale to 10 environments (designed up to ~45)
 
 ### Deploy locally (without Azure)
 
-[Multipass](https://canonical.com/multipass) can create the same Ubuntu 24.04
-environments on the local machine using the shared cloud-init bootstrap:
+[Docker](https://docs.docker.com/engine/) can run the same toolchain in isolated
+Ubuntu 24.04 containers on the local machine:
 
 ```bash
-./deploy-locally.sh                    # create/reuse 2 local VMs
-COUNT=4 ./deploy-locally.sh            # create/reuse 4 local VMs
-./deploy-locally.sh --verify           # wait for provisioning and smoke-test
+./deploy-locally.sh                    # build and create/reuse 2 containers
+COUNT=4 ./deploy-locally.sh            # build and create/reuse 4 containers
+./deploy-locally.sh --verify           # wait for health checks and smoke-test
 ```
 
-Install Multipass plus the local tools `jq`, `envsubst` (gettext), and `base64`
-first. Each VM defaults to 2 CPUs, 4 GB RAM, and a 64 GB disk; override these
-with `CPUS`, `MEMORY`, and `DISK`. Local code-server is served over HTTP on the
-VM's private IP because a local VM has no public DNS name for a trusted TLS
-certificate. Credentials and generated login lists are kept separately under
-`.state/local/`. Existing named VMs are started and reused on subsequent runs.
+Install Docker Engine and `jq` first. Each container defaults to a 2-CPU and 4 GB
+limit; override these with `CPUS` and `MEMORY`. code-server and student dev
+servers are published on loopback-only host ports, starting at 9001 and 8081;
+override the ranges with `CODE_PORT_BASE` and `DEV_PORT_BASE`. Student home
+directories live in named Docker volumes, while credentials and login lists are
+kept under `.state/local/`. Existing named containers are started and reused.
+
+The local image is built from `container/Dockerfile`. It reuses the shared
+bootstrap to install the toolchain but skips VM-only services such as systemd,
+SSH, and Caddy. To open a shell, use the exact `docker exec` command printed in
+the login output. To remove an environment, remove both its container and its
+`<container-name>-home` volume; removing the volume permanently deletes that
+student's work.
 
 Configuration lives at the top of `deploy.sh` (all overridable via environment):
 
@@ -129,6 +136,10 @@ cloud-init/
   bootstrap.sh                Per-VM provisioning TEMPLATE. deploy.sh substitutes the
                               ${VC_*} placeholders (password and FQDN),
                               base64-encodes it, and delivers it as cloud-init customData.
+container/
+  Dockerfile                 Local container image using the shared bootstrap.
+  entrypoint.sh              Seeds the persistent student home, applies runtime
+                              credentials, and starts code-server as `student`.
 .state/                       (gitignored) persisted credentials + generated params + logins.
 ```
 
