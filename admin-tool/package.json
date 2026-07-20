@@ -1,5 +1,5 @@
 {
-  "name": "openrouter-key-manager",
+  "name": "ars-hackathon-admin-tool",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -19,6 +19,8 @@
     "check": "biome check ."
   },
   "dependencies": {
+    "@azure/data-tables": "^13.3.2",
+    "@azure/identity": "^4.13.1",
     "@openrouter/sdk": "^0.13.55",
     "express": "^5.2.1",
     "lucide": "^1.24.0"

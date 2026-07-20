@@ -1,27 +1,36 @@
-# OpenRouter Key Manager
+# Hackathon Admin Tool
 
-An unprotected TypeScript and Express admin dashboard for managing participant
-API keys in the Hackathon OpenRouter workspace. Every newly created key is
-automatically assigned to the existing `hackathon member` guardrail.
+An unprotected TypeScript and Express dashboard with two internal tools:
+
+- **OpenRouter AI API Key Manager** manages participant API keys in the
+  Hackathon OpenRouter workspace. Every new key is assigned to the existing
+  `hackathon member` guardrail.
+- **Redeem Access Key Manager** manages the short codes and access information
+  stored in the private Azure `AccessCodes` table.
 
 ## Run locally
 
 ```sh
 pnpm install
 cp .env.example .env
-# Add your OpenRouter management key to .env
+# Configure OpenRouter and Azure Table Storage in .env
 pnpm dev
 ```
 
 Open <http://localhost:3000>.
 
-## Dashboard capabilities
+The Azure identity running the tool needs the `Storage Table Data Contributor`
+role on the storage account and network access to its Table endpoint.
+
+## OpenRouter manager capabilities
 
 - List and search all active and disabled keys in the Hackathon workspace.
 - Create one key or up to 100 keys at once, returning plaintext values once.
 - Automatically assign every newly created key to a pre-defined guardrail.
 - Edit limits and names, quickly disable, or delete individual keys.
 - Bulk update, quickly disable, and bulk delete selected keys.
+- Generate one redeem key per newly revealed API key, using the API key name as
+  its label and the plaintext API key as its access information.
 - Always exclude BYOK usage from key limits (`includeByokInLimit: false`).
 - Always use a non-resetting spending limit (`limitReset: null`).
 - Track bulk create, edit, enable, disable, and delete operations in shared
@@ -35,7 +44,22 @@ cleared whenever the server process restarts. Completed bulk-creation records
 retain their plaintext keys for that window so they can be viewed after a page
 reload.
 
-> This dashboard intentionally has no authentication. Please be careful when deploying it to a public server. It is intended for local use only.
+## Redeem access manager capabilities
+
+- List and search access-key records, including their plaintext short codes.
+- Generate a random 12-character code or accept an administrator-supplied code.
+- Store the normalized plaintext code as the Azure Table `RowKey`, partitioned
+  by its first two characters for efficient point lookups.
+- Copy existing plaintext codes from the access-key list.
+- Edit labels, access information, expiry, and enabled state.
+- Select up to 100 records for bulk editing or enable/disable actions.
+- Download selected plaintext codes as a `label,key` CSV file.
+- Delete access-key records with optimistic concurrency protection.
+- Show the configured Azure subscription, tenant, and resource group in the
+  sidebar.
+
+> This dashboard intentionally has no authentication. Keep it on a trusted
+> workstation or private administrative network; never expose it publicly.
 
 ## Scripts
 

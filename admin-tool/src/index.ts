@@ -46,5 +46,5 @@ const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => 
 app.use(errorHandler);
 
 app.listen(port, host, () => {
-  console.log(`OpenRouter Key Manager listening on http://${host}:${port}`);
+  console.log(`Hackathon Admin Tool listening on http://${host}:${port}`);
 });
