@@ -21,6 +21,10 @@ Open <http://localhost:3000>.
 
 The Azure identity running the tool needs the `Storage Table Data Contributor`
 role on the storage account and network access to its Table endpoint.
+Subscription, tenant, and resource-group metadata is discovered through Azure
+Resource Manager when permitted. If discovery is unavailable, the sidebar uses
+the optional `AZURE_SUBSCRIPTION_*`, `AZURE_TENANT_ID`, and
+`AZURE_RESOURCE_GROUP` values without blocking table access.
 
 ## OpenRouter manager capabilities
 

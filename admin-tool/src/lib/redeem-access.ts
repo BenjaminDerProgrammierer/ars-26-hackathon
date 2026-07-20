@@ -198,58 +198,58 @@ function resourceGroupFromId(resourceId: string): string | null {
 async function discoverRedeemAccessContext(): Promise<RedeemAccessContext> {
   const accountName = requiredEnvironment("AZURE_STORAGE_ACCOUNT_NAME");
   const tableName = process.env.AZURE_STORAGE_TABLE_NAME?.trim() || "AccessCodes";
-  const token = await getAzureCredential().getToken("https://management.azure.com/.default");
-  if (!token) throw new Error("Could not obtain an Azure Resource Manager access token");
-
-  const subscriptions = await armList<ArmSubscription>(
-    "https://management.azure.com/subscriptions?api-version=2022-12-01",
-    token.token,
-  );
-  const configuredSubscriptionId = optionalEnvironment("AZURE_SUBSCRIPTION_ID");
-  subscriptions.sort((left, right) => {
-    if (left.subscriptionId === configuredSubscriptionId) return -1;
-    if (right.subscriptionId === configuredSubscriptionId) return 1;
-    return left.displayName.localeCompare(right.displayName);
-  });
-
-  for (const subscription of subscriptions.filter(({ state }) => state === "Enabled")) {
-    try {
-      const storageAccounts = await armList<ArmStorageAccount>(
-        `https://management.azure.com/subscriptions/${encodeURIComponent(subscription.subscriptionId)}/providers/Microsoft.Storage/storageAccounts?api-version=2025-01-01`,
-        token.token,
-      );
-      const storageAccount = storageAccounts.find(
-        ({ name }) => name.toLocaleLowerCase() === accountName.toLocaleLowerCase(),
-      );
-      if (!storageAccount) continue;
-
-      return {
-        accountName,
-        tableName,
-        subscriptionId: subscription.subscriptionId,
-        subscriptionName: subscription.displayName,
-        tenantId: subscription.tenantId,
-        resourceGroup: resourceGroupFromId(storageAccount.id),
-      };
-    } catch {
-      // The identity might not have access to every visible subscription.
-    }
-  }
-
-  const configuredContext = {
+  const configuredContext: RedeemAccessContext = {
+    accountName,
+    tableName,
     subscriptionId: optionalEnvironment("AZURE_SUBSCRIPTION_ID"),
     subscriptionName: optionalEnvironment("AZURE_SUBSCRIPTION_NAME"),
     tenantId: optionalEnvironment("AZURE_TENANT_ID"),
     resourceGroup: optionalEnvironment("AZURE_RESOURCE_GROUP"),
   };
-  if (Object.values(configuredContext).every(Boolean)) {
-    return { accountName, tableName, ...configuredContext };
+
+  try {
+    const token = await getAzureCredential().getToken("https://management.azure.com/.default");
+    if (!token) return configuredContext;
+
+    const subscriptions = await armList<ArmSubscription>(
+      "https://management.azure.com/subscriptions?api-version=2022-12-01",
+      token.token,
+    );
+    const configuredSubscriptionId = configuredContext.subscriptionId;
+    subscriptions.sort((left, right) => {
+      if (left.subscriptionId === configuredSubscriptionId) return -1;
+      if (right.subscriptionId === configuredSubscriptionId) return 1;
+      return left.displayName.localeCompare(right.displayName);
+    });
+
+    for (const subscription of subscriptions.filter(({ state }) => state === "Enabled")) {
+      try {
+        const storageAccounts = await armList<ArmStorageAccount>(
+          `https://management.azure.com/subscriptions/${encodeURIComponent(subscription.subscriptionId)}/providers/Microsoft.Storage/storageAccounts?api-version=2025-01-01`,
+          token.token,
+        );
+        const storageAccount = storageAccounts.find(
+          ({ name }) => name.toLocaleLowerCase() === accountName.toLocaleLowerCase(),
+        );
+        if (!storageAccount) continue;
+
+        return {
+          accountName,
+          tableName,
+          subscriptionId: subscription.subscriptionId,
+          subscriptionName: subscription.displayName,
+          tenantId: subscription.tenantId,
+          resourceGroup: resourceGroupFromId(storageAccount.id),
+        };
+      } catch {
+        // The identity might not have access to every visible subscription.
+      }
+    }
+  } catch {
+    // Resource Manager metadata is optional; table data access may still work.
   }
 
-  throw new RedeemAccessError(
-    `Could not locate storage account ${accountName} through Azure Resource Manager`,
-    503,
-  );
+  return configuredContext;
 }
 
 export async function getRedeemAccessContext(): Promise<RedeemAccessContext> {
