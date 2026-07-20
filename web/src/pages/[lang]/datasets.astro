@@ -1,6 +1,6 @@
 ---
-import { getCollection, render } from "astro:content";
-import { type Lang, useTranslations } from "../../i18n/ui";
+import { getCollection } from "astro:content";
+import { href, type Lang, useTranslations } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export function getStaticPaths() {
@@ -10,109 +10,232 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 
-const entries = (
-  await getCollection("datasets", (entry) => entry.id.startsWith(`${lang}/`))
-).sort((a, b) => a.data.order - b.data.order);
-
-const rendered = await Promise.all(
-  entries.map(async (entry) => ({
-    entry,
-    Content: (await render(entry)).Content,
-  })),
-);
-
-const groups = [
-  {
-    key: "festival",
-    items: rendered.filter(({ entry }) => entry.data.group === "festival"),
-  },
-  {
-    key: "recommended",
-    items: rendered.filter(({ entry }) => entry.data.status === "recommended"),
-  },
-  {
-    key: "preparation",
-    items: rendered.filter(({ entry }) => entry.data.status === "preparation"),
-  },
-  {
-    key: "optional",
-    items: rendered.filter(({ entry }) => entry.data.status === "optional"),
-  },
+const statusOrder = [
+  "essential",
+  "recommended",
+  "in-progress",
+  "optional",
 ] as const;
+
+const datasets = (await getCollection("datasets")).sort((a, b) => {
+  const statusDifference =
+    statusOrder.indexOf(a.data.status) - statusOrder.indexOf(b.data.status);
+  return statusDifference || a.data.title.localeCompare(b.data.title, "de");
+});
 
 const copy = {
   en: {
+    eyebrow: "Festival & Linz Open Data",
     intro:
-      "The Festival 2026 program export and the strongest Linz sources found in a review of all 820 city catalog records. Readiness labels show what teams can use directly and what still needs organizer preparation.",
-    festival: "The festival dataset",
-    recommended: "Recommended Linz sources",
-    preparation: "Preparation required",
-    optional: "Optional and showcase sources",
-    status: {
-      recommended: "Recommended source",
-      preparation: "Organizer preparation required",
-      optional: "Optional / showcase",
+      "Start with the Festival 2026 program export, then explore a reviewed catalog of Linz datasets. Each entry records readiness, format, data vintage, practical limitations, and primary sources.",
+    sourceLanguage:
+      "The authoritative dataset notes are maintained in German. Interface labels remain available in English and German.",
+    count: `${datasets.length + 1} datasets`,
+    format: "Format",
+    vintage: "Data vintage",
+    open: "View dataset notes",
+    overview: "Read the review method and full verdict",
+    festival: {
+      eyebrow: "Start here // Official Festival dataset",
+      title: "Festival 2026 Program Export",
+      summary:
+        "The current Negotiating Humanity program export as one JSON file: 706 projects, 360 contacts, 138 locations, and 278 calendar rows.",
+      provider: "Ars Electronica",
+      format: "JSON, approximately 3 MB",
+      vintage: "Export from July 20, 2026",
+      description:
+        "This is a working CMS export with bilingual program descriptions, categories, ticket requirements, contacts, venues, and calendar slots. Normalize linked IDs to their trailing hashes, read event times from the calendar side, filter internal records, and validate coordinates before spatial use.",
+      download: "Download the latest export",
+      guide: "Read the dataset guide",
     },
-    source: "Source",
-    open: "Open primary source",
+    status: {
+      essential: {
+        heading: "Essential",
+        label: "Use",
+        description:
+          "Strong default sources that need only light normalization.",
+      },
+      recommended: {
+        heading: "Recommended with preparation",
+        label: "Prepare",
+        description:
+          "Useful sources that need a snapshot, adapter, conversion, or fallback.",
+      },
+      "in-progress": {
+        heading: "Decision in progress",
+        label: "Pending",
+        description:
+          "Promising sources with metadata, licensing, or preparation still to resolve.",
+      },
+      optional: {
+        heading: "Optional and experimental",
+        label: "Optional",
+        description:
+          "Secondary sources for clearly scoped prototypes and showcase ideas.",
+      },
+    },
   },
   de: {
+    eyebrow: "Festival- & Linz-Open-Data",
     intro:
-      "Der Programm-Export des Festivals 2026 und die stärksten Linzer Quellen aus der Prüfung aller 820 städtischen Katalogeinträge. Die Kennzeichnung zeigt, was Teams direkt verwenden können und was noch zentral aufbereitet werden muss.",
-    festival: "Der Festival-Datensatz",
-    recommended: "Empfohlene Linzer Quellen",
-    preparation: "Aufbereitung erforderlich",
-    optional: "Optionale und Showcase-Quellen",
-    status: {
-      recommended: "Empfohlene Quelle",
-      preparation: "Zentrale Aufbereitung erforderlich",
-      optional: "Optional / Showcase",
+      "Beginnt mit dem Programm-Export des Festivals 2026 und erkundet danach den geprüften Katalog Linzer Datensätze. Jeder Eintrag dokumentiert Reifegrad, Format, Datenstand, praktische Einschränkungen und Primärquellen.",
+    sourceLanguage:
+      "Die verbindlichen Datensatzhinweise werden auf Deutsch gepflegt. Die Navigation ist auf Deutsch und Englisch verfügbar.",
+    count: `${datasets.length + 1} Datensätze`,
+    format: "Format",
+    vintage: "Datenstand",
+    open: "Datensatzhinweise öffnen",
+    overview: "Prüfmethode und Gesamturteil lesen",
+    festival: {
+      eyebrow: "Hier beginnen // Offizieller Festival-Datensatz",
+      title: "Festival 2026 Programm-Export",
+      summary:
+        "Der aktuelle Programm-Export von Negotiating Humanity als eine JSON-Datei: 706 Projekte, 360 Kontakte, 138 Orte und 278 Kalenderzeilen.",
+      provider: "Ars Electronica",
+      format: "JSON, etwa 3 MB",
+      vintage: "Export vom 20. Juli 2026",
+      description:
+        "Dies ist ein Arbeits-Export aus dem CMS mit zweisprachigen Programmbeschreibungen, Kategorien, Ticketangaben, Kontakten, Orten und Kalenderterminen. Normalisiert verknüpfte IDs auf den abschließenden Hash, lest Veranstaltungszeiten von der Kalenderseite, filtert interne Einträge und prüft Koordinaten vor räumlichen Anwendungen.",
+      download: "Aktuellen Export herunterladen",
+      guide: "Datensatz-Anleitung lesen",
     },
-    source: "Quelle",
-    open: "Zur primären Quelle",
+    status: {
+      essential: {
+        heading: "Essenziell",
+        label: "Verwenden",
+        description:
+          "Starke Standardquellen, die nur leicht normalisiert werden müssen.",
+      },
+      recommended: {
+        heading: "Empfohlen mit Aufbereitung",
+        label: "Aufbereiten",
+        description:
+          "Nützliche Quellen, die Snapshot, Adapter, Konvertierung oder Fallback benötigen.",
+      },
+      "in-progress": {
+        heading: "Entscheidung offen",
+        label: "In Klärung",
+        description:
+          "Vielversprechende Quellen mit offenen Metadaten-, Lizenz- oder Aufbereitungsfragen.",
+      },
+      optional: {
+        heading: "Optional und experimentell",
+        label: "Optional",
+        description:
+          "Sekundäre Quellen für klar begrenzte Prototypen und Showcase-Ideen.",
+      },
+    },
   },
 }[lang];
+
+const groups = statusOrder.map((status) => ({
+  status,
+  items: datasets.filter((dataset) => dataset.data.status === status),
+}));
+
+function slugFor(id: string): string {
+  return id.split("/")[0];
+}
 ---
 
 <BaseLayout lang={lang} title={t("nav.datasets")} description={copy.intro}>
   <section class="title-band">
     <div class="wrap">
+      <p class="eyebrow">{copy.eyebrow} // {copy.count}</p>
       <h1>{t("nav.datasets")}</h1>
       <p class="intro">{copy.intro}</p>
+      <p class="language-note">{copy.sourceLanguage}</p>
+      <a
+        class="overview-link"
+        href="https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/README.md"
+      >
+        {copy.overview} ↗
+      </a>
+    </div>
+  </section>
+
+  <section class="festival-dataset" aria-labelledby="festival-dataset-title">
+    <div class="wrap">
+      <article class="festival-entry">
+        <div class="festival-heading">
+          <p class="festival-eyebrow">{copy.festival.eyebrow}</p>
+          <h2 id="festival-dataset-title">{copy.festival.title}</h2>
+          <p class="provider">{copy.festival.provider}</p>
+        </div>
+        <div class="festival-body">
+          <p class="summary">{copy.festival.summary}</p>
+          <p>{copy.festival.description}</p>
+          <dl>
+            <div>
+              <dt>{copy.format}</dt>
+              <dd>{copy.festival.format}</dd>
+            </div>
+            <div>
+              <dt>{copy.vintage}</dt>
+              <dd>{copy.festival.vintage}</dd>
+            </div>
+          </dl>
+          <div class="festival-actions">
+            <a
+              class="button"
+              href="https://ars.electronica.art/negotiatinghumanity/hackathondata/"
+            >
+              {copy.festival.download} ↓
+            </a>
+            <a class="button button--outline" href={href(lang, "tutorials/festival-dataset")}>
+              {copy.festival.guide} →
+            </a>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
 
   {
-    groups.map((group) => group.items.length > 0 && (
-      <section class="group">
+    groups.map(({ status, items }, groupIndex) => (
+      <section class="group" aria-labelledby={`group-${status}`}>
         <div class="wrap">
-          <h2>{copy[group.key]}</h2>
-          {group.items.map(({ entry, Content }) => (
-            <article>
-              <header>
-                <h3>{entry.data.title}</h3>
-                {entry.data.status && (
-                  <p class={`status status--${entry.data.status}`}>
-                    {copy.status[entry.data.status]}
-                  </p>
-                )}
-                <p class="meta">
-                  {copy.source}: {entry.data.provider}
-                </p>
-              </header>
-              <div class="body">
-                <p class="summary">{entry.data.summary}</p>
-                <div class="prose">
-                  <Content />
-                </div>
-                <p>
-                  <a class="button button--outline" href={entry.data.url}>
-                    {copy.open}
-                  </a>
-                </p>
-              </div>
-            </article>
-          ))}
+          <header class="group-heading">
+            <p class="group-number">{String(groupIndex + 1).padStart(2, "0")}</p>
+            <div>
+              <h2 id={`group-${status}`}>{copy.status[status].heading}</h2>
+              <p>{copy.status[status].description}</p>
+            </div>
+          </header>
+
+          <ol class="dataset-list">
+            {items.map((dataset) => (
+              <li>
+                <article>
+                  <div class="dataset-heading">
+                    <p class={`status status--${status}`}>{copy.status[status].label}</p>
+                    <h3>
+                      <a href={href(lang, `datasets/${slugFor(dataset.id)}`)}>
+                        {dataset.data.title}
+                      </a>
+                    </h3>
+                    <p class="provider">{dataset.data.provider}</p>
+                  </div>
+                  <div class="dataset-body">
+                    <p class="summary">{dataset.data.summary}</p>
+                    <dl>
+                      <div>
+                        <dt>{copy.format}</dt>
+                        <dd>{dataset.data.format}</dd>
+                      </div>
+                      <div>
+                        <dt>{copy.vintage}</dt>
+                        <dd>{dataset.data.data_vintage}</dd>
+                      </div>
+                    </dl>
+                    <a class="detail-link" href={href(lang, `datasets/${slugFor(dataset.id)}`)}>
+                      {copy.open} →
+                    </a>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
     ))
@@ -131,6 +254,14 @@ const copy = {
     outline-color: var(--color-paper);
   }
 
+  .eyebrow {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
   h1 {
     font-size: var(--text-2xl);
     text-transform: uppercase;
@@ -139,41 +270,129 @@ const copy = {
 
   .intro {
     margin: var(--space-4) 0 0;
+    max-width: var(--width-reading);
     font-size: var(--text-lg);
     font-weight: 500;
+  }
+
+  .language-note {
     max-width: var(--width-reading);
+    margin: var(--space-4) 0;
+    font-size: var(--text-sm);
+  }
+
+  .overview-link {
+    font-weight: 600;
   }
 
   .group {
-    margin-bottom: var(--space-7);
+    margin-bottom: var(--space-8);
   }
 
-  .group h2 {
-    font-size: var(--text-xl);
-    text-transform: uppercase;
-    border-bottom: 3px solid var(--color-places);
-    padding-bottom: var(--space-3);
+  .festival-dataset {
+    margin-bottom: var(--space-8);
   }
 
-  article {
+  .festival-entry {
     display: grid;
-    gap: var(--space-2) var(--space-6);
-    padding-block: var(--space-5);
-    border-bottom: 1px solid var(--color-rule);
+    gap: var(--space-5) var(--space-6);
+    padding-block: var(--space-6);
+    border-block: 3px solid var(--color-identity);
   }
 
   @media (min-width: 48rem) {
-    article {
-      grid-template-columns: 1fr 2fr;
+    .festival-entry {
+      grid-template-columns: minmax(13rem, 1fr) 2fr;
     }
   }
 
-  article h3 {
-    font-size: var(--text-lg);
-    margin-bottom: var(--space-2);
+  .festival-eyebrow {
+    margin: 0 0 var(--space-3);
+    color: #a52c04;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
-  .meta {
+  .festival-heading h2 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+    text-transform: uppercase;
+  }
+
+  .festival-body > p:not(.summary) {
+    max-width: var(--width-reading);
+  }
+
+  .festival-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+  }
+
+  .festival-actions .button:first-child {
+    background: var(--color-identity);
+    color: var(--color-on-identity);
+  }
+
+  .group-heading {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    padding-bottom: var(--space-4);
+    border-bottom: 3px solid var(--color-places);
+  }
+
+  .group-number {
+    margin: 0;
+    color: var(--color-places);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .group-heading h2 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+    text-transform: uppercase;
+  }
+
+  .group-heading p:last-child {
+    max-width: var(--width-reading);
+    margin: 0;
+  }
+
+  .dataset-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dataset-list li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .dataset-list article {
+    display: grid;
+    gap: var(--space-4) var(--space-6);
+    padding-block: var(--space-5);
+  }
+
+  @media (min-width: 48rem) {
+    .dataset-list article {
+      grid-template-columns: minmax(13rem, 1fr) 2fr;
+    }
+  }
+
+  h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-lg);
+  }
+
+  .provider {
     color: var(--color-muted);
     font-size: var(--text-sm);
     margin: 0;
@@ -181,7 +400,7 @@ const copy = {
 
   .status {
     display: inline-block;
-    margin: 0 0 var(--space-2);
+    margin: 0 0 var(--space-3);
     padding: var(--space-1) var(--space-2);
     border: 1px solid currentColor;
     font-size: var(--text-sm);
@@ -189,12 +408,16 @@ const copy = {
     line-height: 1.3;
   }
 
-  .status--recommended {
+  .status--essential {
     color: #006b55;
   }
 
-  .status--preparation {
+  .status--recommended {
     color: #9d1448;
+  }
+
+  .status--in-progress {
+    color: #8a4b00;
   }
 
   .status--optional {
@@ -202,14 +425,33 @@ const copy = {
   }
 
   .summary {
+    margin-top: 0;
     font-weight: 500;
   }
 
-  .body :global(p:last-of-type) {
-    margin-bottom: 0;
+  dl {
+    display: grid;
+    gap: var(--space-2) var(--space-5);
+    margin: 0 0 var(--space-4);
   }
 
-  .body > p:last-child {
-    margin: var(--space-4) 0 0;
+  @media (min-width: 34rem) {
+    dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  dt {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .detail-link {
+    font-weight: 600;
   }
 </style>
