@@ -20,10 +20,11 @@ see the skill's SKILL.md and references/data-quality.md):
 """
 
 import json
+import math
 import re
 import sys
 import urllib.request
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -74,9 +75,18 @@ def build_indexes(data):
 
 # ------------------------------------------------------- cleansing helpers
 
+def _is_finite_number(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def parse_coord(value):
     """Convert a schema-v2 numeric coordinate to float, or return None."""
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
+    if not _is_finite_number(value):
         return None
     return float(value)
 
@@ -150,9 +160,11 @@ def event_rows(data, indexes=None, public_only=False):
     Uses the authoritative direction calendar → project. Venue comes from the
     calendar rollup when it resolves, else from the project. Slots whose
     project is missing are skipped. With ``public_only=True``, the slot and
-    project must have ``public_for_hackathon: true``. Joined locations are
-    retained regardless of their visibility flag so venue hierarchies remain
-    complete, as required by ``_meta.usage.locations_note``.
+    project must have ``public_for_hackathon: true``. Directly joined
+    locations are retained regardless of their visibility flag. Callers that
+    need the complete venue hierarchy can traverse their ``Linked Parent``
+    relations through the location index, as required by
+    ``_meta.usage.locations_note``.
 
     'start_dt'/'end_dt' are the parsed full datetimes (see
     parse_event_datetime; None when the 'Time' string is missing).
@@ -174,12 +186,18 @@ def event_rows(data, indexes=None, public_only=False):
             continue
         if public_only and not (is_public(slot) and is_public(project)):
             continue
-        loc_keys = links(slot, "Linked Location") or links(project, "Linked Location")
+        loc_keys = links(slot, "Linked Location")
         locations = [
             idx["locations"][k]
             for k in loc_keys
             if k in idx["locations"]
         ]
+        if not locations:
+            locations = [
+                idx["locations"][k]
+                for k in links(project, "Linked Location")
+                if k in idx["locations"]
+            ]
         start_dt, end_dt = parse_event_datetime(slot.get("Time"))
         lat = lon = None
         for loc in locations:
@@ -216,11 +234,16 @@ def _is_datetime(value):
     """True for an RFC 3339-style timestamp accepted by JSON Schema."""
     if not isinstance(value, str):
         return False
+    if re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?"
+            r"(?:Z|[+-]\d{2}:\d{2})", value, re.IGNORECASE) is None:
+        return False
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        normalized = value[:-1] + "+00:00" if value[-1] in "Zz" else value
+        parsed = datetime.fromisoformat(normalized)
     except ValueError:
         return False
-    return "T" in value and parsed.tzinfo is not None
+    return parsed.tzinfo is not None
 
 
 def _schema_violations(prop, value, defs, path=()):
@@ -248,7 +271,7 @@ def _schema_violations(prop, value, defs, path=()):
         "null": value is None,
         "string": isinstance(value, str),
         "integer": isinstance(value, int) and not isinstance(value, bool),
-        "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+        "number": _is_finite_number(value),
         "boolean": isinstance(value, bool),
         "array": isinstance(value, list),
         "object": isinstance(value, dict),
@@ -256,6 +279,14 @@ def _schema_violations(prop, value, defs, path=()):
     if not valid_type:
         yield path, "invalid value"
         return
+
+    if expected == "number":
+        if "minimum" in prop and value < prop["minimum"]:
+            yield path, "invalid value"
+            return
+        if "maximum" in prop and value > prop["maximum"]:
+            yield path, "invalid value"
+            return
 
     if expected == "string" and prop.get("format") == "date-time":
         if not _is_datetime(value):
@@ -309,8 +340,9 @@ def _violation_key(path, kind):
 def verify(data, schema):
     """Validate an export against the schema; return Counter of violations.
 
-    Keys are (database, field, kind) where kind is 'unknown field',
-    'missing required field', or 'invalid value'.
+    Keys are (database, field, kind). In addition to JSON Schema violations,
+    schema-v2 identity and authoritative calendar-relation invariants are
+    checked across records.
     """
     defs = schema.get("$defs", {})
     violations = Counter()
@@ -323,23 +355,121 @@ def verify(data, schema):
     # JSON Schema can constrain the individual relation fields, but cannot
     # express that project_ref must equal the sole Linked Projects value.
     # Enforce the schema-v2 calendar relation invariant explicitly.
-    calendar = data.get("calendar") if isinstance(data, dict) else None
+    databases = {
+        db: value if isinstance(value, list) else []
+        for db in DATABASES
+        for value in [data.get(db) if isinstance(data, dict) else None]
+    }
+
+    metadata = data.get("_meta") if isinstance(data, dict) else None
+    metadata_databases = (
+        metadata.get("databases") if isinstance(metadata, dict) else None)
+    if isinstance(metadata_databases, dict):
+        for db in DATABASES:
+            metadata_entry = metadata_databases.get(db)
+            declared_count = (
+                metadata_entry.get("count")
+                if isinstance(metadata_entry, dict) else None)
+            records = data.get(db) if isinstance(data, dict) else None
+            if (isinstance(declared_count, int)
+                    and not isinstance(declared_count, bool)
+                    and isinstance(records, list)
+                    and declared_count != len(records)):
+                violations[(
+                    "_meta", f"databases.{db}.count", "inconsistent value"
+                )] += 1
+
+    # canonical_id is the join key for every database. Duplicate values would
+    # make build_indexes() silently retain only the first record, so reject
+    # them here before any joined view is built.
+    seen_ids = set()
+    for db, records in databases.items():
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            canonical_id = key_of(record.get("canonical_id"))
+            if canonical_id is None:
+                continue
+            if canonical_id in seen_ids:
+                violations[(db, "canonical_id", "duplicate value")] += 1
+            else:
+                seen_ids.add(canonical_id)
+
+    visibility_expectations = {
+        "public": (True, True),
+        "offline": (True, False),
+        "hidden": (False, False),
+        "internal_marker": (False, False),
+    }
+    for db, records in databases.items():
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            expected = visibility_expectations.get(record.get("visibility_rule"))
+            if expected is None:
+                continue
+            for field, expected_value in zip(
+                    ("public_for_hackathon", "link_allowed"), expected):
+                actual = record.get(field)
+                if isinstance(actual, bool) and actual is not expected_value:
+                    violations[(db, field, "inconsistent visibility")] += 1
+
+    project_ids = {
+        key
+        for record in databases["projects"]
+        if isinstance(record, dict)
+        for key in [key_of(record.get("canonical_id"))]
+        if key is not None
+    }
+    expected_calendar_ids = defaultdict(list)
+    calendar = databases["calendar"]
     for slot in calendar if isinstance(calendar, list) else []:
         if not isinstance(slot, dict):
             continue
         status = slot.get("slot_status")
         project_ref = slot.get("project_ref")
+        canonical_project_ref = key_of(project_ref)
         linked_projects = slot.get("Linked Projects")
         if status == "assigned":
             if project_ref is None:
                 violations[("calendar", "project_ref", "invalid value")] += 1
             if project_ref is None or linked_projects != [project_ref]:
                 violations[("calendar", "Linked Projects", "invalid value")] += 1
+            if (canonical_project_ref is not None
+                    and canonical_project_ref not in project_ids):
+                violations[("calendar", "project_ref", "unresolved reference")] += 1
+            slot_id = key_of(slot.get("canonical_id"))
+            if canonical_project_ref in project_ids and slot_id is not None:
+                expected_calendar_ids[canonical_project_ref].append(slot_id)
         elif status == "unassigned":
             if project_ref is not None:
                 violations[("calendar", "project_ref", "invalid value")] += 1
             if linked_projects is not None:
                 violations[("calendar", "Linked Projects", "invalid value")] += 1
+
+    # projects.calendar_ids is the complete reverse relation derived from the
+    # authoritative assigned calendar slots. Compare as multisets so source
+    # ordering is irrelevant while duplicate references remain detectable.
+    expected_calendar_counts = {
+        project_id: Counter(calendar_ids)
+        for project_id, calendar_ids in expected_calendar_ids.items()
+    }
+    empty_calendar_count = Counter()
+    for project in databases["projects"]:
+        if not isinstance(project, dict):
+            continue
+        project_id = key_of(project.get("canonical_id"))
+        calendar_ids = project.get("calendar_ids")
+        if project_id is None or not isinstance(calendar_ids, list):
+            continue
+        if any(key_of(calendar_id) is None for calendar_id in calendar_ids):
+            # Item-level schema validation already reports malformed ids. Do
+            # not let unhashable values crash the cross-record comparison.
+            continue
+        expected_count = expected_calendar_counts.get(
+            project_id, empty_calendar_count)
+        if Counter(calendar_ids) != expected_count:
+            violations[("projects", "calendar_ids", "inconsistent relation")] += 1
     return violations
 
 

@@ -57,6 +57,30 @@ def valid_calendar_entry():
     }
 
 
+def valid_assigned_export():
+    data = valid_export()
+    slot = valid_calendar_entry()
+    data["calendar"] = [slot]
+    data["projects"][0]["calendar_ids"] = [slot["canonical_id"]]
+    return data, slot
+
+
+def valid_location():
+    return {
+        "id": "1123456789abcdef0123456789abcdef",
+        "canonical_id": "1123456789abcdef0123456789abcdef",
+        "id_source": "notion",
+        "Status Web": "pending",
+        "status_web": "pending",
+        "visibility_rule": "hidden",
+        "public_for_hackathon": False,
+        "link_allowed": False,
+        "coordinates_ok": True,
+        "Latitude": 48.3,
+        "Longitude": 14.3,
+    }
+
+
 class ParseEventDatetimeTests(unittest.TestCase):
     def test_same_day_range(self):
         start, end = ars_dataset.parse_event_datetime(
@@ -144,6 +168,8 @@ class SchemaV2HelperTests(unittest.TestCase):
         self.assertEqual(ars_dataset.parse_coord(48.309619), 48.309619)
         self.assertIsNone(ars_dataset.parse_coord("48,309619"))
         self.assertIsNone(ars_dataset.parse_coord(True))
+        self.assertIsNone(ars_dataset.parse_coord(float("nan")))
+        self.assertIsNone(ars_dataset.parse_coord(float("inf")))
 
     def test_is_public_requires_explicit_true(self):
         self.assertTrue(ars_dataset.is_public({"public_for_hackathon": True}))
@@ -224,6 +250,18 @@ class SchemaV2HelperTests(unittest.TestCase):
         self.assertEqual(len(rows[0]["locations"]), 2)
         self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.3, 14.3))
 
+    def test_event_rows_fall_back_when_slot_locations_do_not_resolve(self):
+        data, slot = valid_assigned_export()
+        location = valid_location()
+        data["locations"] = [location]
+        data["projects"][0]["Linked Location"] = [location["canonical_id"]]
+        slot["Linked Location"] = ["f" * 32]
+
+        rows = ars_dataset.event_rows(data)
+
+        self.assertEqual(rows[0]["locations"], [location])
+        self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.3, 14.3))
+
 
 class VerifyTests(unittest.TestCase):
     @classmethod
@@ -260,6 +298,47 @@ class VerifyTests(unittest.TestCase):
             1,
         )
 
+    def test_visibility_fields_must_be_consistent(self):
+        violations = self.verify(
+            lambda data: data["projects"][0].update({
+                "visibility_rule": "internal_marker",
+                "public_for_hackathon": True,
+                "link_allowed": True,
+            }))
+
+        self.assertEqual(
+            violations[(
+                "projects", "public_for_hackathon",
+                "inconsistent visibility",
+            )],
+            1,
+        )
+        self.assertEqual(
+            violations[("projects", "link_allowed", "inconsistent visibility")],
+            1,
+        )
+
+    def test_url_fields_require_http_or_https(self):
+        violations = self.verify(
+            lambda data: data["projects"][0].update(
+                {"Web Link": "javascript:alert(1)"}))
+
+        self.assertEqual(
+            violations[("projects", "Web Link", "invalid value")], 1)
+
+    def test_coordinates_must_be_finite_and_within_wgs84_bounds(self):
+        for latitude in (91, float("inf")):
+            with self.subTest(latitude=latitude):
+                data = valid_export()
+                location = valid_location()
+                location["Latitude"] = latitude
+                data["locations"] = [location]
+
+                violations = ars_dataset.verify(data, self.schema)
+
+                self.assertEqual(
+                    violations[("locations", "Latitude", "invalid value")], 1)
+
     def test_canonical_id_must_be_bare_lowercase_hex(self):
         for canonical_id in (
                 "not-a-canonical-id",
@@ -293,16 +372,74 @@ class VerifyTests(unittest.TestCase):
         )
         for changes, invalid_fields in cases:
             with self.subTest(changes=changes):
-                data = valid_export()
-                slot = valid_calendar_entry()
+                data, slot = valid_assigned_export()
                 slot.update(changes)
-                data["calendar"] = [slot]
 
                 violations = ars_dataset.verify(data, self.schema)
 
                 for field in invalid_fields:
                     self.assertEqual(
                         violations[("calendar", field, "invalid value")], 1)
+
+    def test_duplicate_canonical_id_is_rejected(self):
+        data = valid_export()
+        duplicate = dict(data["projects"][0])
+        duplicate["id"] = "Duplicate-0123456789abcdef0123456789abcdef"
+        data["projects"].append(duplicate)
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("projects", "canonical_id", "duplicate value")], 1)
+
+    def test_assigned_slot_project_reference_must_resolve(self):
+        data, slot = valid_assigned_export()
+        missing_id = "f" * 32
+        slot.update({
+            "project_ref": missing_id,
+            "Linked Projects": [missing_id],
+        })
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("calendar", "project_ref", "unresolved reference")],
+            1,
+        )
+
+    def test_malformed_project_reference_is_reported_without_crashing(self):
+        data, slot = valid_assigned_export()
+        slot.update({"project_ref": [], "Linked Projects": [[]]})
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("calendar", "project_ref", "invalid value")], 1)
+
+    def test_project_calendar_ids_must_match_assigned_slots(self):
+        data, _ = valid_assigned_export()
+        data["projects"][0]["calendar_ids"] = []
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("projects", "calendar_ids", "inconsistent relation")],
+            1,
+        )
+
+    def test_malformed_calendar_id_is_reported_without_crashing(self):
+        data = valid_export()
+        data["projects"][0]["calendar_ids"] = [[]]
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("projects", "calendar_ids", "invalid value")], 1)
+
+    def test_valid_assigned_calendar_relation_passes(self):
+        data, _ = valid_assigned_export()
+
+        self.assertFalse(ars_dataset.verify(data, self.schema))
 
     def test_unassigned_slot_requires_null_project_relations(self):
         data = valid_export()
@@ -353,16 +490,43 @@ class VerifyTests(unittest.TestCase):
         self.assertEqual(
             violations[("_meta", "databases.projects.count", "invalid value")], 1)
 
+    def test_metadata_database_count_must_match_records(self):
+        for mutate in (
+                lambda data: data["_meta"]["databases"]["projects"].update(
+                    {"count": 999}),
+                lambda data: data["projects"].clear()):
+            with self.subTest(mutate=mutate):
+                violations = self.verify(mutate)
+                self.assertEqual(
+                    violations[(
+                        "_meta", "databases.projects.count",
+                        "inconsistent value",
+                    )],
+                    1,
+                )
+
     def test_metadata_timestamp_format_is_validated(self):
         violations = self.verify(
             lambda data: data["_meta"].update({"generated_at": "not-a-date"}))
         self.assertEqual(
             violations[("_meta", "generated_at", "invalid value")], 1)
 
+    def test_lowercase_rfc3339_timestamp_is_valid(self):
+        self.assertFalse(self.verify(
+            lambda data: data["_meta"].update(
+                {"generated_at": "2026-07-20t07:59:49z"})))
+
     def test_missing_root_field_is_rejected(self):
         violations = self.verify(lambda data: data.pop("calendar"))
         self.assertEqual(
             violations[("<root>", "calendar", "missing required field")], 1)
+
+    def test_unknown_root_field_is_rejected(self):
+        violations = self.verify(
+            lambda data: data.update({"unexpected_database": []}))
+
+        self.assertEqual(
+            violations[("<root>", "unexpected_database", "unknown field")], 1)
 
     def test_internal_index_key_is_allowed(self):
         data = valid_export()

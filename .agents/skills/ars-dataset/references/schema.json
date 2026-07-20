@@ -65,18 +65,26 @@
 
     "calendar": {
       "type": "array",
-      "description": "Individual event time slots, each linked to exactly one project.",
+      "description": "Individual event time slots, either linked to one project or explicitly unassigned.",
       "items": {
         "$ref": "#/$defs/CalendarEntry"
       }
     }
   },
+  "additionalProperties": false,
 
   "$defs": {
 
     "NullableString": {
       "oneOf": [
         { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+
+    "NullableHttpUrl": {
+      "oneOf": [
+        { "type": "string", "pattern": "^https?://" },
         { "type": "null" }
       ]
     },
@@ -91,9 +99,16 @@
       ]
     },
 
-    "NullableNumber": {
+    "NullableLatitude": {
       "oneOf": [
-        { "type": "number" },
+        { "type": "number", "minimum": -90, "maximum": 90 },
+        { "type": "null" }
+      ]
+    },
+
+    "NullableLongitude": {
+      "oneOf": [
+        { "type": "number", "minimum": -180, "maximum": 180 },
         { "type": "null" }
       ]
     },
@@ -126,9 +141,46 @@
       "enum": ["pending", "not ready", "ready for web", "ready for upload", "new image needed", "done", "not needed", "offline"]
     },
 
+    "VisibilityInvariant": {
+      "allOf": [
+        {
+          "if": { "properties": { "visibility_rule": { "const": "public" } } },
+          "then": {
+            "properties": {
+              "public_for_hackathon": { "const": true },
+              "link_allowed": { "const": true }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "visibility_rule": { "const": "offline" } } },
+          "then": {
+            "properties": {
+              "public_for_hackathon": { "const": true },
+              "link_allowed": { "const": false }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "visibility_rule": { "enum": ["hidden", "internal_marker"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "public_for_hackathon": { "const": false },
+              "link_allowed": { "const": false }
+            }
+          }
+        }
+      ]
+    },
+
     "Project": {
       "type": "object",
       "description": "A project, exhibition, event, collection or other programme item.",
+      "allOf": [{ "$ref": "#/$defs/VisibilityInvariant" }],
       "required": ["id", "canonical_id", "id_source", "Name EN", "Curatorial Highlight", "Timetable", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "calendar_ids", "Web Link"],
       "properties": {
         "id": {
@@ -189,7 +241,7 @@
           "description": "Full project description in German"
         },
         "Web Link": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Festival website URL; source status markers such as 'offline' are normalized to null"
         },
         "Credits short": {
@@ -210,27 +262,27 @@
           "description": "Whether the project is a curated highlight"
         },
         "Website": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Project or artist website URL"
         },
         "Website Secondary": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Secondary website URL"
         },
         "Instagram": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Instagram profile URL"
         },
         "Facebook": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Facebook profile URL"
         },
         "LinkedIn": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "LinkedIn profile URL"
         },
         "Video URL": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "YouTube or Vimeo link (publicly accessible)"
         },
         "Linked Parent": {
@@ -271,7 +323,7 @@
           "description": "Minutes before event start that visitors should arrive"
         },
         "Registration URLs": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Registration link(s), comma-separated"
         },
         "Language": {
@@ -323,6 +375,7 @@
     "Contact": {
       "type": "object",
       "description": "An artist, speaker, group, institution or project partner.",
+      "allOf": [{ "$ref": "#/$defs/VisibilityInvariant" }],
       "required": ["id", "canonical_id", "id_source", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed"],
       "properties": {
         "id": {
@@ -379,19 +432,19 @@
           "description": "Publication status"
         },
         "Website": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Personal or organisational website URL"
         },
         "Instagram": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Instagram profile URL"
         },
         "Facebook": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Facebook profile URL"
         },
         "LinkedIn": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "LinkedIn profile URL"
         },
         "status_web": {
@@ -413,6 +466,7 @@
     "Location": {
       "type": "object",
       "description": "An event venue. Locations are hierarchical: Building → Floor → Room.",
+      "allOf": [{ "$ref": "#/$defs/VisibilityInvariant" }],
       "required": ["id", "canonical_id", "id_source", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "coordinates_ok"],
       "properties": {
         "id": {
@@ -472,11 +526,11 @@
           "description": "Full address as plain text"
         },
         "Latitude": {
-          "$ref": "#/$defs/NullableNumber",
+          "$ref": "#/$defs/NullableLatitude",
           "description": "WGS84 latitude as a JSON number"
         },
         "Longitude": {
-          "$ref": "#/$defs/NullableNumber",
+          "$ref": "#/$defs/NullableLongitude",
           "description": "WGS84 longitude as a JSON number"
         },
         "Address": {
@@ -492,27 +546,27 @@
           "description": "Additional visitor notes in German (null for all entries in this export)"
         },
         "Web Link": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "URL of the location page on the festival website"
         },
         "Link Map": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "OpenStreetMap link generated from coordinates"
         },
         "Website": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Location's own website URL"
         },
         "Instagram": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Instagram profile URL"
         },
         "Facebook": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Facebook profile URL"
         },
         "LinkedIn": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "LinkedIn profile URL"
         },
         "Linked Projects": {
@@ -554,6 +608,7 @@
       "description": "A single time slot, either assigned to a project or explicitly unassigned.",
       "required": ["id", "canonical_id", "id_source", "Linked Projects", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "project_ref", "slot_status"],
       "allOf": [
+        { "$ref": "#/$defs/VisibilityInvariant" },
         {
           "if": {
             "properties": { "slot_status": { "const": "assigned" } }
@@ -611,7 +666,7 @@
           "description": "Recommended arrival time as human-readable string"
         },
         "Registration URL": {
-          "$ref": "#/$defs/NullableString",
+          "$ref": "#/$defs/NullableHttpUrl",
           "description": "Registration link for this specific time slot"
         },
         "Category": {
