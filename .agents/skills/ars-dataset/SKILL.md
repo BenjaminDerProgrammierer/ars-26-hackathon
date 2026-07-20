@@ -84,7 +84,9 @@ The essentials, because naive code gets them wrong:
   `status_web` is normalized and `visibility_rule` explains the decision.
   `offline` means display is allowed but linking is not. The July export still
   includes hidden placeholders for testing; the August export is expected to
-  contain only the actual data.
+  contain only the actual data. Keep locations linked to public records even
+  when a location's own visibility flag is false; `_meta.usage.locations_note`
+  requires the complete venue hierarchy for maps.
 - Location and calendar ids are present and unique. Six location coordinates
   are still flagged as suspicious; consult `coordinates_ok` and
   `_meta.quality`. URLs are normalized to include a protocol.
@@ -98,6 +100,6 @@ This skill's module is importable for downstream work
 these functions already encode the join and cleansing rules above. For
 time/place analyses, `event_rows()` rows come with ready-to-use `start_dt`/
 `end_dt` (tz-aware datetimes) and `lat`/`lon` (parsed floats from the first
-location with a complete coordinate pair). Read
+location with a complete, non-flagged coordinate pair). Read
 `references/data-quality.md` first; it lists every known pitfall with the
 recommended workaround.

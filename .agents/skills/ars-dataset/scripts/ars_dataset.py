@@ -148,8 +148,10 @@ def event_rows(data, indexes=None, public_only=False):
 
     Uses the authoritative direction calendar → project. Venue comes from the
     calendar rollup when it resolves, else from the project. Slots whose
-    project is missing are skipped. With ``public_only=True``, the slot,
-    project, and returned locations must have ``public_for_hackathon: true``.
+    project is missing are skipped. With ``public_only=True``, the slot and
+    project must have ``public_for_hackathon: true``. Joined locations are
+    retained regardless of their visibility flag so venue hierarchies remain
+    complete, as required by ``_meta.usage.locations_note``.
 
     'start_dt'/'end_dt' are the parsed full datetimes (see
     parse_event_datetime; None when the 'Time' string is missing).
@@ -158,7 +160,8 @@ def event_rows(data, indexes=None, public_only=False):
     """
     idx = indexes or build_indexes(data)
     rows = []
-    for slot in data.get("calendar", []):
+    calendar = data.get("calendar")
+    for slot in calendar if isinstance(calendar, list) else []:
         project = None
         project_keys = ([slot["project_ref"]] if slot.get("project_ref")
                         else links(slot, "Linked Projects"))
@@ -175,11 +178,12 @@ def event_rows(data, indexes=None, public_only=False):
             idx["locations"][k]
             for k in loc_keys
             if k in idx["locations"]
-            and (not public_only or is_public(idx["locations"][k]))
         ]
         start_dt, end_dt = parse_event_datetime(slot.get("Time"))
         lat = lon = None
         for loc in locations:
+            if loc.get("coordinates_ok") is False:
+                continue
             lat = parse_coord(loc.get("Latitude"))
             lon = parse_coord(loc.get("Longitude"))
             if lat is not None and lon is not None:
@@ -314,6 +318,27 @@ def verify(data, schema):
         if len(path) > 2 and path[0] in DATABASES and path[2] == "_key":
             continue
         violations[_violation_key(path, kind)] += 1
+
+    # JSON Schema can constrain the individual relation fields, but cannot
+    # express that project_ref must equal the sole Linked Projects value.
+    # Enforce the schema-v2 calendar relation invariant explicitly.
+    calendar = data.get("calendar")
+    for slot in calendar if isinstance(calendar, list) else []:
+        if not isinstance(slot, dict):
+            continue
+        status = slot.get("slot_status")
+        project_ref = slot.get("project_ref")
+        linked_projects = slot.get("Linked Projects")
+        if status == "assigned":
+            if project_ref is None:
+                violations[("calendar", "project_ref", "invalid value")] += 1
+            if project_ref is None or linked_projects != [project_ref]:
+                violations[("calendar", "Linked Projects", "invalid value")] += 1
+        elif status == "unassigned":
+            if project_ref is not None:
+                violations[("calendar", "project_ref", "invalid value")] += 1
+            if linked_projects is not None:
+                violations[("calendar", "Linked Projects", "invalid value")] += 1
     return violations
 
 

@@ -63,7 +63,9 @@ Visibility is record-specific: do not expose a hidden project merely because a
 linked slot is public. In this test export no joined event has both a public
 calendar slot and a public project, so `event_rows(public_only=True)` correctly
 returns no rows. This is expected to change with later data, not a reason to
-relax the filter.
+relax the slot/project filter. Locations are the exception: retain locations
+linked to public records regardless of their own visibility flag so venue
+hierarchies and map context remain complete.
 
 ## 5. URLs
 
@@ -82,6 +84,8 @@ Six locations are flagged with `coordinates_ok: false` and listed in
 `48.09619 / 14.84447`, outside the expected Linz area. Coordinates are not yet
 fully reviewed and the provider expects further changes. For map apps, omit
 flagged markers or fall back to a verified parent building coordinate.
+`event_rows()` never derives `lat`/`lon` from an explicitly flagged location;
+it continues to the next joined location with a usable coordinate pair.
 
 ## 7. Dates remain display-oriented
 
