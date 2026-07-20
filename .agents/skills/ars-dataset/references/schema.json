@@ -552,7 +552,36 @@
     "CalendarEntry": {
       "type": "object",
       "description": "A single time slot, either assigned to a project or explicitly unassigned.",
-      "required": ["id", "canonical_id", "id_source", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "project_ref", "slot_status"],
+      "required": ["id", "canonical_id", "id_source", "Linked Projects", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "project_ref", "slot_status"],
+      "allOf": [
+        {
+          "if": {
+            "properties": { "slot_status": { "const": "assigned" } }
+          },
+          "then": {
+            "properties": {
+              "project_ref": { "$ref": "#/$defs/CanonicalId" },
+              "Linked Projects": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 1,
+                "items": { "$ref": "#/$defs/CanonicalId" }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "slot_status": { "const": "unassigned" } }
+          },
+          "then": {
+            "properties": {
+              "project_ref": { "type": "null" },
+              "Linked Projects": { "type": "null" }
+            }
+          }
+        }
+      ],
       "properties": {
         "id": {
           "type": "string",

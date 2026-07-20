@@ -13,9 +13,10 @@ rules are:
 1. Join every database and every `Linked *` field through `canonical_id`.
 2. Read concrete event slots from `calendar`; use `projects.calendar_ids` for
    the calendar-derived reverse relation.
-3. For public demo apps, include only records with
-   `public_for_hackathon: true`. Render a record's URL only when
-   `link_allowed: true`.
+3. For public demo apps, include projects and calendar slots only when
+   `public_for_hackathon: true`. Preserve their linked locations regardless of
+   a location's visibility flag so the complete venue hierarchy remains
+   available. Render a record's URL only when `link_allowed: true`.
 4. Treat `status_web` and `visibility_rule` as explanations of that visibility
    decision, not as a replacement for the two booleans.
 

@@ -40,6 +40,23 @@ def valid_export():
     }
 
 
+def valid_calendar_entry():
+    project_id = "0123456789abcdef0123456789abcdef"
+    return {
+        "id": "3123456789abcdef0123456789abcdef",
+        "canonical_id": "3123456789abcdef0123456789abcdef",
+        "id_source": "notion",
+        "Linked Projects": [project_id],
+        "Status Web": "pending",
+        "status_web": "pending",
+        "visibility_rule": "hidden",
+        "public_for_hackathon": False,
+        "link_allowed": False,
+        "project_ref": project_id,
+        "slot_status": "assigned",
+    }
+
+
 class ParseEventDatetimeTests(unittest.TestCase):
     def test_same_day_range(self):
         start, end = ars_dataset.parse_event_datetime(
@@ -133,7 +150,7 @@ class SchemaV2HelperTests(unittest.TestCase):
         self.assertFalse(ars_dataset.is_public({"public_for_hackathon": False}))
         self.assertFalse(ars_dataset.is_public({}))
 
-    def test_public_event_rows_trust_flags_and_hide_private_locations(self):
+    def test_public_event_rows_keep_locations_regardless_of_visibility(self):
         project_id = "0123456789abcdef0123456789abcdef"
         public_location_id = "1123456789abcdef0123456789abcdef"
         hidden_location_id = "2123456789abcdef0123456789abcdef"
@@ -148,11 +165,13 @@ class SchemaV2HelperTests(unittest.TestCase):
             "locations": [{
                 "canonical_id": hidden_location_id,
                 "public_for_hackathon": False,
+                "coordinates_ok": True,
                 "Latitude": 48.1,
                 "Longitude": 14.1,
             }, {
                 "canonical_id": public_location_id,
                 "public_for_hackathon": True,
+                "coordinates_ok": True,
                 "Latitude": 48.2,
                 "Longitude": 14.2,
             }],
@@ -168,9 +187,42 @@ class SchemaV2HelperTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(
             [location["canonical_id"] for location in rows[0]["locations"]],
-            [public_location_id],
+            [hidden_location_id, public_location_id],
         )
-        self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.2, 14.2))
+        self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.1, 14.1))
+
+    def test_event_rows_skip_suspicious_coordinates(self):
+        project_id = "0123456789abcdef0123456789abcdef"
+        flagged_location_id = "1123456789abcdef0123456789abcdef"
+        verified_location_id = "2123456789abcdef0123456789abcdef"
+        data = {
+            "projects": [{
+                "canonical_id": project_id,
+                "Linked Location": [flagged_location_id, verified_location_id],
+            }],
+            "contacts": [],
+            "locations": [{
+                "canonical_id": flagged_location_id,
+                "coordinates_ok": False,
+                "Latitude": 48.09619,
+                "Longitude": 14.84447,
+            }, {
+                "canonical_id": verified_location_id,
+                "coordinates_ok": True,
+                "Latitude": 48.3,
+                "Longitude": 14.3,
+            }],
+            "calendar": [{
+                "canonical_id": "3123456789abcdef0123456789abcdef",
+                "project_ref": project_id,
+            }],
+        }
+
+        rows = ars_dataset.event_rows(data)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]["locations"]), 2)
+        self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.3, 14.3))
 
 
 class VerifyTests(unittest.TestCase):
@@ -224,6 +276,52 @@ class VerifyTests(unittest.TestCase):
             violations[("projects", "Linked Contacts", "invalid value")],
             1,
         )
+
+    def test_assigned_slot_requires_matching_project_relations(self):
+        cases = (
+            ({"project_ref": None, "Linked Projects": None},
+             {"project_ref", "Linked Projects"}),
+            ({"Linked Projects": None}, {"Linked Projects"}),
+            ({"Linked Projects": ["1123456789abcdef0123456789abcdef"]},
+             {"Linked Projects"}),
+        )
+        for changes, invalid_fields in cases:
+            with self.subTest(changes=changes):
+                data = valid_export()
+                slot = valid_calendar_entry()
+                slot.update(changes)
+                data["calendar"] = [slot]
+
+                violations = ars_dataset.verify(data, self.schema)
+
+                for field in invalid_fields:
+                    self.assertEqual(
+                        violations[("calendar", field, "invalid value")], 1)
+
+    def test_unassigned_slot_requires_null_project_relations(self):
+        data = valid_export()
+        slot = valid_calendar_entry()
+        slot.update({"slot_status": "unassigned"})
+        data["calendar"] = [slot]
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("calendar", "project_ref", "invalid value")], 1)
+        self.assertEqual(
+            violations[("calendar", "Linked Projects", "invalid value")], 1)
+
+    def test_valid_unassigned_slot_passes(self):
+        data = valid_export()
+        slot = valid_calendar_entry()
+        slot.update({
+            "slot_status": "unassigned",
+            "project_ref": None,
+            "Linked Projects": None,
+        })
+        data["calendar"] = [slot]
+
+        self.assertFalse(ars_dataset.verify(data, self.schema))
 
     def test_missing_required_record_field_is_rejected(self):
         violations = self.verify(
