@@ -94,7 +94,7 @@ The essentials, because naive code gets them wrong:
 ## Task: data cleansing or building on the data
 
 This skill's module is importable for downstream work
-(`from ars_dataset import load, build_indexes, event_rows, parse_event_datetime, parse_coord, fix_url, is_public, is_test_content`) —
+(`from ars_dataset import load, build_indexes, event_rows, parse_event_datetime, parse_coord, is_public`) —
 these functions already encode the join and cleansing rules above. For
 time/place analyses, `event_rows()` rows come with ready-to-use `start_dt`/
 `end_dt` (tz-aware datetimes) and `lat`/`lon` (parsed floats from the first

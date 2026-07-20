@@ -101,7 +101,7 @@ class ParseEventDatetimeTests(unittest.TestCase):
 
 
 class SchemaV2HelperTests(unittest.TestCase):
-    def test_build_indexes_prefers_canonical_id(self):
+    def test_build_indexes_uses_canonical_id(self):
         data = valid_export()
         data["projects"][0]["id"] = "readable-without-a-hash"
 
@@ -110,10 +110,68 @@ class SchemaV2HelperTests(unittest.TestCase):
         self.assertIn(
             "0123456789abcdef0123456789abcdef", indexes["projects"])
 
+    def test_build_indexes_does_not_fall_back_to_readable_id(self):
+        data = valid_export()
+        data["projects"][0].pop("canonical_id")
+
+        indexes = ars_dataset.build_indexes(data)
+
+        self.assertFalse(indexes["projects"])
+
+    def test_key_of_accepts_only_bare_canonical_ids(self):
+        canonical_id = "0123456789abcdef0123456789abcdef"
+        self.assertEqual(ars_dataset.key_of(canonical_id), canonical_id)
+        self.assertIsNone(ars_dataset.key_of("Project-" + canonical_id))
+
+    def test_parse_coord_accepts_only_schema_v2_numbers(self):
+        self.assertEqual(ars_dataset.parse_coord(48.309619), 48.309619)
+        self.assertIsNone(ars_dataset.parse_coord("48,309619"))
+        self.assertIsNone(ars_dataset.parse_coord(True))
+
     def test_is_public_requires_explicit_true(self):
         self.assertTrue(ars_dataset.is_public({"public_for_hackathon": True}))
         self.assertFalse(ars_dataset.is_public({"public_for_hackathon": False}))
         self.assertFalse(ars_dataset.is_public({}))
+
+    def test_public_event_rows_trust_flags_and_hide_private_locations(self):
+        project_id = "0123456789abcdef0123456789abcdef"
+        public_location_id = "1123456789abcdef0123456789abcdef"
+        hidden_location_id = "2123456789abcdef0123456789abcdef"
+        data = {
+            "projects": [{
+                "canonical_id": project_id,
+                "Name EN": None,
+                "public_for_hackathon": True,
+                "Linked Location": [hidden_location_id, public_location_id],
+            }],
+            "contacts": [],
+            "locations": [{
+                "canonical_id": hidden_location_id,
+                "public_for_hackathon": False,
+                "Latitude": 48.1,
+                "Longitude": 14.1,
+            }, {
+                "canonical_id": public_location_id,
+                "public_for_hackathon": True,
+                "Latitude": 48.2,
+                "Longitude": 14.2,
+            }],
+            "calendar": [{
+                "canonical_id": "3123456789abcdef0123456789abcdef",
+                "project_ref": project_id,
+                "public_for_hackathon": True,
+            }],
+        }
+
+        rows = ars_dataset.event_rows(data, public_only=True)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(
+            [location["canonical_id"] for location in rows[0]["locations"]],
+            [public_location_id],
+        )
+        self.assertEqual((rows[0]["lat"], rows[0]["lon"]), (48.2, 14.2))
+
 
 class VerifyTests(unittest.TestCase):
     @classmethod
@@ -141,6 +199,29 @@ class VerifyTests(unittest.TestCase):
                 {"public_for_hackathon": "false"}))
         self.assertEqual(
             violations[("projects", "public_for_hackathon", "invalid value")],
+            1,
+        )
+
+    def test_canonical_id_must_be_bare_lowercase_hex(self):
+        for canonical_id in (
+                "not-a-canonical-id",
+                "0123456789ABCDEF0123456789ABCDEF",
+                "Project-0123456789abcdef0123456789abcdef"):
+            with self.subTest(canonical_id=canonical_id):
+                violations = self.verify(
+                    lambda data: data["projects"][0].update(
+                        {"canonical_id": canonical_id}))
+                self.assertEqual(
+                    violations[("projects", "canonical_id", "invalid value")],
+                    1,
+                )
+
+    def test_linked_ids_must_be_canonical_ids(self):
+        violations = self.verify(
+            lambda data: data["projects"][0].update(
+                {"Linked Contacts": ["not-a-canonical-id"]}))
+        self.assertEqual(
+            violations[("projects", "Linked Contacts", "invalid value")],
             1,
         )
 
