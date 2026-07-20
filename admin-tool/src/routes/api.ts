@@ -12,11 +12,21 @@ import {
   createApiKeys,
   deleteApiKey,
   getApiKey,
+  getCreditBalance,
   getHackathonContext,
   listApiKeys,
   type UpdateKeyInput,
   updateApiKey,
 } from "../lib/openrouter.js";
+import {
+  createRedeemAccessKey,
+  deleteRedeemAccessKey,
+  getRedeemAccessContext,
+  listRedeemAccessKeys,
+  normalizeRedeemCode,
+  type UpdateRedeemAccessKeyInput,
+  updateRedeemAccessKey,
+} from "../lib/redeem-access.js";
 
 class HttpError extends Error {
   constructor(
@@ -42,6 +52,32 @@ function parseName(value: unknown): string {
     throw new HttpError("Key name must be 120 characters or fewer");
   }
   return value.trim();
+}
+
+function parseRequiredText(value: unknown, label: string, maximumLength: number): string {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new HttpError(`${label} is required`);
+  }
+  const text = value.trim();
+  if (text.length > maximumLength) {
+    throw new HttpError(`${label} must be ${maximumLength} characters or fewer`);
+  }
+  return text;
+}
+
+function parseExpiration(value: unknown, requiredFuture = true): Date | undefined {
+  if (value === null || value === "" || value === undefined) return undefined;
+  if (typeof value !== "string") {
+    throw new HttpError("Expiration must be an ISO 8601 timestamp");
+  }
+  const expiresAt = new Date(value);
+  if (Number.isNaN(expiresAt.valueOf())) {
+    throw new HttpError("Expiration must be a valid ISO 8601 timestamp");
+  }
+  if (requiredFuture && expiresAt <= new Date()) {
+    throw new HttpError("Expiration must be in the future");
+  }
+  return expiresAt;
 }
 
 function parseNullableLimit(value: unknown): number | null {
@@ -102,6 +138,49 @@ function parseHashes(value: unknown): string[] {
   return [...new Set(hashes)];
 }
 
+function parseRedeemCodes(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new HttpError("At least one access code is required");
+  }
+  if (value.length > 100) throw new HttpError("Bulk operations are limited to 100 keys");
+
+  const codes = value.map((code) => {
+    if (typeof code !== "string") throw new HttpError("Every access code must be a string");
+    return normalizeRedeemCode(code);
+  });
+  return [...new Set(codes)];
+}
+
+function parseRedeemUpdate(
+  bodyValue: unknown,
+  options: { allowEtag?: boolean } = {},
+): UpdateRedeemAccessKeyInput {
+  const body = asRecord(bodyValue);
+  const changes: UpdateRedeemAccessKeyInput = {};
+
+  if (Object.hasOwn(body, "label")) {
+    changes.label = parseRequiredText(body.label, "Label", 120);
+  }
+  if (Object.hasOwn(body, "accessText")) {
+    changes.accessText = parseRequiredText(body.accessText, "Access information", 30_000);
+  }
+  if (Object.hasOwn(body, "enabled")) {
+    if (typeof body.enabled !== "boolean") throw new HttpError("enabled must be a boolean");
+    changes.enabled = body.enabled;
+  }
+  if (Object.hasOwn(body, "expiresAt")) {
+    changes.expiresAt = parseExpiration(body.expiresAt, false) ?? null;
+  }
+  if (options.allowEtag && Object.hasOwn(body, "etag")) {
+    if (typeof body.etag !== "string" || !body.etag) throw new HttpError("Invalid ETag");
+    changes.etag = body.etag;
+  }
+  if (Object.keys(changes).every((key) => key === "etag")) {
+    throw new HttpError("At least one access key property must be provided");
+  }
+  return changes;
+}
+
 function getHash(request: Request): string {
   const hash = request.params.hash;
   if (typeof hash !== "string" || !/^[a-f0-9]{64}$/i.test(hash)) {
@@ -148,11 +227,104 @@ router.use((_request, response, next) => {
 });
 
 router.get("/status", async (_request, response) => {
-  response.json(await getHackathonContext());
+  const [context, credits] = await Promise.all([getHackathonContext(), getCreditBalance()]);
+  response.json({ ...context, credits });
 });
 
 router.get("/keys", async (_request, response) => {
   response.json({ data: await listApiKeys() });
+});
+
+router.get("/redeem-access/status", async (_request, response) => {
+  response.json(await getRedeemAccessContext());
+});
+
+router.get("/redeem-access/keys", async (_request, response) => {
+  response.json({ data: await listRedeemAccessKeys() });
+});
+
+router.post("/redeem-access/keys/bulk", async (request, response) => {
+  const body = asRecord(request.body);
+  if (!Array.isArray(body.items) || body.items.length === 0) {
+    throw new HttpError("At least one redeem access key is required");
+  }
+  if (body.items.length > 100) {
+    throw new HttpError("Bulk creation is limited to 100 redeem access keys");
+  }
+
+  const inputs = body.items.map((value) => {
+    const item = asRecord(value);
+    const expiresAt = parseExpiration(item.expiresAt);
+    return {
+      label: parseRequiredText(item.label, "Label", 120),
+      accessText: parseRequiredText(item.accessText, "Access information", 30_000),
+      ...(expiresAt ? { expiresAt } : {}),
+    };
+  });
+  const created: Array<{
+    index: number;
+    data: Awaited<ReturnType<typeof createRedeemAccessKey>>;
+  }> = [];
+  const failed: Array<{ index: number; label: string; error: string }> = [];
+
+  for (const [index, input] of inputs.entries()) {
+    try {
+      created.push({ index, data: await createRedeemAccessKey(input) });
+    } catch (error: unknown) {
+      failed.push({ index, label: input.label, error: errorMessage(error) });
+    }
+  }
+
+  response.status(failed.length > 0 ? 207 : 201).json({ data: created, failed });
+});
+
+router.post("/redeem-access/keys", async (request, response) => {
+  const body = asRecord(request.body);
+  const expiresAt = parseExpiration(body.expiresAt);
+  const code = body.code;
+  if (code !== undefined && code !== "" && typeof code !== "string") {
+    throw new HttpError("Access code must be a string");
+  }
+  const result = await createRedeemAccessKey({
+    label: parseRequiredText(body.label, "Label", 120),
+    accessText: parseRequiredText(body.accessText, "Access information", 30_000),
+    ...(typeof code === "string" && code.trim() ? { code } : {}),
+    ...(expiresAt ? { expiresAt } : {}),
+  });
+  response.status(201).json({ data: result });
+});
+
+router.patch("/redeem-access/keys/bulk", async (request, response) => {
+  const body = asRecord(request.body);
+  const codes = parseRedeemCodes(body.codes);
+  const changes = parseRedeemUpdate(body.changes);
+  const updated = [];
+  const failed: Array<{ code: string; error: string }> = [];
+
+  for (const code of codes) {
+    try {
+      updated.push(await updateRedeemAccessKey(code, changes));
+    } catch (error: unknown) {
+      failed.push({ code, error: errorMessage(error) });
+    }
+  }
+
+  response.status(failed.length > 0 ? 207 : 200).json({ data: updated, failed });
+});
+
+router.patch("/redeem-access/keys/:code", async (request, response) => {
+  response.json({
+    data: await updateRedeemAccessKey(
+      request.params.code ?? "",
+      parseRedeemUpdate(request.body, { allowEtag: true }),
+    ),
+  });
+});
+
+router.delete("/redeem-access/keys/:code", async (request, response) => {
+  const etag = typeof request.query.etag === "string" ? request.query.etag : undefined;
+  await deleteRedeemAccessKey(request.params.code ?? "", etag);
+  response.status(204).end();
 });
 
 router.get("/operations", (_request, response) => {

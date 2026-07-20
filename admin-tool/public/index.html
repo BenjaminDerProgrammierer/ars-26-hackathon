@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <title>Hackathon API Key Manager</title>
+    <title>Hackathon Admin Tool</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon-512x512.png" />
@@ -15,7 +15,7 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="Hackathon API Key Manager home">
+        <a class="brand" href="/" aria-label="Hackathon admin tool home">
           <img class="brand-mark" src="/favicon-96x96.png" alt="" />
           <span>
             <strong>Ars Electronica</strong>
@@ -33,9 +33,18 @@
 
       <div class="dashboard-shell">
         <aside class="sidebar">
-          <p class="eyebrow">Key manager</p>
-          <ul class="context-list">
-            <li class="active"><a href="#keys"><i data-lucide="key-round" aria-hidden="true"></i>API keys</a></li>
+          <p class="eyebrow">Managers</p>
+          <nav class="manager-nav" aria-label="Admin tools">
+            <a class="active" href="#openrouter" data-manager="openrouter" aria-current="page">
+              <i data-lucide="sparkles" aria-hidden="true"></i>
+              <span>OpenRouter AI API Key Manager</span>
+            </a>
+            <a href="#redeem-access" data-manager="redeem-access">
+              <i data-lucide="ticket-check" aria-hidden="true"></i>
+              <span>Redeem Access Key Manager</span>
+            </a>
+          </nav>
+          <ul class="context-list" data-manager-context="openrouter">
             <li>
               <span class="context-label"><i data-lucide="building-2" aria-hidden="true"></i>Workspace</span>
               <strong id="workspace-name">Loading workspace…</strong>
@@ -49,9 +58,31 @@
               <ul id="sidebar-model-list"><li>Loading model access…</li></ul>
             </li>
           </ul>
+          <ul class="context-list" data-manager-context="redeem-access" hidden>
+            <li>
+              <span class="context-label"><i data-lucide="database" aria-hidden="true"></i>Storage account</span>
+              <strong id="redeem-storage-account">Not connected</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="table-2" aria-hidden="true"></i>Table</span>
+              <strong id="redeem-table-name">AccessCodes</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="cloud" aria-hidden="true"></i>Subscription</span>
+              <strong id="azure-subscription">Loading subscription…</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="landmark" aria-hidden="true"></i>Tenant</span>
+              <strong id="azure-tenant">Loading tenant…</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="folder-kanban" aria-hidden="true"></i>Resource group</span>
+              <strong id="azure-resource-group">Loading resource group…</strong>
+            </li>
+          </ul>
         </aside>
 
-        <main class="main" id="keys">
+        <main class="main" id="openrouter" data-manager-view="openrouter">
           <div class="page-heading">
             <div>
               <span class="eyebrow">Participant access</span>
@@ -63,7 +94,7 @@
             </button>
           </div>
 
-          <section class="metrics" aria-label="API key summary">
+          <section class="metrics api-key-metrics" aria-label="API key summary">
             <div class="metric-inline">
               <strong><span id="metric-active">—</span>/<span id="metric-total">—</span></strong>
               <span>active keys</span>
@@ -71,6 +102,10 @@
             <div class="metric-inline">
               <strong id="metric-usage">—</strong>
               <span>total usage</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="metric-credits">—</strong>
+              <span>available credits</span>
             </div>
             <div class="metric-inline">
               <strong id="metric-models">—</strong>
@@ -136,6 +171,83 @@
             <h2>No API keys found</h2>
             <p>Create a participant key or adjust your search.</p>
           </div>
+          </section>
+        </main>
+
+        <main class="main" id="redeem-access" data-manager-view="redeem-access" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">Participant access</span>
+              <h1>Redeem keys</h1>
+              <p>Manage the short codes that reveal development environment access information.</p>
+            </div>
+            <button class="button primary" id="create-redeem-button" type="button">
+              <i data-lucide="plus" aria-hidden="true"></i>Create access key
+            </button>
+          </div>
+
+          <section class="metrics" aria-label="Redeem access key summary">
+            <div class="metric-inline">
+              <strong id="redeem-metric-total">—</strong>
+              <span>total keys</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="redeem-metric-active">—</strong>
+              <span>active keys</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="redeem-metric-expired">—</strong>
+              <span>expired keys</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="toolbar">
+              <div>
+                <span class="eyebrow">Access management</span>
+                <h2>All redeem keys</h2>
+              </div>
+              <label class="search">
+                <span class="sr-only">Search redeem access keys</span>
+                <i data-lucide="search" aria-hidden="true"></i>
+                <input id="redeem-search-input" type="search" placeholder="Search label or code hint" />
+              </label>
+              <span id="redeem-result-count" class="result-count"></span>
+            </div>
+
+            <div class="bulk-bar" id="redeem-bulk-bar" hidden>
+              <strong><span id="redeem-selected-count">0</span> selected</strong>
+              <div>
+                <button class="button subtle" id="redeem-bulk-edit-button" type="button"><i data-lucide="square-pen" aria-hidden="true"></i>Edit selected</button>
+                <button class="button enable" id="redeem-bulk-enable-button" type="button" hidden><i data-lucide="power" aria-hidden="true"></i><span class="button-label">Enable selected</span></button>
+                <button class="button disable" id="redeem-bulk-disable-button" type="button"><i data-lucide="ban" aria-hidden="true"></i><span class="button-label">Disable selected</span></button>
+                <button class="button subtle" id="redeem-download-csv-button" type="button"><i data-lucide="download" aria-hidden="true"></i>Download CSV</button>
+                <button class="icon-button" id="redeem-clear-selection-button" type="button" aria-label="Clear selection"><i data-lucide="x" aria-hidden="true"></i></button>
+              </div>
+            </div>
+
+            <div class="table-wrap" id="redeem-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="checkbox-cell"><input id="redeem-select-all" type="checkbox" aria-label="Select all visible redeem keys" /></th>
+                    <th>Access key</th>
+                    <th>Access information</th>
+                    <th>Created</th>
+                    <th>Expires</th>
+                    <th>Status</th>
+                    <th><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="redeem-keys-body"></tbody>
+              </table>
+            </div>
+
+            <div class="empty-state" id="redeem-empty-state" hidden>
+              <img class="empty-icon" src="/favicon-96x96.png" alt="" />
+              <h2>No redeem access keys found</h2>
+              <p>Create an access key or adjust your search.</p>
+            </div>
           </section>
         </main>
       </div>
@@ -243,7 +355,10 @@
       <div class="secret-warning">OpenRouter will not show these plaintext keys again.</div>
       <div id="secrets-list" class="secrets-list"></div>
       <div class="dialog-actions split">
-        <button class="button subtle" id="download-csv-button" type="button"><i data-lucide="download" aria-hidden="true"></i>Download CSV</button>
+        <div>
+          <button class="button subtle" id="download-csv-button" type="button"><i data-lucide="download" aria-hidden="true"></i>Download CSV</button>
+          <button class="button subtle" id="generate-redeem-keys-button" type="button"><i data-lucide="ticket-plus" aria-hidden="true"></i><span class="button-label">Generate redeem keys</span></button>
+        </div>
         <div>
           <button class="button subtle" id="copy-all-button" type="button"><i data-lucide="copy" aria-hidden="true"></i>Copy all</button>
           <button class="button primary" type="button" data-close="secrets-dialog"><i data-lucide="check" aria-hidden="true"></i>Done</button>
@@ -262,5 +377,97 @@
         </div>
       </div>
     </dialog>
+
+    <dialog id="create-redeem-dialog">
+      <form id="create-redeem-form">
+        <div class="dialog-header">
+          <div><span class="eyebrow">Redeem access</span><h2>Create access key</h2></div>
+          <button class="icon-button" type="button" data-close="create-redeem-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="create-redeem-label">Label</label>
+            <input id="create-redeem-label" name="label" required autocomplete="off" placeholder="Environment 1" />
+          </div>
+          <div class="field">
+            <label for="create-redeem-code">Custom code <span>optional</span></label>
+            <input id="create-redeem-code" name="code" autocomplete="off" placeholder="Generated automatically" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="create-redeem-access-text">Access information</label>
+          <textarea id="create-redeem-access-text" name="accessText" rows="9" required placeholder="Environment 1&#10;  Code Server: …&#10;  Password: …"></textarea>
+        </div>
+        <div class="field">
+          <label for="create-redeem-expires">Expires at <span>optional</span></label>
+          <input id="create-redeem-expires" name="expiresAt" type="datetime-local" />
+        </div>
+        <div class="assignment-note">
+          <i data-lucide="database" aria-hidden="true"></i>
+          The normalized access code is stored in plaintext as the Azure Table row key.
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="create-redeem-dialog">Cancel</button>
+          <button class="button primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i>Create access key</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="edit-redeem-dialog">
+      <form id="edit-redeem-form">
+        <input id="edit-redeem-code" type="hidden" />
+        <input id="edit-redeem-etag" type="hidden" />
+        <div class="dialog-header">
+          <div><span class="eyebrow">Redeem access</span><h2>Edit access key</h2></div>
+          <button class="icon-button" type="button" data-close="edit-redeem-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="field">
+          <label for="edit-redeem-label">Label</label>
+          <input id="edit-redeem-label" required />
+        </div>
+        <div class="field">
+          <label for="edit-redeem-access-text">Access information</label>
+          <textarea id="edit-redeem-access-text" rows="9" required></textarea>
+        </div>
+        <div class="field">
+          <label for="edit-redeem-expires">Expires at <span>optional</span></label>
+          <input id="edit-redeem-expires" type="datetime-local" />
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="edit-redeem-dialog">Cancel</button>
+          <button class="button primary" type="submit"><i data-lucide="check" aria-hidden="true"></i>Save changes</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="bulk-edit-redeem-dialog">
+      <form id="bulk-edit-redeem-form">
+        <div class="dialog-header">
+          <div><span class="eyebrow">Bulk action</span><h2>Edit selected redeem keys</h2></div>
+          <button class="icon-button" type="button" data-close="bulk-edit-redeem-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <p class="dialog-copy">Only checked properties will be changed. The same value is applied to every selected key.</p>
+        <div class="bulk-change-row">
+          <input id="redeem-change-label" type="checkbox" />
+          <label for="redeem-bulk-label">Label</label>
+          <input id="redeem-bulk-label" maxlength="120" placeholder="Shared label" />
+        </div>
+        <div class="bulk-change-row bulk-change-row-textarea">
+          <input id="redeem-change-access-text" type="checkbox" />
+          <label for="redeem-bulk-access-text">Access information</label>
+          <textarea id="redeem-bulk-access-text" rows="5" maxlength="30000" placeholder="Shared access information"></textarea>
+        </div>
+        <div class="bulk-change-row">
+          <input id="redeem-change-expires" type="checkbox" />
+          <label for="redeem-bulk-expires">Expires at</label>
+          <input id="redeem-bulk-expires" type="datetime-local" />
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="bulk-edit-redeem-dialog">Cancel</button>
+          <button class="button primary" id="redeem-bulk-edit-submit" type="submit"><i data-lucide="check" aria-hidden="true"></i><span class="button-label">Apply to selected</span></button>
+        </div>
+      </form>
+    </dialog>
+
   </body>
 </html>

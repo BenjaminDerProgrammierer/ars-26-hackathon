@@ -30,6 +30,12 @@ export type HackathonContext = {
   };
 };
 
+export type CreditBalance = {
+  totalCredits: number;
+  totalUsage: number;
+  availableCredits: number;
+};
+
 let client: OpenRouter | undefined;
 let contextPromise: Promise<HackathonContext> | undefined;
 
@@ -140,6 +146,16 @@ export async function listApiKeys(): Promise<ApiKey[]> {
   });
 
   return response.data;
+}
+
+export async function getCreditBalance(): Promise<CreditBalance> {
+  const response = await getClient().credits.getCredits();
+  const { totalCredits, totalUsage } = response.data;
+  return {
+    totalCredits,
+    totalUsage,
+    availableCredits: totalCredits - totalUsage,
+  };
 }
 
 export async function getApiKey(hash: string): Promise<ApiKey> {
