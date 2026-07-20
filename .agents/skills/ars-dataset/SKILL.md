@@ -45,7 +45,9 @@ python3 scripts/ars_dataset.py diff OLD.json NEW.json          # what changed be
 
 `verify` checks every record against `references/schema.json` (unknown
 fields, missing required fields, wrong types, unknown enum values) and prints
-aggregated violations. The current export is expected to be clean; new
+aggregated violations. It also checks canonical-id uniqueness, the
+authoritative calendar/project relation, and declared database counts. The
+current export is expected to be clean; new
 violations after a fresh download indicate the source format changed —
 summarize them for the user and propose documentation updates rather than
 "fixing" the data locally.
@@ -66,9 +68,11 @@ source or new ones appeared.
 The essentials, because naive code gets them wrong:
 
 - **Join on `canonical_id`.** Every record has this bare 32-character hash,
-  and every `Linked *` field contains these exact values. The readable `id`
-  remains for display/debugging; do not join on it. `id_source` says whether
-  the id came from Notion or was derived deterministically.
+  and relation-valued `Linked *` fields contain these exact values. `Linked
+  Ticket` is the exception: it is free-text ticket information, not a
+  relation. The readable `id` remains for display/debugging; do not join on
+  it. `id_source` says whether the id came from Notion or was derived
+  deterministically.
 - **The calendar is the authoritative source of time slots** via
   `calendar."Linked Projects"` or the scalar `calendar.project_ref`.
   `projects.calendar_ids` is the complete, calendar-derived reverse relation.

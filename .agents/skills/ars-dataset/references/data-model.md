@@ -10,7 +10,8 @@ and internal staff assignments are removed at the source.
 `_meta.usage` is the authoritative machine-readable usage guide. Its central
 rules are:
 
-1. Join every database and every `Linked *` field through `canonical_id`.
+1. Join every database and relation-valued `Linked *` field through
+   `canonical_id`. `Linked Ticket` is free text, not a relation.
 2. Read concrete event slots from `calendar`; use `projects.calendar_ids` for
    the calendar-derived reverse relation.
 3. For public demo apps, include projects and calendar slots only when

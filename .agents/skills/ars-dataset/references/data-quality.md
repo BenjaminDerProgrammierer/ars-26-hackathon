@@ -8,7 +8,8 @@ applications.
 ## 1. IDs and joins
 
 All 1,482 records have a unique, non-null `canonical_id` containing a bare
-32-character hexadecimal value. Every `Linked *` value uses that same key.
+32-character hexadecimal value. Every relation-valued `Linked *` value uses
+that same key; `Linked Ticket` is free-text ticket information.
 
 | Database | Records | `notion` ids | `derived` ids |
 |---|---:|---:|---:|
@@ -91,8 +92,8 @@ it continues to the next joined location with a usable coordinate pair.
 
 `Start Time` and `End Time` contain only `HH:MM`; the date is embedded in the
 human-readable calendar `Time` string. Use the skill's
-`parse_event_datetime()` helper. One of the 250 currently joinable non-test
-event rows lacks a parseable date.
+`parse_event_datetime()` helper. One of the 253 rows currently returned by
+`event_rows()` lacks a parseable date.
 
 ## 8. Length limits are recommendations
 
