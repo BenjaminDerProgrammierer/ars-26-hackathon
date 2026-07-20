@@ -81,11 +81,11 @@
       ]
     },
 
-    "NullableStringArray": {
+    "NullableCanonicalIdArray": {
       "oneOf": [
         {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/$defs/CanonicalId" }
         },
         { "type": "null" }
       ]
@@ -107,6 +107,7 @@
 
     "CanonicalId": {
       "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
       "description": "Unique bare 32-character hexadecimal join key"
     },
 
@@ -233,24 +234,24 @@
           "description": "YouTube or Vimeo link (publicly accessible)"
         },
         "Linked Parent": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Parent project IDs – references projects[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Parent project canonical IDs – references projects[].canonical_id"
         },
         "Linked Child": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Child project IDs – references projects[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Child project canonical IDs – references projects[].canonical_id"
         },
         "Linked Contacts": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Contact IDs – references contacts[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Contact canonical IDs – references contacts[].canonical_id"
         },
         "Linked Location": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Location IDs – references locations[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Location canonical IDs – references locations[].canonical_id"
         },
         "Linked Calendar": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Calendar entry IDs – references calendar[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Calendar canonical IDs – references calendar[].canonical_id"
         },
         "calendar_ids": {
           "type": "array",
@@ -369,8 +370,8 @@
           "description": "Description in German"
         },
         "Linked Projects": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Associated project IDs – references projects[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Associated project canonical IDs – references projects[].canonical_id"
         },
         "Status Web": {
           "type": "string",
@@ -515,16 +516,16 @@
           "description": "LinkedIn profile URL"
         },
         "Linked Projects": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Project IDs at this location – references projects[].id (null for all entries in this export)"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Project canonical IDs – references projects[].canonical_id (null for all entries in this export)"
         },
         "Linked Parent": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Parent location ID – references locations[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Parent location canonical ID – references locations[].canonical_id"
         },
         "Linked Child": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Child location IDs – references locations[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Child location canonical IDs – references locations[].canonical_id"
         },
         "Status Web": {
           "$ref": "#/$defs/NormalizedStatus"
@@ -564,8 +565,8 @@
           "$ref": "#/$defs/IdSource"
         },
         "Linked Projects": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "The associated project ID – always exactly one element. References projects[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Associated project canonical ID; one element when assigned, null when unassigned. References projects[].canonical_id"
         },
         "Status Web": {
           "type": "string",
@@ -589,8 +590,8 @@
           "description": "Project category, inherited from linked project (rollup)"
         },
         "Linked Location": {
-          "$ref": "#/$defs/NullableStringArray",
-          "description": "Venue IDs, inherited from linked project (rollup) – references locations[].id"
+          "$ref": "#/$defs/NullableCanonicalIdArray",
+          "description": "Venue canonical IDs, inherited from linked project – references locations[].canonical_id"
         },
         "Language": {
           "$ref": "#/$defs/NullableString",

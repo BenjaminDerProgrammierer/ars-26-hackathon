@@ -15,8 +15,8 @@ With no FILE_OR_URL, summary/verify use the live download URL.
 Importable helpers (they encode the dataset's join and cleansing rules —
 see the skill's SKILL.md and references/data-quality.md):
 
-    load, build_indexes, key_of, links, parse_coord, fix_url,
-    is_public, is_test_content, parse_event_datetime, event_rows
+    load, build_indexes, key_of, links, parse_coord, is_public,
+    parse_event_datetime, event_rows
 """
 
 import json
@@ -30,7 +30,7 @@ from pathlib import Path
 DATASET_URL = "https://ars.electronica.art/negotiatinghumanity/hackathondata/"
 DATABASES = ("projects", "contacts", "locations", "calendar")
 DEFAULT_SCHEMA = Path(__file__).resolve().parent.parent / "references" / "schema.json"
-_HASH_RE = re.compile(r"[0-9a-f]{32}$")
+_CANONICAL_ID_RE = re.compile(r"^[0-9a-f]{32}$")
 
 
 # ---------------------------------------------------------------- loading
@@ -45,16 +45,11 @@ def load(source=DATASET_URL):
         return json.load(f)
 
 
-def key_of(record_id):
-    """Normalize an id-like value to a bare 32-char join key, or None.
-
-    Schema v2 records expose this value directly as ``canonical_id``. This
-    also supports legacy prefixed ids and bare link values.
-    """
-    if not record_id:
+def key_of(canonical_id):
+    """Return a valid schema-v2 canonical id, or None."""
+    if not isinstance(canonical_id, str):
         return None
-    m = _HASH_RE.search(record_id)
-    return m.group(0) if m else None
+    return canonical_id if _CANONICAL_ID_RE.fullmatch(canonical_id) else None
 
 
 def links(record, field):
@@ -64,14 +59,12 @@ def links(record, field):
 
 def build_indexes(data):
     """Return {db: {canonical_id: record}} and stamp records with ``_key``.
-
-    Falling back to ``id`` keeps the helper usable with schema-v1 exports.
     """
     indexes = {}
     for db in DATABASES:
         idx = {}
         for rec in data.get(db, []):
-            rec["_key"] = key_of(rec.get("canonical_id") or rec.get("id"))
+            rec["_key"] = key_of(rec.get("canonical_id"))
             if rec["_key"] is not None and rec["_key"] not in idx:
                 idx[rec["_key"]] = rec
         indexes[db] = idx
@@ -81,27 +74,10 @@ def build_indexes(data):
 # ------------------------------------------------------- cleansing helpers
 
 def parse_coord(value):
-    """Parse a numeric or legacy comma-decimal coordinate, or return None."""
-    if not value:
+    """Convert a schema-v2 numeric coordinate to float, or return None."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
-    try:
-        return float(str(value).replace(",", "."))
-    except ValueError:
-        return None
-
-
-def fix_url(value):
-    """Ensure a URL has a protocol; expand bare @instagram handles. None-safe.
-
-    Returns None for the 'offline' sentinel used in projects."Web Link".
-    """
-    if not value or value == "offline":
-        return None
-    if value.startswith(("http://", "https://")):
-        return value
-    if value.startswith("@"):
-        return "https://www.instagram.com/" + value[1:]
-    return "https://" + value
+    return float(value)
 
 
 def is_public(record):
@@ -167,21 +143,13 @@ def parse_event_datetime(time_text):
     return start, end
 
 
-def is_test_content(project):
-    """Legacy name-based test-content fallback for schema-v1 exports."""
-    name = project.get("Name EN")
-    if not name or name == "undefined":
-        return True
-    return name.startswith(("Test Event", "Test_")) or "NOT FOR WEB" in name
-
-
 def event_rows(data, indexes=None, public_only=False):
     """One dict per calendar slot, joined with its project and locations.
 
     Uses the authoritative direction calendar → project. Venue comes from the
     calendar rollup when it resolves, else from the project. Slots whose
-    project is missing or test content are skipped. With ``public_only=True``,
-    both the slot and project must have ``public_for_hackathon: true``.
+    project is missing are skipped. With ``public_only=True``, the slot,
+    project, and returned locations must have ``public_for_hackathon: true``.
 
     'start_dt'/'end_dt' are the parsed full datetimes (see
     parse_event_datetime; None when the 'Time' string is missing).
@@ -198,12 +166,17 @@ def event_rows(data, indexes=None, public_only=False):
             project = idx["projects"].get(k)
             if project:
                 break
-        if project is None or is_test_content(project):
+        if project is None:
             continue
         if public_only and not (is_public(slot) and is_public(project)):
             continue
         loc_keys = links(slot, "Linked Location") or links(project, "Linked Location")
-        locations = [idx["locations"][k] for k in loc_keys if k in idx["locations"]]
+        locations = [
+            idx["locations"][k]
+            for k in loc_keys
+            if k in idx["locations"]
+            and (not public_only or is_public(idx["locations"][k]))
+        ]
         start_dt, end_dt = parse_event_datetime(slot.get("Time"))
         lat = lon = None
         for loc in locations:
@@ -225,7 +198,7 @@ def event_rows(data, indexes=None, public_only=False):
             "duration_min": slot.get("Duration"),
             "time_text": slot.get("Time"),
             "language": slot.get("Language") or project.get("Language"),
-            "registration_url": fix_url(slot.get("Registration URL")),
+            "registration_url": slot.get("Registration URL"),
             "highlight": slot.get("Highlight") == "Yes",
             "slot": slot,
         })
@@ -281,6 +254,11 @@ def _schema_violations(prop, value, defs, path=()):
 
     if expected == "string" and prop.get("format") == "date-time":
         if not _is_datetime(value):
+            yield path, "invalid value"
+        return
+
+    if expected == "string" and "pattern" in prop:
+        if re.search(prop["pattern"], value) is None:
             yield path, "invalid value"
         return
 
@@ -358,8 +336,8 @@ def diff(old, new):
             out.append(f"{db}: field added: {f!r}")
         for f in sorted(o_fields - n_fields):
             out.append(f"{db}: field removed: {f!r}")
-        o_keys = {key_of(r.get("canonical_id") or r.get("id")) for r in o_rows} - {None}
-        n_keys = {key_of(r.get("canonical_id") or r.get("id")) for r in n_rows} - {None}
+        o_keys = {key_of(r.get("canonical_id")) for r in o_rows} - {None}
+        n_keys = {key_of(r.get("canonical_id")) for r in n_rows} - {None}
         added, removed = n_keys - o_keys, o_keys - n_keys
         if added:
             out.append(f"{db}: {len(added)} record id(s) added")
@@ -405,8 +383,6 @@ def summary(data):
     for db in DATABASES:
         public = sum(1 for r in data.get(db, []) if is_public(r))
         lines.append(f"public_for_hackathon ({db}): {public}/{len(data.get(db, []))}")
-    test = sum(1 for p in data.get("projects", []) if is_test_content(p))
-    lines.append(f"legacy name-based test/internal detection: {test}")
     rows = event_rows(data, idx)
     timed = sum(1 for r in rows if r["start_dt"] is not None)
     geo = sum(1 for r in rows if r["lat"] is not None)
