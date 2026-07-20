@@ -348,7 +348,12 @@ async function refresh() {
   const button = $("#refresh-button");
   button.disabled = true;
   try {
-    await Promise.all([loadStatus(), loadKeys(), loadOperations(), loadAzureContext()]);
+    await Promise.all([
+      loadStatus(),
+      loadKeys(),
+      loadOperations(),
+      loadAzureContext().catch(() => null),
+    ]);
   } catch (error) {
     if (!$("#toast").classList.contains("error")) showToast(error.message, true);
   } finally {
@@ -449,14 +454,19 @@ async function loadAzureContext() {
 }
 
 async function loadRedeemAccess() {
-  const [status, payload] = await Promise.all([loadAzureContext(), api("/api/redeem-access/keys")]);
+  const [status, payload] = await Promise.all([
+    loadAzureContext().catch(() => null),
+    api("/api/redeem-access/keys"),
+  ]);
   state.redeemKeys = payload.data;
   state.redeemSelected = new Set(
     [...state.redeemSelected].filter((code) => state.redeemKeys.some((key) => key.code === code)),
   );
-  $("#redeem-storage-account").textContent = status.accountName;
-  $("#redeem-table-name").textContent = status.tableName;
-  setConnection(`${status.tableName} connected`, "online");
+  if (status) {
+    $("#redeem-storage-account").textContent = status.accountName;
+    $("#redeem-table-name").textContent = status.tableName;
+  }
+  setConnection(`${status?.tableName || "Storage"} connected`, "online");
   renderRedeemKeys();
 }
 
