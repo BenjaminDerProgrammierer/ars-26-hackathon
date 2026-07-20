@@ -12,15 +12,18 @@ const tutorials = defineCollection({
 });
 
 const datasets = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/datasets" }),
+  loader: glob({
+    pattern: ["*/README.md", "!archive/README.md"],
+    base: "../opendata-linz",
+  }),
   schema: z.object({
     title: z.string(),
     summary: z.string(),
     provider: z.string(),
-    url: z.url(),
-    group: z.enum(["festival", "linz"]),
-    status: z.enum(["recommended", "preparation", "optional"]).optional(),
-    order: z.number(),
+    status: z.enum(["essential", "recommended", "optional", "in-progress"]),
+    format: z.string(),
+    license: z.string(),
+    data_vintage: z.string(),
   }),
 });
 

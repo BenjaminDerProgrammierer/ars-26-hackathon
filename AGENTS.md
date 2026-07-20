@@ -7,10 +7,19 @@
   existing `gh` login works outside it.
 - Prefer the task-specific `gh` commands (`gh issue`, `gh pr`, and so on) for
   GitHub workflows.
+- In this repository, "approve a PR" means posting an approval comment and then
+  rebase-merging the PR. Do not use GitHub's review/approval flow.
 
 ## Azure access
 
-You can assume that the `az` CLI is configured and connected to an Azure subscription that you can work with.
+- Always run Azure CLI (`az`) commands in unsandboxed mode. The CLI installation,
+  authentication state, and network access are available in the host environment,
+  not reliably inside the sandbox.
+- You can assume that `az` is configured and authenticated to an Azure subscription
+  that you can work with.
+- Use the `ArsElectronicaHackathon` resource group for Azure resources created or
+  managed for this repository.
+- Always use the `austriaeast` Azure region for regional resources.
 
 ## Documentation
 

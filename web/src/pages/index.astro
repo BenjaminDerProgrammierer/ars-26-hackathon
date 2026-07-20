@@ -5,7 +5,9 @@ const englishUrl = href("en");
 const germanUrl = href("de");
 
 // Get browser language preference from the Accept-Language header
-const preferredLanguage = Astro.request.headers.get("accept-language")?.split(",")[0].split("-")[0] || "en";
+const preferredLanguage =
+  Astro.request.headers.get("accept-language")?.split(",")[0].split("-")[0] ||
+  "en";
 const redirectUrl = preferredLanguage === "de" ? germanUrl : englishUrl;
 ---
 
