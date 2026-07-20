@@ -322,7 +322,7 @@ def verify(data, schema):
     # JSON Schema can constrain the individual relation fields, but cannot
     # express that project_ref must equal the sole Linked Projects value.
     # Enforce the schema-v2 calendar relation invariant explicitly.
-    calendar = data.get("calendar")
+    calendar = data.get("calendar") if isinstance(data, dict) else None
     for slot in calendar if isinstance(calendar, list) else []:
         if not isinstance(slot, dict):
             continue

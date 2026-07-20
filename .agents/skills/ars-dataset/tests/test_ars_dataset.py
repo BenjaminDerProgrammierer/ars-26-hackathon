@@ -239,6 +239,12 @@ class VerifyTests(unittest.TestCase):
     def test_valid_export_passes(self):
         self.assertFalse(self.verify())
 
+    def test_root_must_be_an_object(self):
+        violations = ars_dataset.verify([], self.schema)
+
+        self.assertEqual(
+            violations[("<root>", "<root>", "invalid value")], 1)
+
     def test_unknown_record_field_is_rejected(self):
         violations = self.verify(
             lambda data: data["projects"][0].update({"Unexpected": True}))
