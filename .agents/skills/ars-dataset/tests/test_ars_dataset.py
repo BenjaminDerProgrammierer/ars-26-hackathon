@@ -370,5 +370,30 @@ class VerifyTests(unittest.TestCase):
         self.assertFalse(ars_dataset.verify(data, self.schema))
 
 
+class DiffTests(unittest.TestCase):
+    def test_schema_v1_ids_match_schema_v2_canonical_ids(self):
+        canonical_id = "0123456789abcdef0123456789abcdef"
+        old = {
+            "projects": [{"id": "Project-" + canonical_id}],
+            "contacts": [],
+            "locations": [],
+            "calendar": [],
+        }
+        new = {
+            "projects": [{
+                "id": "Project-" + canonical_id,
+                "canonical_id": canonical_id,
+            }],
+            "contacts": [],
+            "locations": [],
+            "calendar": [],
+        }
+
+        differences = ars_dataset.diff(old, new)
+
+        self.assertNotIn("projects: 1 record id(s) added", differences)
+        self.assertNotIn("projects: 1 record id(s) removed", differences)
+
+
 if __name__ == "__main__":
     unittest.main()
