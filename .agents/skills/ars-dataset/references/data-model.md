@@ -1,172 +1,158 @@
 # Data model reference
 
-Full field reference for the Ars Electronica Festival 2026 hackathon dataset
-(export of 2026-07-06). All values are strings, arrays of strings, or null —
-there are no native numbers or booleans in the export. Personal contact
-details (e-mail, phone, internal staff assignments) and administrative
-workflow fields were removed at the source for privacy reasons.
+Field reference for the Ars Electronica Festival 2026 hackathon dataset,
+schema version 2.0 (export of 2026-07-20). The export contains strings,
+numbers, booleans, arrays of strings, and null values. Personal contact details
+and internal staff assignments are removed at the source.
 
-## Contents
+## Metadata and recommended usage
 
-- [Relations](#relations)
-- [Projects](#database-projects)
-- [Contacts](#database-contacts)
-- [Locations](#database-locations)
-- [Calendar](#database-calendar)
+`_meta.usage` is the authoritative machine-readable usage guide. Its central
+rules are:
+
+1. Join every database and every `Linked *` field through `canonical_id`.
+2. Read concrete event slots from `calendar`; use `projects.calendar_ids` for
+   the calendar-derived reverse relation.
+3. For public demo apps, include only records with
+   `public_for_hackathon: true`. Render a record's URL only when
+   `link_allowed: true`.
+4. Treat `status_web` and `visibility_rule` as explanations of that visibility
+   decision, not as a replacement for the two booleans.
+
+`_meta.quality` reports derived IDs, unassigned calendar slots, suspicious
+coordinates, URL validation, and editorial length warnings. Values that exceed
+recommended lengths are reported but not truncated.
+
+## Common fields
+
+Every record in all four databases has these normalized fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Human-readable Notion value for projects/contacts; for locations/calendar it equals `canonical_id` |
+| `canonical_id` | string | Unique bare 32-character hexadecimal join key |
+| `id_source` | enum | `notion` if retained from the source, `derived` if generated deterministically from content/hierarchy |
+| `Status Web` | string | Original CMS workflow value |
+| `status_web` | string | Normalized workflow value used by the export's status rules |
+| `visibility_rule` | enum | Why a record is `public`, `hidden`, or marked as internal |
+| `public_for_hackathon` | boolean | Whether the record is suitable for public hackathon demo apps |
+| `link_allowed` | boolean | Whether the record's URL may be rendered as a link; `offline` content may be shown but not linked |
+
+The July export intentionally includes hidden placeholders for testing. Only
+`done` content is eligible for public visibility, with explicit internal/test
+markers still excluded. The announced August export is expected to contain
+only actual data.
 
 ## Relations
 
-All cross-references are arrays of bare 32-char hash keys (see SKILL.md for
-the join rule — link values match the *hash part* of the target `id`, not the
-full `id`).
+All relation values below are `canonical_id` values. Relation fields are
+arrays unless noted otherwise.
 
-```
+```text
 projects ──── Linked Contacts ──▶ contacts
          ──── Linked Location ──▶ locations
-         ──── Linked Calendar ──▶ calendar   (unreliable — prefer the reverse)
-         ──── Linked Parent   ──▶ projects (self)
-         ──── Linked Child    ──▶ projects (self)
+         ──── calendar_ids ─────▶ calendar  (recommended reverse relation)
+         ──── Linked Parent/Child ─▶ projects
 
 contacts ──── Linked Projects ──▶ projects
 
-locations ─── Linked Parent   ──▶ locations (self)
-          ─── Linked Child    ──▶ locations (self)
+locations ── Linked Parent/Child ─▶ locations
 
-calendar ──── Linked Projects ──▶ projects   (authoritative time-slot relation)
-         ──── Linked Location ──▶ locations  (rollup; partially filled)
+calendar ──── project_ref ──────▶ projects  (scalar, leading relation)
+         ──── Linked Projects ──▶ projects  (array equivalent)
+         ──── Linked Location ──▶ locations
 ```
 
-Projects nest: a Collection or Exhibition can have child projects
-(`Linked Child`), and a project can belong to a parent (`Linked Parent`).
-
----
+`projects."Linked Calendar"` remains in the raw source fields but is not
+reliably resolvable. Use `projects.calendar_ids`. `projects.Times` is display
+text only.
 
 ## Database: Projects
 
-The central database. Every project, exhibition, workshop, performance, and
-collection has one entry.
+The central database of projects, exhibitions, workshops, performances, and
+collections (706 records in this export).
 
-| Field | Type | Description | Example |
-|---|---|---|---|
-| `id` | string | `Category-Hash` format | `Exhibitions-34238ddb…` |
-| `Name EN` | string | Project title in English | `"Negotiating Humanity"` |
-| `Name DE` | string | Project title in German (often null) | — |
-| `Category` | enum | Type of project (see below); null on ~13 records | `"Exhibition"` |
-| `Artists` | string | Artist name(s) with country codes | `"Jane Doe (AT), Group Name (DE)"` |
-| `Subtitle EN` / `Subtitle DE` | string | Subtitle, if any | — |
-| `Web Preview Text EN` / `… DE` | string | Short summary for listings (~300 chars, editorial guideline, sometimes exceeded) | — |
-| `Description EN` / `… DE` | string | Full project description | — |
-| `Web Link` | string | URL on festival website, or the string `"offline"` if not (yet) published | `"https://ars.electronica.art/…"` |
-| `Credits short` | string | Short credits for print/signage (~500 chars guideline) | — |
-| `Credits long` | string | Full credits for the website | — |
-| `Funding Line` | string | Funding acknowledgement text | — |
-| `Curatorial Highlight` | enum | `"Yes"` / `"No"` | — |
-| `Website`, `Website Secondary`, `Instagram`, `Facebook`, `LinkedIn`, `Video URL` | string (URL) | Social/web links; may lack protocol | — |
-| `Linked Parent` | array | Parent project(s) → `projects` | — |
-| `Linked Child` | array | Child projects → `projects` | — |
-| `Linked Contacts` | array | Artists/partners → `contacts` | — |
-| `Linked Location` | array | Venue(s) → `locations` (a few references don't resolve) | — |
-| `Linked Calendar` | array | Time slots → `calendar` — unreliable, use `calendar."Linked Projects"` instead | — |
-| `Linked Ticket` | string | Required ticket type(s), comma-separated (see values below) | `"FREE ACCESS"` |
-| `Times` | string | Human-readable schedule summary (rollup — display only) | `"Wed Sep 10, 14:00–15:30"` |
-| `Recommended Arrival` | string | Minutes before start visitors should arrive | `"10"` |
-| `Registration URLs` | string | Registration link(s), comma-separated | — |
-| `Language` | string | Comma-separated; known values: `EN`, `DE`, `nonverbal`, `other`, `FR` | `"DE, EN"` |
-| `Max Participants` | string | Maximum number of participants | `"15"` |
-| `Event notes` | string | Access requirements and warnings | `"Registration required"` |
-| `Additional Info EN` / `… DE` | string | Audience, equipment, accessibility notes | — |
-| `Timetable` | enum | Whether child projects are displayed as a timetable: `"Yes"` / `"No"` | — |
-| `Status Web` | enum | CMS publication workflow state (see below) — not a public/private flag | `"pending"` |
-
-**Category values:** `Collection`, `Project`, `Exhibition`, `Guided Tour`,
-`Workshop`, `Symposium`, `Conference`, `Keynote`, `Lecture & Talk`,
-`Networking Event`, `Performance`, `Concert`, `Experience`, `Event`,
-`Meet the Artist`, `Open Lab`, `Award Ceremony`, `Screening`
-
-**Status Web values:** `pending`, `not ready`, `ready for web`,
-`new image needed`, `done`, `not needed`
-(distribution in current export: pending 374, ready for web 117, not ready 49, done 3, not needed 2, new image needed 1)
-
-**Linked Ticket values:** `FREE ACCESS`, or a comma-separated combination of
-`FESTIVALPASS`, `FESTIVALPASS+`, `DAYPASS`, `Ars Electronica Center Ticket`
-
----
+| Field | Type | Description |
+|---|---|---|
+| `Name EN` / `Name DE` | string or null | Project title |
+| `Category` | string or null | Programme type; observed values include `Project`, `Exhibition`, `Workshop`, `Performance`, `Panel Discussion`, and others |
+| `Artists` | string or null | Artist names with country codes |
+| `Subtitle EN/DE` | string or null | Subtitle |
+| `Web Preview Text EN/DE` | string or null | Listing summary; 300 characters is an editorial recommendation |
+| `Description EN/DE` | string or null | Full description |
+| `Web Link` | URL string or null | Festival page; non-URL status markers such as `offline` are normalized to null |
+| `Credits short` / `Credits long` | string or null | Credits; 500 characters for short credits is a recommendation |
+| `Funding Line` | string or null | Funding acknowledgement |
+| `Curatorial Highlight` | `Yes` / `No` | Highlight flag |
+| `Website`, `Website Secondary`, `Instagram`, `Facebook`, `LinkedIn`, `Video URL` | URL string or null | URLs include a protocol |
+| `Linked Parent` / `Linked Child` | array or null | Project hierarchy |
+| `Linked Contacts` | array or null | Contact relations |
+| `Linked Location` | array or null | Venue relations |
+| `Linked Calendar` | array or null | Legacy source relation; do not use for joins |
+| `calendar_ids` | array | Complete calendar-derived reverse relation |
+| `Linked Ticket` | string or null | Ticket requirements |
+| `Times` | string or null | Human-readable schedule summary only |
+| `Recommended Arrival`, `Max Participants` | string or null | Numeric values represented as strings |
+| `Registration URLs` | string or null | Registration links, possibly comma-separated |
+| `Language` | string or null | Languages, comma-separated |
+| `Event notes`, `Additional Info EN/DE` | string or null | Visitor information |
+| `Timetable` | `Yes` / `No` | Whether children display as a timetable |
 
 ## Database: Contacts
 
-Artists, speakers, institutions and project partners.
+Artists, speakers, groups, institutions, and project partners (360 records).
 
-| Field | Type | Description | Example |
-|---|---|---|---|
-| `id` | string | `SlugifiedName-Hash` format | `"JaneDoe-34238ddb…"` |
-| `Name EN` | string | Name in English | `"Jane Doe"` |
-| `Name DE` | string | German name (institutions only, if different) | — |
-| `Category` | enum | `Person`, `Group`, `Organization` | `"Person"` |
-| `Pronouns` | enum | Individuals only: `she/her`, `he/him`, `they/them`, `she/her, they/them`, `he/him, she/her`, `other` | — |
-| `Country` | string | Two-letter code + name | `"AT Austria"` |
-| `Description EN` / `… DE` | string | Biography or institutional description (~500 chars guideline) | — |
-| `Linked Projects` | array | Associated projects → `projects` | — |
-| `Status Web` | enum | `pending`, `not ready`, `not needed`, `ready for upload`, `new image needed`, `done` | — |
-| `Website`, `Instagram`, `Facebook`, `LinkedIn` | string (URL) | May lack protocol; Instagram may be a bare `@handle` | — |
-
----
+| Field | Type | Description |
+|---|---|---|
+| `Name EN` / `Name DE` | string or null | Person or institution name |
+| `Category` | `Person`, `Group`, `Organization`, or null | Contact type |
+| `Pronouns` | string or null | One or more pronoun sets |
+| `Country` | string or null | Two-letter code and country name |
+| `Description EN/DE` | string or null | Biography or institutional description; 500 characters is a recommendation |
+| `Linked Projects` | array or null | Related projects |
+| `Website`, `Instagram`, `Facebook`, `LinkedIn` | URL string or null | URLs include a protocol |
 
 ## Database: Locations
 
-Event venues, hierarchically organised Building → Floor → Room; Outdoor and
-Online locations also exist. Traverse the hierarchy with `Linked Parent` /
-`Linked Child`; `Breadcrumb EN/DE` gives the pre-formatted full path.
+Venues organized as Building → Floor → Room, plus Outdoor and Online
+locations (138 records). All ids are present and unique: 122 came from Notion
+and 16 generic rooms/floors received stable, hierarchy-derived ids.
 
-| Field | Type | Description | Example |
-|---|---|---|---|
-| `id` | string | Bare hash; **null on ~26 records, duplicated for generic floors/rooms** | `"34238ddb450c81…"` |
-| `Name EN` / `Name DE` | string | Location name | `"Deep Space 8K"` |
-| `Type` | enum | `Building`, `Floor`, `Room`, `Outdoor`, `Online` | `"Room"` |
-| `Description EN` / `… DE` | string | Short description | — |
-| `Services` | string | Comma-separated: `Ticket Sales`, `Ticket Pick-Up`, `Accreditation Pick-Up`, `Press Pick-Up`, `Shop`, `Program Info` | — |
-| `Breadcrumb EN` / `… DE` | string | Full hierarchical path | `"Ars Electronica Center, EG, Deep Space 8K"` |
-| `Area` | enum | Festival zone: `OK QUARTER`, `MED CAMPUS`, `DANUBE TRIANGLE`, `EVENT LOCATIONS` | — |
-| `Place` | string | Full address as plain text | `"Ars-Electronica-Straße 1, 4040 Linz, Österreich"` |
-| `Latitude` / `Longitude` | string | Decimal with **comma** separator — convert before use; a few are wrong (see data-quality.md) | `"48,309619"` |
-| `Address` | string | Street address | — |
-| `Additional Info EN` / `… DE` | string | Null on all entries in this export | — |
-| `Web Link` | string (URL) | Location page on festival website | — |
-| `Link Map` | string (URL) | OpenStreetMap link generated from coordinates | — |
-| `Website`, `Instagram`, `Facebook`, `LinkedIn` | string (URL) | Location's own web presence | — |
-| `Linked Projects` | array | Null on all entries in this export — join from `projects."Linked Location"` instead | — |
-| `Linked Parent` / `Linked Child` | array | Venue hierarchy → `locations` | — |
-
----
+| Field | Type | Description |
+|---|---|---|
+| `Name EN` / `Name DE` | string | Location name; interpret generic names within their parent hierarchy |
+| `Type` | enum | `Building`, `Floor`, `Room`, `Outdoor`, or `Online` |
+| `Description EN/DE` | string or null | Short description |
+| `Services` | string or null | Comma-separated on-site services |
+| `Breadcrumb EN/DE` | string or null | Full hierarchy path |
+| `Area` | string or null | Festival zone |
+| `Place`, `Address` | string or null | Address text |
+| `Latitude` / `Longitude` | number or null | Decimal WGS84 coordinate; some values remain unverified |
+| `coordinates_ok` | boolean or null | Exporter's coordinate plausibility check; false for six current records |
+| `Web Link`, `Link Map`, `Website`, social fields | URL string or null | URLs include a protocol |
+| `Linked Projects` | array or null | Related projects, where supplied |
+| `Linked Parent` / `Linked Child` | array or null | Venue hierarchy |
 
 ## Database: Calendar
 
-Individual time slots. Each entry links to (at most) one project via
-`Linked Projects`; a project can have multiple entries (e.g. a workshop
-running on three days). **This database is the authoritative source of event
-times** — derive timetables from here, not from `projects."Linked Calendar"`.
+Individual time slots (278 records). Every slot has a unique id. Of these, 253
+are assigned to a project and 25 are explicitly unassigned.
 
-**There is no machine-readable date field.** `Start Time`/`End Time` are bare
-`HH:MM` and `Weekday` is a display label; the full date exists only inside the
-`Time` display string. Use the skill module's `parse_event_datetime()` (or the
-`start_dt`/`end_dt` fields on `event_rows()` output) instead of parsing it
-yourself.
+| Field | Type | Description |
+|---|---|---|
+| `project_ref` | canonical id or null | Scalar leading relation to the project |
+| `Linked Projects` | array or null | Array form of `project_ref` |
+| `slot_status` | enum | `assigned` or `unassigned` |
+| `Time` | string or null | Full human-readable date/time range |
+| `Start Time` / `End Time` | string or null | Bare `HH:MM` values |
+| `Weekday` | string or null | Formatted display label |
+| `Arrive by`, `Recommended Arrival` | string or null | Arrival information |
+| `Registration URL` | URL string or null | Slot-specific registration URL |
+| `Category`, `Language`, `Highlight` | string or null | Values rolled up from the linked project |
+| `Linked Location` | array or null | Venue relations |
+| `Duration`, `Event before`, `Event afterwards` | null in this export | Reserved source fields |
 
-| Field | Type | Description | Example |
-|---|---|---|---|
-| `id` | string | Bare hash; **null on ~13 records, and recurring events share one id across slots** (165 keyed slots, only 42 distinct ids) — never treat as a unique slot key | — |
-| `Linked Projects` | array | The associated project → `projects` (resolves 100% via hash) | — |
-| `Status Web` | enum | `pending`, `done` | — |
-| `Time` | string | Full human-readable range — the **only** field carrying the event date; parse with `parse_event_datetime()` | `"9. September 2026 15:15 (MESZ) → 16:15"` |
-| `Arrive by` | string | Recommended arrival time (human-readable) | — |
-| `Registration URL` | string (URL) | Registration link for this specific slot | — |
-| `Category` | string | Rollup from the linked project | `"Workshop"` |
-| `Linked Location` | array | Venue rollup from project; only ~55% resolve — fall back to project's `Linked Location` | — |
-| `Language` | string | Rollup from project | `"EN"` |
-| `Recommended Arrival` | string | Minutes before start | `"10"` |
-| `Duration` | string | Minutes | `"60"` |
-| `Event before` / `Event afterwards` | null | Always null in this export | — |
-| `Weekday` | string | Formatted day label (German weekday names) | `"Sep 9, MITTWOCH"` |
-| `Start Time` / `End Time` | string | `HH:MM` | `"15:15"` |
-| `Highlight` | enum | `"Yes"` / `"No"`, inherited from project | — |
-
-Festival dates: September 2026 (Linz, Austria). Times are local (MESZ / CEST).
+The full date still exists only in the `Time` display value; `Start Time` and
+`End Time` are time-only. Use `parse_event_datetime()` or the parsed
+`start_dt`/`end_dt` returned by `event_rows()`. Festival times are local to Linz
+(MESZ / CEST).

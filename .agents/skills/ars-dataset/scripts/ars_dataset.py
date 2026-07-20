@@ -16,7 +16,7 @@ Importable helpers (they encode the dataset's join and cleansing rules —
 see the skill's SKILL.md and references/data-quality.md):
 
     load, build_indexes, key_of, links, parse_coord, fix_url,
-    is_test_content, parse_event_datetime, event_rows
+    is_public, is_test_content, parse_event_datetime, event_rows
 """
 
 import json
@@ -46,10 +46,10 @@ def load(source=DATASET_URL):
 
 
 def key_of(record_id):
-    """Join key for any id: the trailing 32-hex-char hash, or None.
+    """Normalize an id-like value to a bare 32-char join key, or None.
 
-    Works for prefixed ids ('Exhibitions-34238ddb…'), bare hashes, and null.
-    Link-field values are already bare hashes and pass through unchanged.
+    Schema v2 records expose this value directly as ``canonical_id``. This
+    also supports legacy prefixed ids and bare link values.
     """
     if not record_id:
         return None
@@ -63,17 +63,15 @@ def links(record, field):
 
 
 def build_indexes(data):
-    """Return {db: {hash_key: record}} and stamp each record with '_key'.
+    """Return {db: {canonical_id: record}} and stamp records with ``_key``.
 
-    Records without a usable id get _key=None and are left out of the index.
-    Duplicate keys (they exist — generic floors, recurring event slots) keep
-    the first record.
+    Falling back to ``id`` keeps the helper usable with schema-v1 exports.
     """
     indexes = {}
     for db in DATABASES:
         idx = {}
         for rec in data.get(db, []):
-            rec["_key"] = key_of(rec.get("id"))
+            rec["_key"] = key_of(rec.get("canonical_id") or rec.get("id"))
             if rec["_key"] is not None and rec["_key"] not in idx:
                 idx[rec["_key"]] = rec
         indexes[db] = idx
@@ -83,7 +81,7 @@ def build_indexes(data):
 # ------------------------------------------------------- cleansing helpers
 
 def parse_coord(value):
-    """Parse a European-format coordinate string ('48,309619') to float, or None."""
+    """Parse a numeric or legacy comma-decimal coordinate, or return None."""
     if not value:
         return None
     try:
@@ -104,6 +102,11 @@ def fix_url(value):
     if value.startswith("@"):
         return "https://www.instagram.com/" + value[1:]
     return "https://" + value
+
+
+def is_public(record):
+    """Whether a schema-v2 record is suitable for a public hackathon app."""
+    return record.get("public_for_hackathon") is True
 
 
 _MONTHS_DE = {
@@ -165,19 +168,20 @@ def parse_event_datetime(time_text):
 
 
 def is_test_content(project):
-    """True for test/internal projects that should not appear in user-facing apps."""
+    """Legacy name-based test-content fallback for schema-v1 exports."""
     name = project.get("Name EN")
     if not name or name == "undefined":
         return True
     return name.startswith(("Test Event", "Test_")) or "NOT FOR WEB" in name
 
 
-def event_rows(data, indexes=None):
+def event_rows(data, indexes=None, public_only=False):
     """One dict per calendar slot, joined with its project and locations.
 
     Uses the authoritative direction calendar → project. Venue comes from the
     calendar rollup when it resolves, else from the project. Slots whose
-    project is missing or test content are skipped.
+    project is missing or test content are skipped. With ``public_only=True``,
+    both the slot and project must have ``public_for_hackathon: true``.
 
     'start_dt'/'end_dt' are the parsed full datetimes (see
     parse_event_datetime; None when the 'Time' string is missing).
@@ -188,11 +192,15 @@ def event_rows(data, indexes=None):
     rows = []
     for slot in data.get("calendar", []):
         project = None
-        for k in links(slot, "Linked Projects"):
+        project_keys = ([slot["project_ref"]] if slot.get("project_ref")
+                        else links(slot, "Linked Projects"))
+        for k in project_keys:
             project = idx["projects"].get(k)
             if project:
                 break
         if project is None or is_test_content(project):
+            continue
+        if public_only and not (is_public(slot) and is_public(project)):
             continue
         loc_keys = links(slot, "Linked Location") or links(project, "Linked Location")
         locations = [idx["locations"][k] for k in loc_keys if k in idx["locations"]]
@@ -262,6 +270,8 @@ def _schema_violations(prop, value, defs, path=()):
         "null": value is None,
         "string": isinstance(value, str),
         "integer": isinstance(value, int) and not isinstance(value, bool),
+        "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+        "boolean": isinstance(value, bool),
         "array": isinstance(value, list),
         "object": isinstance(value, dict),
     }.get(expected, True)
@@ -348,8 +358,8 @@ def diff(old, new):
             out.append(f"{db}: field added: {f!r}")
         for f in sorted(o_fields - n_fields):
             out.append(f"{db}: field removed: {f!r}")
-        o_keys = {key_of(r.get("id")) for r in o_rows} - {None}
-        n_keys = {key_of(r.get("id")) for r in n_rows} - {None}
+        o_keys = {key_of(r.get("canonical_id") or r.get("id")) for r in o_rows} - {None}
+        n_keys = {key_of(r.get("canonical_id") or r.get("id")) for r in n_rows} - {None}
         added, removed = n_keys - o_keys, o_keys - n_keys
         if added:
             out.append(f"{db}: {len(added)} record id(s) added")
@@ -379,16 +389,24 @@ def summary(data):
     lines.append("link resolution (resolved/total):")
     lines.append(f"  calendar.'Linked Projects' -> projects : "
                  f"{rate([(r, 'Linked Projects') for r in data.get('calendar', [])], 'projects')}  (authoritative)")
-    lines.append(f"  projects.'Linked Calendar' -> calendar : "
-                 f"{rate([(r, 'Linked Calendar') for r in data.get('projects', [])], 'calendar')}  (known broken)")
+    lines.append(f"  projects.calendar_ids -> calendar      : "
+                 f"{rate([(r, 'calendar_ids') for r in data.get('projects', [])], 'calendar')}  (recommended reverse)")
     lines.append(f"  projects.'Linked Contacts' -> contacts : "
                  f"{rate([(r, 'Linked Contacts') for r in data.get('projects', [])], 'contacts')}")
     lines.append(f"  projects.'Linked Location' -> locations: "
                  f"{rate([(r, 'Linked Location') for r in data.get('projects', [])], 'locations')}")
     lines.append(f"  contacts.'Linked Projects' -> projects : "
                  f"{rate([(r, 'Linked Projects') for r in data.get('contacts', [])], 'projects')}")
+    assigned = sum(1 for s in data.get("calendar", [])
+                   if s.get("slot_status") == "assigned")
+    unassigned = sum(1 for s in data.get("calendar", [])
+                     if s.get("slot_status") == "unassigned")
+    lines.append(f"calendar slots: {assigned} assigned | {unassigned} unassigned")
+    for db in DATABASES:
+        public = sum(1 for r in data.get(db, []) if is_public(r))
+        lines.append(f"public_for_hackathon ({db}): {public}/{len(data.get(db, []))}")
     test = sum(1 for p in data.get("projects", []) if is_test_content(p))
-    lines.append(f"test/internal projects (filtered by is_test_content): {test}")
+    lines.append(f"legacy name-based test/internal detection: {test}")
     rows = event_rows(data, idx)
     timed = sum(1 for r in rows if r["start_dt"] is not None)
     geo = sum(1 for r in rows if r["lat"] is not None)

@@ -1,100 +1,98 @@
-# Known data-quality issues and workarounds
+# Data quality status and usage rules
 
-Measured against the 2026-07-06 export (the numbers may shift in newer
-exports, but the patterns are structural — assume they persist until
-verified otherwise). These issues have been reported to the data provider
-(Ars Electronica); some may be fixed at the source in future exports.
+Measured against schema version 2.0, export generated 2026-07-20 at
+07:59:49Z. The previous ID, relation, visibility, and URL problems were fixed
+at the source. Do not keep the workarounds from the 2026-07-06 export in new
+applications.
 
-## 1. ID formats are inconsistent between records and links
+## 1. IDs and joins
 
-- `projects.id` / `contacts.id`: `Prefix-<32-hex-hash>` (e.g. `Exhibitions-34238ddb…`)
-- `locations.id` / `calendar.id`: bare 32-hex hash
-- All `Linked *` fields: bare 32-hex hash, always arrays
+All 1,482 records have a unique, non-null `canonical_id` containing a bare
+32-character hexadecimal value. Every `Linked *` value uses that same key.
 
-**Measured:** joining `projects."Linked Contacts"` values directly against
-`contacts.id` matches 0 of 258 links; matching against the hash part matches
-258 of 258. Same pattern for every relation touching projects/contacts.
+| Database | Records | `notion` ids | `derived` ids |
+|---|---:|---:|---:|
+| projects | 706 | 706 | 0 |
+| contacts | 360 | 360 | 0 |
+| locations | 138 | 122 | 16 |
+| calendar | 278 | 52 | 226 |
 
-**Workaround:** normalize every id to its trailing 32-hex-char hash before
-joining (`id.split('-')[-1]`, or regex `[0-9a-f]{32}$`). `scripts/ars_dataset.py`
-does this (`_key` field).
+Join on `canonical_id`, never on the readable `id`. `id_source: derived`
+means the id is deterministic and remains stable while its source content
+(such as location hierarchy/name or slot attributes) does not change.
 
-## 2. Locations: missing and duplicate ids
+## 2. Locations
 
-**Measured:** 26 of 111 locations have `id: null`; several ids occur 2–6
-times (generic floors/rooms such as `Level 0`, `Foyer`, `Ground Floor` that
-exist in multiple buildings share an id or have none).
+All 138 location ids are present and unique. Generic names such as `Level 1`
+and `Foyer` are disambiguated through the parent-child hierarchy; the 16 cases
+without a suitable Notion id have deterministic derived ids.
 
-**Workaround:** for a unique location key, use the hash when present and
-unique, otherwise synthesize from `Breadcrumb EN` (which encodes the full
-Building → Floor → Room path and is filled consistently).
+Two project-to-location references out of 412 do not currently resolve. Apps
+should tolerate a missing joined location without discarding the project.
 
-## 3. Calendar: ids are not unique slot keys
+## 3. Calendar and reverse relation
 
-**Measured:** 13 of 178 calendar entries have `id: null`, and the remaining
-165 slots share only 42 distinct id values — recurring events (same workshop
-on several days) reuse one id per group. An id identifies a *slot group*, not
-a slot.
+All 278 calendar ids are present and unique. The former duplicate value was a
+project id rather than a slot id. Each row now has:
 
-**Workaround:** treat a calendar row's identity as the combination
-(linked project hash, `Time`), or generate synthetic ids at load time. Don't
-persist references to `calendar.id` across exports.
+- `project_ref`: scalar project `canonical_id`, or null;
+- `slot_status`: `assigned` or `unassigned`.
 
-## 4. `projects."Linked Calendar"` is broken; the calendar side is not
+There are 253 assigned and 25 unassigned slots. All 253 assigned project
+references resolve. `calendar` is authoritative for concrete times.
+`projects.calendar_ids` is derived from it; all 253 values are unique and
+resolve to calendar rows. Ignore the legacy `projects."Linked Calendar"`
+relation and treat `projects.Times` as display text only.
 
-**Measured:** only 42 of 173 `projects."Linked Calendar"` references resolve
-to a calendar id, while 173 of 173 `calendar."Linked Projects"` references
-resolve to a project (via hash).
+## 4. Visibility
 
-**Rule:** the calendar database is the source of truth for time slots. Read
-concrete times via `calendar."Linked Projects"`; treat `projects.Times` as a
-display-only summary; ignore `projects."Linked Calendar"`.
+Use the explicit output fields instead of inferring visibility from names or
+the raw CMS status:
 
-Also: `calendar."Linked Location"` (rollup) resolves only ~92 of 166
-references — fall back to the linked project's `"Linked Location"`
-(64 of 81 resolve; the remainder point at keyless locations, see issue 2).
+- include a record in a public demo only when `public_for_hackathon` is true;
+- render its URL only when `link_allowed` is true;
+- use `status_web` and `visibility_rule` to explain/debug the decision.
 
-## 5. Test and internal content is mixed in
+Only `done` is currently eligible for visibility. Internal/test markers remain
+excluded even when their workflow status is `done`. An `offline` record may be
+shown but must not be linked. The July export contains placeholders for
+testing; the data provider expects the August export to contain only actual
+records.
 
-The export contains entries clearly not meant for end users:
-`Test Event2`, `Test Event3 Subitem`, several projects named `undefined`,
-and entries suffixed `- NOT FOR WEB` (e.g. `Futurelab Signage - NOT FOR WEB`).
+Visibility is record-specific: do not expose a hidden project merely because a
+linked slot is public. In this test export no joined event has both a public
+calendar slot and a public project, so `event_rows(public_only=True)` correctly
+returns no rows. This is expected to change with later data, not a reason to
+relax the filter.
 
-**Workaround for user-facing apps:** drop projects whose `Name EN` is null,
-`undefined`, starts with `Test Event`/`Test_`, or contains `NOT FOR WEB`.
+## 5. URLs
 
-`Status Web` is CMS workflow state, not a visibility flag: 374 of 546
-projects are `pending` and only 3 are `done` — and those 3 are all test
-events (`Test Event2`, `Test Event3 Subitem`, `Test Event4 Subitem`), the
-only projects with a real (non-`offline`) `Web Link`. Filtering to
-"published" statuses would leave nothing but test data — don't do it.
+All 1,980 non-null URL values in this export include `http://` or `https://`,
+and `_meta.quality.unparsable_urls` is empty. Source status values such as
+`offline` are normalized to null rather than emitted into URL fields. Continue
+to respect `link_allowed` before rendering links.
 
-## 6. `Web Link` uses the sentinel string `"offline"`
+## 6. Coordinates still require caution
 
-543 of 546 projects have `Web Link: "offline"`, meaning "no festival-website
-page yet". Render the project without a website link; never emit `offline`
-as an href.
+Coordinates are now JSON numbers, not comma-decimal strings. Use them directly
+as WGS84 latitude/longitude values and consult `coordinates_ok`.
 
-## 7. Coordinates: European decimal format, some wrong values
+Six locations are flagged with `coordinates_ok: false` and listed in
+`_meta.quality.suspicious_coordinates`. They contain approximately
+`48.09619 / 14.84447`, outside the expected Linz area. Coordinates are not yet
+fully reviewed and the provider expects further changes. For map apps, omit
+flagged markers or fall back to a verified parent building coordinate.
 
-`Latitude`/`Longitude` are strings with a comma decimal separator
-(`"48,309619"`). Convert with `float(value.replace(',', '.'))`.
+## 7. Dates remain display-oriented
 
-**Measured:** 6 locations have latitudes outside the plausible Linz range.
-Several Ars Electronica Center entries sit at ~`48,09619 / 14,84447` —
-digits dropped from the correct ~`48,309… / 14,284…`. For map apps,
-sanity-check coordinates against Linz (lat ≈ 48.2–48.4, lon ≈ 14.2–14.4) and
-fall back to the parent building's coordinates or drop the marker.
+`Start Time` and `End Time` contain only `HH:MM`; the date is embedded in the
+human-readable calendar `Time` string. Use the skill's
+`parse_event_datetime()` helper. One of the 250 currently joinable non-test
+event rows lacks a parseable date.
 
-## 8. URL fields without protocol
+## 8. Length limits are recommendations
 
-A handful of `Website`/`Instagram` values lack `https://`
-(e.g. `www.kunstuni-linz.at/viskom/`, `ariathney.cargo.site`, `@ariathney`).
-Prefix `https://` before use; expand bare `@handle` Instagram values to
-`https://www.instagram.com/handle`.
-
-## 9. Documented max lengths are guidelines, not guarantees
-
-Field docs mention limits (300 chars for preview texts, 500 for short
-credits/bios), but the export contains longer values. Truncate defensively in
-constrained UI.
+Text length limits are editorial recommendations, not validation constraints.
+The exporter does not truncate values. The current export reports 96 overruns
+in `_meta.quality.length_warnings`; applications should allow wrapping or
+truncate only in their own presentation layer.
