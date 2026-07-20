@@ -14,18 +14,25 @@ SPEC.loader.exec_module(ars_dataset)
 def valid_export():
     return {
         "_meta": {
-            "generated_at": "2026-07-06T06:06:28.459Z",
+            "generated_at": "2026-07-20T07:59:49.183Z",
             "databases": {
                 "projects": {"description": "Projects", "count": 1},
             },
         },
         "projects": [{
             "id": "Project-0123456789abcdef0123456789abcdef",
+            "canonical_id": "0123456789abcdef0123456789abcdef",
+            "id_source": "notion",
             "Name EN": "Example",
             "Curatorial Highlight": "No",
             "Timetable": "No",
             "Status Web": "pending",
-            "Web Link": "offline",
+            "status_web": "pending",
+            "visibility_rule": "hidden",
+            "public_for_hackathon": False,
+            "link_allowed": False,
+            "calendar_ids": [],
+            "Web Link": None,
         }],
         "contacts": [],
         "locations": [],
@@ -93,6 +100,21 @@ class ParseEventDatetimeTests(unittest.TestCase):
         self.assertIsNone(end)
 
 
+class SchemaV2HelperTests(unittest.TestCase):
+    def test_build_indexes_prefers_canonical_id(self):
+        data = valid_export()
+        data["projects"][0]["id"] = "readable-without-a-hash"
+
+        indexes = ars_dataset.build_indexes(data)
+
+        self.assertIn(
+            "0123456789abcdef0123456789abcdef", indexes["projects"])
+
+    def test_is_public_requires_explicit_true(self):
+        self.assertTrue(ars_dataset.is_public({"public_for_hackathon": True}))
+        self.assertFalse(ars_dataset.is_public({"public_for_hackathon": False}))
+        self.assertFalse(ars_dataset.is_public({}))
+
 class VerifyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -112,6 +134,15 @@ class VerifyTests(unittest.TestCase):
             lambda data: data["projects"][0].update({"Unexpected": True}))
         self.assertEqual(
             violations[("projects", "Unexpected", "unknown field")], 1)
+
+    def test_visibility_flag_must_be_boolean(self):
+        violations = self.verify(
+            lambda data: data["projects"][0].update(
+                {"public_for_hackathon": "false"}))
+        self.assertEqual(
+            violations[("projects", "public_for_hackathon", "invalid value")],
+            1,
+        )
 
     def test_missing_required_record_field_is_rejected(self):
         violations = self.verify(

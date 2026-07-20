@@ -6,9 +6,10 @@ description: Handle the Ars Electronica Festival 2026 hackathon dataset - downlo
 # Ars Electronica Festival 2026 – Hackathon Dataset Handling
 
 The dataset is one JSON file (~2 MB) exported from the festival CMS for the
-*Negotiating Humanity* festival. It holds four interlinked databases:
-`projects` (~546), `contacts` (~240), `locations` (~111), `calendar` (~178),
-plus a `_meta` block with `generated_at` and record counts.
+*Negotiating Humanity* festival. It holds four interlinked databases. In the
+2026-07-20 export these contain `projects` (706), `contacts` (360), `locations`
+(138), and `calendar` (278), plus a `_meta` block with usage rules, quality
+reports, `generated_at`, and record counts.
 
 Key places:
 
@@ -64,33 +65,36 @@ source or new ones appeared.
 
 The essentials, because naive code gets them wrong:
 
-- **Join keys are bare 32-char hex hashes.** `projects.id`/`contacts.id` are
-  prefixed (`Exhibitions-34238ddb…`), `locations.id`/`calendar.id` are bare,
-  and all `Linked *` fields store bare hashes as arrays. Join on the trailing
-  hash (`id.split('-')[-1]`); joining links against full project/contact ids
-  matches nothing.
+- **Join on `canonical_id`.** Every record has this bare 32-character hash,
+  and every `Linked *` field contains these exact values. The readable `id`
+  remains for display/debugging; do not join on it. `id_source` says whether
+  the id came from Notion or was derived deterministically.
 - **The calendar is the authoritative source of time slots** via
-  `calendar."Linked Projects"` (resolves 100%). `projects."Linked Calendar"`
-  is broken (~25% resolve) and `projects.Times` is display-only.
+  `calendar."Linked Projects"` or the scalar `calendar.project_ref`.
+  `projects.calendar_ids` is the complete, calendar-derived reverse relation.
+  `projects."Linked Calendar"` remains unreliable and `projects.Times` is
+  display-only.
 - **No field carries a machine-readable event date.** `Start Time`/`End Time`
   are bare `HH:MM`; the full date exists only inside the calendar `Time`
   display string (`"9. September 2026 15:15 (MESZ) → 16:15"`). Use
   `parse_event_datetime()` or the `start_dt`/`end_dt` fields on `event_rows()`
   output instead of parsing it yourself.
-- **Ids are not reliably unique or present**: some locations/calendar rows
-  have `id: null`; generic floors share location ids; recurring events share
-  one calendar id across slots.
-- The export mixes in test/internal content (`Test Event…`, `undefined`,
-  `… - NOT FOR WEB`); `Status Web` is CMS workflow state, not a
-  public/private flag (most records are `pending`, and the only `done`
-  projects are test events).
-- Coordinates are strings with comma decimal separators; a few are wrong.
-  Some URL fields lack a protocol. Everything is nullable in practice.
+- **Use the explicit visibility fields.** `public_for_hackathon` is the filter
+  for demo apps, while `link_allowed` controls whether URLs may be rendered.
+  `status_web` is normalized and `visibility_rule` explains the decision.
+  `offline` means display is allowed but linking is not. The July export still
+  includes hidden placeholders for testing; the August export is expected to
+  contain only the actual data.
+- Location and calendar ids are present and unique. Six location coordinates
+  are still flagged as suspicious; consult `coordinates_ok` and
+  `_meta.quality`. URLs are normalized to include a protocol.
+- Editorial length limits are recommendations. Values are not truncated;
+  overruns are reported in `_meta.quality.length_warnings`.
 
 ## Task: data cleansing or building on the data
 
 This skill's module is importable for downstream work
-(`from ars_dataset import load, build_indexes, event_rows, parse_event_datetime, parse_coord, fix_url, is_test_content`) —
+(`from ars_dataset import load, build_indexes, event_rows, parse_event_datetime, parse_coord, fix_url, is_public, is_test_content`) —
 these functions already encode the join and cleansing rules above. For
 time/place analyses, `event_rows()` rows come with ready-to-use `start_dt`/
 `end_dt` (tz-aware datetimes) and `lat`/`lon` (parsed floats from the first
