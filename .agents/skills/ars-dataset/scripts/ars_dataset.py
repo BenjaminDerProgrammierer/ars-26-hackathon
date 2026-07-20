@@ -31,6 +31,7 @@ DATASET_URL = "https://ars.electronica.art/negotiatinghumanity/hackathondata/"
 DATABASES = ("projects", "contacts", "locations", "calendar")
 DEFAULT_SCHEMA = Path(__file__).resolve().parent.parent / "references" / "schema.json"
 _CANONICAL_ID_RE = re.compile(r"^[0-9a-f]{32}$")
+_LEGACY_ID_RE = re.compile(r"[0-9a-f]{32}$")
 
 
 # ---------------------------------------------------------------- loading
@@ -346,6 +347,16 @@ def verify(data, schema):
 
 def diff(old, new):
     """Compare two exports; return list of human-readable difference lines."""
+    def record_key(record):
+        canonical_id = record.get("canonical_id")
+        if canonical_id is not None:
+            return key_of(canonical_id)
+        legacy_id = record.get("id")
+        if not isinstance(legacy_id, str):
+            return None
+        match = _LEGACY_ID_RE.search(legacy_id)
+        return match.group(0) if match else None
+
     out = []
     og = (old.get("_meta") or {}).get("generated_at")
     ng = (new.get("_meta") or {}).get("generated_at")
@@ -361,8 +372,8 @@ def diff(old, new):
             out.append(f"{db}: field added: {f!r}")
         for f in sorted(o_fields - n_fields):
             out.append(f"{db}: field removed: {f!r}")
-        o_keys = {key_of(r.get("canonical_id")) for r in o_rows} - {None}
-        n_keys = {key_of(r.get("canonical_id")) for r in n_rows} - {None}
+        o_keys = {record_key(r) for r in o_rows} - {None}
+        n_keys = {record_key(r) for r in n_rows} - {None}
         added, removed = n_keys - o_keys, o_keys - n_keys
         if added:
             out.append(f"{db}: {len(added)} record id(s) added")
