@@ -54,19 +54,6 @@ function storageStatus(error: unknown): number | undefined {
   return typeof error.statusCode === "number" ? error.statusCode : undefined;
 }
 
-function storageCode(error: unknown): string | undefined {
-  if (typeof error !== "object" || error === null || !("code" in error)) {
-    return undefined;
-  }
-  return typeof error.code === "string" ? error.code : undefined;
-}
-
-function isMissingEntity(error: unknown): boolean {
-  return (
-    storageStatus(error) === 404 && storageCode(error) === "EntityNotFound"
-  );
-}
-
 async function withLookupSlot<T>(operation: () => Promise<T>): Promise<T> {
   if (activeLookups >= maxConcurrentLookups) {
     throw new RedeemServiceBusyError("Redeem lookup capacity is exhausted");
@@ -109,8 +96,12 @@ export async function lookupRedeemCode(
     );
     return isAvailable(entity) ? entity.accessText : null;
   } catch (error: unknown) {
-    if (isMissingEntity(error)) return null;
-    throw error;
+    if (storageStatus(error) !== 404) throw error;
+    // Azure's JavaScript SDK reports both a missing entity and a missing table
+    // as ResourceNotFound. Probe the table itself before classifying this as an
+    // invalid code so configuration failures remain service errors.
+    await probeRedeemService();
+    return null;
   }
 }
 
@@ -120,13 +111,12 @@ export async function probeRedeemService(): Promise<void> {
   if (!healthProbePromise || healthProbeExpiresAt <= now) {
     healthProbeExpiresAt = now + healthProbeCacheMs;
     healthProbePromise = withLookupSlot(async () => {
-      try {
-        await getTableClient().getEntity("__HEALTH__", "__HEALTH__", {
+      const pages = getTableClient()
+        .listEntities<AccessCodeProperties>({
           abortSignal: AbortSignal.timeout(lookupTimeoutMs),
-        });
-      } catch (error: unknown) {
-        if (!isMissingEntity(error)) throw error;
-      }
+        })
+        .byPage({ maxPageSize: 1 });
+      await pages.next();
     });
   }
   await healthProbePromise;
