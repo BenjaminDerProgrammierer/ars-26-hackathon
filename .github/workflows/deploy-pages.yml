@@ -20,15 +20,31 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: github-pages
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Build and upload Astro site
-        uses: withastro/action@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          path: ./web
           node-version: 22.12.0
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Build Astro site
+        run: npm run build
+        working-directory: web
+
+      - name: Upload static preview
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: web/dist/client
 
   deploy:
     needs: build

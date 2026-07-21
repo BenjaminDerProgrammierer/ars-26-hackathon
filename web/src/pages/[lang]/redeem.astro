@@ -1,13 +1,24 @@
 ---
-import { type Lang, useTranslations } from "../../i18n/ui";
+import { isLang, useTranslations } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { lookupRedeemCode } from "../../redeem/data";
 
-export function getStaticPaths() {
-  return [{ params: { lang: "en" } }, { params: { lang: "de" } }];
-}
+export const prerender = false;
 
-const lang = Astro.params.lang as Lang;
+const lang = isLang(Astro.params.lang) ? Astro.params.lang : "en";
 const t = useTranslations(lang);
+const code = Astro.url.searchParams.get("code")?.trim() || "";
+let accessText: string | null = null;
+let lookupError = false;
+
+if (code) {
+  try {
+    accessText = await lookupRedeemCode(code);
+  } catch (error: unknown) {
+    console.error("Redeem code lookup failed", error);
+    lookupError = true;
+  }
+}
 ---
 
 <BaseLayout
@@ -34,7 +45,7 @@ const t = useTranslations(lang);
             type="text"
             autocomplete="off"
             required
-            data-redeem-input
+            value={code}
           />
           <button class="button button--action" type="submit">
             {t("redeem.submit")}
@@ -42,29 +53,26 @@ const t = useTranslations(lang);
         </div>
       </form>
 
-      <div class="redeem-result" hidden data-redeem-result aria-live="polite">
-        <p class="result-label">{t("redeem.result.label")}</p>
-        <output data-redeem-output></output>
-      </div>
+      {
+        code && (
+          <div class="redeem-result" aria-live="polite">
+            <p class="result-label">
+              {accessText
+                ? t("redeem.result.label")
+                : t("redeem.error.label")}
+            </p>
+            <output>
+              {accessText ||
+                (lookupError
+                  ? t("redeem.error.service")
+                  : t("redeem.error.unavailable"))}
+            </output>
+          </div>
+        )
+      }
     </div>
   </section>
 </BaseLayout>
-
-<script>
-  import { lookupRedeemCode } from "../../redeem/data";
-
-  const form = document.querySelector<HTMLFormElement>("[data-redeem-form]");
-  const input = document.querySelector<HTMLInputElement>("[data-redeem-input]");
-  const result = document.querySelector<HTMLElement>("[data-redeem-result]");
-  const output = document.querySelector<HTMLOutputElement>("[data-redeem-output]");
-  const code = new URL(window.location.href).searchParams.get("code")?.trim();
-
-  if (form && input && result && output && code) {
-    input.value = code;
-    output.textContent = lookupRedeemCode(code);
-    result.hidden = false;
-  }
-</script>
 
 <style>
   .title-band {
@@ -142,8 +150,11 @@ const t = useTranslations(lang);
   output {
     display: block;
     overflow-wrap: anywhere;
+    font-family: ui-monospace, "Cascadia Code", "Roboto Mono", Menlo, Consolas,
+      monospace;
     font-size: var(--text-xl);
     font-weight: 700;
+    white-space: pre-wrap;
   }
 
   @media (max-width: 32rem) {
