@@ -9,3 +9,26 @@ Azure deployments must use:
 - Region: `austriaeast`
 
 Do not commit credentials, secrets, or environment-specific access tokens.
+
+## Deploy
+
+The `Publish web container` GitHub Actions workflow builds `web/Dockerfile` and
+publishes `ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest`. After
+the first workflow run, set that GHCR package's visibility to **Public** so App
+Service can pull it anonymously.
+
+Deploy the resource group:
+
+```sh
+az deployment group create \
+  --resource-group ArsElectronicaHackathon \
+  --template-file infra/main.bicep
+```
+
+Override `webAppContainerImage` to deploy a different public image tag or digest.
+
+The template creates a Linux App Service plan, a container web app listening on
+port 80, and a user-assigned managed identity. The identity is attached to the
+web app and receives `Storage Table Data Reader` on the `AccessCodes` table only.
+The image must be publicly pullable unless registry authentication is configured
+separately. Each workflow run also publishes an immutable `sha-<commit>` tag.

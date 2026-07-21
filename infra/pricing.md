@@ -1,7 +1,7 @@
 # Infrastructure pricing estimate
 
-The resources defined in [`main.bicep`](main.bicep) should cost effectively
-**$0 per month at hackathon-scale usage**.
+The resources defined in [`main.bicep`](main.bicep) should cost approximately
+**$13.16 per month**, plus negligible storage transactions at hackathon scale.
 
 ## Resources
 
@@ -9,19 +9,20 @@ The template creates:
 
 - One Azure StorageV2 account in Austria East using Standard LRS.
 - One Azure Table named `AccessCodes` by default.
-- No fixed-price compute resources.
+- One Basic B1 Linux App Service plan and one container web app.
+- One user-assigned managed identity, which has no additional charge.
 
-Creating the storage account and an empty table does not itself incur a fixed
-monthly charge. Billing is based primarily on stored table data, operations,
-and potentially outbound network traffic.
+The App Service plan is the fixed monthly cost. Storage billing is based on
+stored table data, operations, and potentially outbound network traffic.
 
 ## Current retail rates
 
-The following pay-as-you-go retail rates were checked on July 20, 2026 for
-Azure Table Storage using Standard LRS in Austria East:
+The following pay-as-you-go retail rates were checked on July 21, 2026 for
+Linux App Service and Azure Table Storage in Austria East:
 
 | Usage | Price |
 | --- | ---: |
+| Basic B1 Linux App Service plan | $0.01802/hour (about $13.15 per 730-hour month) |
 | Table data stored | $0.045 per GiB/month |
 | Reads, writes, lists, scans, and deletes | $0.00036 per 10,000 operations |
 | Deployment and an empty table | No charge |
@@ -29,20 +30,21 @@ Azure Table Storage using Standard LRS in Austria East:
 The approximate monthly storage and operation cost is:
 
 ```text
-cost = (stored GiB × $0.045) + (operations ÷ 10,000 × $0.00036)
+cost = (B1 instance hours × $0.01802)
+     + (stored GiB × $0.045)
+     + (operations ÷ 10,000 × $0.00036)
 ```
 
 ## Examples
 
 | Monthly usage | Estimated monthly cost |
 | --- | ---: |
-| 10 MiB stored and 100,000 operations | About $0.004 |
-| 1 GiB stored and 1 million operations | About $0.081 |
-| 100 GiB stored and 100 million operations | About $8.10 |
+| 10 MiB stored and 100,000 operations | About $13.15 |
+| 1 GiB stored and 1 million operations | About $13.23 |
+| 100 GiB stored and 100 million operations | About $21.25 |
 
-The access-code records used by this project are small. At the expected scale,
-the realistic cost should be **less than $0.01 per month**, likely appearing as
-effectively zero on the bill.
+The access-code records used by this project are small, so almost all expected
+cost comes from the continuously provisioned B1 App Service plan.
 
 ## Additional considerations
 
@@ -53,7 +55,9 @@ effectively zero on the bill.
 - Actual charges can vary with billing currency, taxes, negotiated agreements,
   subscription credits, pricing changes, and other services used through the
   same storage account.
-- This estimate covers only the resources declared by `infra/main.bicep`.
+- A different `appServicePlanSkuName` changes the fixed compute cost.
+- This estimate covers only the resources declared by `infra/main.bicep` and
+  excludes container-registry charges.
 
 ## Sources
 
