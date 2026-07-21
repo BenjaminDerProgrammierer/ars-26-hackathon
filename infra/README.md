@@ -22,13 +22,19 @@ Deploy the resource group:
 ```sh
 az deployment group create \
   --resource-group ArsElectronicaHackathon \
-  --template-file infra/main.bicep
+  --template-file infra/main.bicep \
+  --parameters alertEmailAddress=you@example.com
 ```
 
 Override `webAppContainerImage` to deploy a different public image tag or digest.
 
-The template creates a Linux App Service plan, a container web app listening on
-port 80, and a user-assigned managed identity. The identity is attached to the
+The template creates a two-worker Linux App Service plan, a container web app
+listening on port 80, a Log Analytics workspace, retained diagnostics, an HTTP
+5xx alert, and a user-assigned managed identity. The identity is attached to the
 web app and receives `Storage Table Data Reader` on the `AccessCodes` table only.
+Set `alertEmailAddress` to route the alert to an operator; leaving it empty keeps
+the Azure Monitor alert active without email delivery.
 The image must be publicly pullable unless registry authentication is configured
-separately. Each workflow run also publishes an immutable `sha-<commit>` tag.
+separately. Each workflow run also publishes a commit-addressed `sha-<commit>`
+tag; use the registry-provided digest when an immutable image reference is
+required.

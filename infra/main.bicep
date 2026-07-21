@@ -27,10 +27,18 @@ param appServicePlanName string = 'arselectronicahackathon-web-plan'
 @description('App Service plan SKU. B1 is the default production baseline with Always On support.')
 param appServicePlanSkuName string = 'B1'
 
+@description('Number of App Service workers. Health Check requires at least two for traffic failover.')
+@minValue(2)
+param appServicePlanCapacity int = 2
+
 @description('Full container image reference, including its registry and tag or digest.')
 param webAppContainerImage string = 'ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest'
 
-var storageTableDataReaderRoleId = '76199698-9eea-4c19-bc75-cec21354c6b6'
+@description('Name of the Log Analytics workspace for retained web app diagnostics.')
+param logAnalyticsWorkspaceName string = 'arselectronicahackathon-web-logs'
+
+@description('Email address that receives web app HTTP 5xx alerts. Leave empty to create the alert without email delivery.')
+param alertEmailAddress string = ''
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' = {
   name: storageAccountName
@@ -78,6 +86,7 @@ resource appServicePlan 'Microsoft.Web/serverFarms@2024-11-01' = {
   kind: 'linux'
   sku: {
     name: appServicePlanSkuName
+    capacity: appServicePlanCapacity
   }
   properties: {
     reserved: true
@@ -102,7 +111,7 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
     siteConfig: {
       alwaysOn: true
       ftpsState: 'Disabled'
-      healthCheckPath: '/en/'
+      healthCheckPath: '/api/health/'
       http20Enabled: true
       linuxFxVersion: 'DOCKER|${webAppContainerImage}'
       minTlsVersion: '1.2'
@@ -110,6 +119,14 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
         {
           name: 'WEBSITES_PORT'
           value: '80'
+        }
+        {
+          name: 'WEBSITE_HEALTHCHECK_MAXPINGFAILURES'
+          value: '2'
+        }
+        {
+          name: 'SITE_URL'
+          value: 'https://${webAppName}.azurewebsites.net'
         }
         {
           name: 'AZURE_STORAGE_ACCOUNT_NAME'
@@ -136,13 +153,129 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
   }
 }
 
-resource webAppTableReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(accessCodesTable.id, webAppIdentity.id, storageTableDataReaderRoleId)
-  scope: accessCodesTable
-  properties: {
+module webAppTableReaderRole 'modules/table-reader-role.bicep' = {
+  name: 'table-reader-${uniqueString(webAppName)}'
+  params: {
+    storageAccountName: storageAccount.name
+    tableName: accessCodesTable.name
     principalId: webAppIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageTableDataReaderRoleId)
+  }
+}
+
+resource webAppLogs 'Microsoft.Web/sites/config@2024-11-01' = {
+  parent: webApp
+  name: 'logs'
+  properties: {
+    applicationLogs: {
+      fileSystem: {
+        level: 'Information'
+      }
+    }
+    detailedErrorMessages: {
+      enabled: true
+    }
+    failedRequestsTracing: {
+      enabled: true
+    }
+    httpLogs: {
+      fileSystem: {
+        enabled: true
+        retentionInDays: 7
+        retentionInMb: 35
+      }
+    }
+  }
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: logAnalyticsWorkspaceName
+  location: location
+  properties: {
+    features: {
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
+    retentionInDays: 30
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
+resource webAppDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${webAppName}-diagnostics'
+  scope: webApp
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        category: 'AppServiceConsoleLogs'
+        enabled: true
+      }
+      {
+        category: 'AppServicePlatformLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+resource webAppAlertActionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
+  name: '${webAppName}-alerts'
+  location: 'Global'
+  properties: {
+    enabled: true
+    groupShortName: 'arsweb'
+    emailReceivers: empty(alertEmailAddress) ? [] : [
+      {
+        name: 'Web operations'
+        emailAddress: alertEmailAddress
+        useCommonAlertSchema: true
+      }
+    ]
+  }
+}
+
+resource webAppServerErrorAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: '${webAppName}-http-5xx'
+  location: 'global'
+  properties: {
+    description: 'The web app returned one or more HTTP 5xx responses in five minutes.'
+    severity: 2
+    enabled: true
+    scopes: [
+      webApp.id
+    ]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    autoMitigate: true
+    targetResourceType: 'Microsoft.Web/sites'
+    targetResourceRegion: location
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          criterionType: 'StaticThresholdCriterion'
+          name: 'Http5xx'
+          metricName: 'Http5xx'
+          metricNamespace: 'Microsoft.Web/sites'
+          operator: 'GreaterThan'
+          threshold: 0
+          timeAggregation: 'Total'
+          skipMetricValidation: false
+        }
+      ]
+    }
+    actions: [
+      {
+        actionGroupId: webAppAlertActionGroup.id
+      }
+    ]
   }
 }
 
@@ -153,3 +286,4 @@ output tableServiceEndpoint string = 'https://${storageAccount.name}.table.${env
 output webAppDefaultHostname string = webApp.properties.defaultHostName
 output webAppIdentityClientId string = webAppIdentity.properties.clientId
 output webAppIdentityPrincipalId string = webAppIdentity.properties.principalId
+output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.id

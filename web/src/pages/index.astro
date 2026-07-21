@@ -3,20 +3,20 @@ import { href } from "../i18n/ui";
 
 const englishUrl = href("en");
 const germanUrl = href("de");
-
-// Get browser language preference from the Accept-Language header
-const preferredLanguage =
-  Astro.request.headers.get("accept-language")?.split(",")[0].split("-")[0] ||
-  "en";
-const redirectUrl = preferredLanguage === "de" ? germanUrl : englishUrl;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content={`0; url=${redirectUrl}`} />
-    <link rel="canonical" href={redirectUrl} />
+    <script is:inline define:vars={{ englishUrl, germanUrl }}>
+      const preferredLanguage = navigator.languages.find((language) =>
+        language.toLowerCase().startsWith("de"),
+      );
+      window.location.replace(preferredLanguage ? germanUrl : englishUrl);
+    </script>
+    <meta http-equiv="refresh" content={`0; url=${englishUrl}`} />
+    <link rel="canonical" href={englishUrl} />
     <title>Redirecting...</title>
   </head>
   <body></body>

@@ -14,7 +14,7 @@ City of Linz.
 | [`admin-tool/`](admin-tool/) | Internal TypeScript/Express dashboard for OpenRouter participant keys and Azure Table Storage redeem codes. The dashboard is intentionally unauthenticated and must not be exposed publicly. |
 | [`ai-proxy/`](ai-proxy/) | Prototype account portal and OpenAI-compatible Mistral proxy with per-contestant usage budgets. |
 | [`dev-venv-generator/`](dev-venv-generator/) | Creates disposable, browser-based student development environments on Azure or locally with Docker. |
-| [`infra/`](infra/) | Bicep infrastructure for the shared Azure `AccessCodes` table used by the redeem-code workflow. |
+| [`infra/`](infra/) | Bicep infrastructure for the Azure `AccessCodes` table, container web app, managed identity, monitoring, and alerts. |
 | [`ars-dataset/`](ars-dataset/) | Gitignored working snapshot of the Festival 2026 CMS export plus provider-feedback notes. |
 | [`opendata-linz/`](opendata-linz/) | Reviewed City of Linz open-data catalog, per-dataset verdicts, source links, and research archive. |
 | [`.agents/skills/`](.agents/skills/) | Repository-specific agent workflows for the festival dataset, UI design, and documentation lookup. |

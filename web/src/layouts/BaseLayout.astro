@@ -10,9 +10,10 @@ interface Props {
   lang: Lang;
   title: string;
   description?: string;
+  robots?: string;
 }
 
-const { lang, title, description } = Astro.props;
+const { lang, title, description, robots } = Astro.props;
 const t = useTranslations(lang);
 
 const alternates = (Object.keys(languages) as Lang[]).map((code) => ({
@@ -34,6 +35,7 @@ const pageTitle =
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     {description && <meta name="description" content={description} />}
+    {robots && <meta name="robots" content={robots} />}
     {
       alternates.map((alt) => (
         <link rel="alternate" hreflang={alt.code} href={alt.url} />

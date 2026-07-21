@@ -63,12 +63,16 @@ export const ui = {
     "redeem.intro":
       "Enter the short code you received to reveal your access information.",
     "redeem.code.label": "Redeem code",
+    "redeem.code.hint":
+      "Use the 10–64 character code from your handout. Spaces and hyphens are optional.",
     "redeem.submit": "Redeem",
     "redeem.result.label": "Your access information",
     "redeem.error.label": "Unable to redeem code",
     "redeem.error.unavailable": "This code is invalid, disabled, or expired.",
     "redeem.error.service":
       "The redemption service is temporarily unavailable. Please try again later.",
+    "redeem.error.rateLimit":
+      "Too many attempts. Please wait a minute and try again.",
   },
   de: {
     "site.title": "AI Hackathon",
@@ -121,6 +125,8 @@ export const ui = {
     "redeem.intro":
       "Gib den erhaltenen Kurzcode ein, um deine Zugangsinformationen anzuzeigen.",
     "redeem.code.label": "Einlösecode",
+    "redeem.code.hint":
+      "Verwende den 10–64 Zeichen langen Code von deinem Handzettel. Leerzeichen und Bindestriche sind optional.",
     "redeem.submit": "Einlösen",
     "redeem.result.label": "Deine Zugangsinformationen",
     "redeem.error.label": "Code kann nicht eingelöst werden",
@@ -128,6 +134,8 @@ export const ui = {
       "Dieser Code ist ungültig, deaktiviert oder abgelaufen.",
     "redeem.error.service":
       "Der Einlösedienst ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+    "redeem.error.rateLimit":
+      "Zu viele Versuche. Bitte warte eine Minute und versuche es erneut.",
   },
 } as const;
 
