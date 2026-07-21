@@ -18,6 +18,14 @@ export default defineConfig({
   adapter: node({ mode: "standalone" }),
   integrations: [react()],
   trailingSlash: "always",
+  security: {
+    allowedDomains: [
+      {
+        hostname: "arselectronicahackathon-web.azurewebsites.net",
+        protocol: "https",
+      },
+    ],
+  },
   i18n: {
     defaultLocale: "en",
     locales: ["en", "de"],
