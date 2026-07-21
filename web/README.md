@@ -58,8 +58,12 @@ Local development outside Docker continues to use `npm run dev` and `web/.env`.
 
 ## Deployment
 
-Pushes to `main` that change the website build the static site and deploy it to
-<https://benjaminderprogrammierer.github.io/ars-26-hackathon/>. The repository's
-Pages source is configured as **GitHub Actions**.
-The redeem route is server-rendered and is therefore only available in the App
-Service deployment, not in the static Pages preview.
+Pushes to `main` that change the website build and publish the production image
+to GitHub Container Registry. The workflow then uses passwordless OpenID Connect
+authentication to restart App Service, so Azure pulls the new `latest` image at
+<https://arselectronicahackathon-web.azurewebsites.net/>.
+
+The Bicep deployment creates a dedicated GitHub deployment identity, trusts only
+the repository's `main` branch, and grants it `Website Contributor` on this web
+app. Its client, tenant, and subscription IDs are stored as GitHub Actions
+repository variables; no Azure password or publishing profile is stored.

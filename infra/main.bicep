@@ -34,6 +34,12 @@ param appServicePlanCapacity int = 2
 @description('Full container image reference, including its registry and tag or digest.')
 param webAppContainerImage string = 'ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest'
 
+@description('GitHub organization trusted to redeploy the web app from Actions.')
+param githubOrganization string = 'BenjaminDerProgrammierer'
+
+@description('GitHub repository trusted to redeploy the web app from Actions.')
+param githubRepository string = 'ars-26-hackathon'
+
 @description('Name of the Log Analytics workspace for retained web app diagnostics.')
 param logAnalyticsWorkspaceName string = 'arselectronicahackathon-web-logs'
 
@@ -78,6 +84,23 @@ resource accessCodesTable 'Microsoft.Storage/storageAccounts/tableServices/table
 resource webAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${webAppName}-identity'
   location: location
+}
+
+resource githubDeploymentIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+  name: '${webAppName}-github-deploy'
+  location: location
+}
+
+resource githubMainFederatedCredential 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2024-11-30' = {
+  parent: githubDeploymentIdentity
+  name: 'github-main'
+  properties: {
+    audiences: [
+      'api://AzureADTokenExchange'
+    ]
+    issuer: 'https://token.actions.githubusercontent.com'
+    subject: 'repo:${githubOrganization}/${githubRepository}:ref:refs/heads/main'
+  }
 }
 
 resource appServicePlan 'Microsoft.Web/serverFarms@2024-11-01' = {
@@ -150,6 +173,19 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
         }
       ]
     }
+  }
+}
+
+resource githubWebAppRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(webApp.id, githubDeploymentIdentity.id, 'Website Contributor')
+  scope: webApp
+  properties: {
+    principalId: githubDeploymentIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'de139f84-1756-47ae-9be6-808fbbe84772'
+    )
   }
 }
 
@@ -286,4 +322,8 @@ output tableServiceEndpoint string = 'https://${storageAccount.name}.table.${env
 output webAppDefaultHostname string = webApp.properties.defaultHostName
 output webAppIdentityClientId string = webAppIdentity.properties.clientId
 output webAppIdentityPrincipalId string = webAppIdentity.properties.principalId
+output githubDeploymentClientId string = githubDeploymentIdentity.properties.clientId
+output githubDeploymentPrincipalId string = githubDeploymentIdentity.properties.principalId
+output tenantId string = tenant().tenantId
+output subscriptionId string = subscription().subscriptionId
 output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.id
