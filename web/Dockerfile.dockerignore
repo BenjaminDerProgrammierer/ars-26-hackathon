@@ -1,0 +1,13 @@
+**
+!opendata-linz/
+!opendata-linz/**
+!web/
+!web/**
+web/.astro
+web/.env
+web/.env.*
+!web/.env.example
+web/.git
+web/dist
+web/node_modules
+web/npm-debug.log*

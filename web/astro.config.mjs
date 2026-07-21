@@ -1,16 +1,20 @@
 // @ts-check
+
+import node from "@astrojs/node";
 import react from "@astrojs/react";
 import { defineConfig, fontProviders } from "astro/config";
 
-const isDevelopment =
-  Reflect.get(globalThis, "process").env.NODE_ENV === "development";
+const isPagesPreview = process.env.DEPLOY_TARGET === "github-pages";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://benjaminderprogrammierer.github.io",
-  // GitHub Pages serves production under the repository name. Keep local
-  // development at the root URL documented in README.md.
-  base: isDevelopment ? "/" : "/ars-26-hackathon",
+  site:
+    process.env.SITE_URL ||
+    (isPagesPreview
+      ? "https://benjaminderprogrammierer.github.io"
+      : "http://localhost:4321"),
+  base: isPagesPreview ? "/ars-26-hackathon" : "/",
+  adapter: node({ mode: "standalone" }),
   integrations: [react()],
   trailingSlash: "always",
   i18n: {

@@ -65,6 +65,10 @@ export const ui = {
     "redeem.code.label": "Redeem code",
     "redeem.submit": "Redeem",
     "redeem.result.label": "Your access information",
+    "redeem.error.label": "Unable to redeem code",
+    "redeem.error.unavailable": "This code is invalid, disabled, or expired.",
+    "redeem.error.service":
+      "The redemption service is temporarily unavailable. Please try again later.",
   },
   de: {
     "site.title": "AI Hackathon",
@@ -119,6 +123,11 @@ export const ui = {
     "redeem.code.label": "Einlösecode",
     "redeem.submit": "Einlösen",
     "redeem.result.label": "Deine Zugangsinformationen",
+    "redeem.error.label": "Code kann nicht eingelöst werden",
+    "redeem.error.unavailable":
+      "Dieser Code ist ungültig, deaktiviert oder abgelaufen.",
+    "redeem.error.service":
+      "Der Einlösedienst ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
   },
 } as const;
 
