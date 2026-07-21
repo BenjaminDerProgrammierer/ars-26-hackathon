@@ -5,6 +5,7 @@ import react from "@astrojs/react";
 import { defineConfig, fontProviders } from "astro/config";
 
 const isPagesPreview = process.env.DEPLOY_TARGET === "github-pages";
+const productionSite = "https://arselectronicahackathon-web.azurewebsites.net";
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,7 +13,7 @@ export default defineConfig({
     process.env.SITE_URL ||
     (isPagesPreview
       ? "https://benjaminderprogrammierer.github.io"
-      : "http://localhost:4321"),
+      : productionSite),
   base: isPagesPreview ? "/ars-26-hackathon" : "/",
   adapter: node({ mode: "standalone" }),
   integrations: [react()],

@@ -9,6 +9,15 @@ type AccessCodeProperties = {
 };
 
 let tableClient: TableClient | undefined;
+let activeLookups = 0;
+let healthProbePromise: Promise<void> | undefined;
+let healthProbeExpiresAt = 0;
+
+const maxConcurrentLookups = 16;
+const lookupTimeoutMs = 5_000;
+const healthProbeCacheMs = 30_000;
+
+export class RedeemServiceBusyError extends Error {}
 
 function getTableClient(): TableClient {
   if (tableClient) return tableClient;
@@ -32,8 +41,9 @@ function getTableClient(): TableClient {
   return tableClient;
 }
 
-function normalizeRedeemCode(value: string): string | null {
-  const normalized = value.toUpperCase().replace(/[\s-]/g, "");
+export function normalizeRedeemCode(value: string): string | null {
+  if (!/^[A-Za-z2-9\s-]+$/.test(value)) return null;
+  const normalized = value.replace(/[\s-]/g, "").toUpperCase();
   return /^[A-Z2-9]{10,64}$/.test(normalized) ? normalized : null;
 }
 
@@ -42,6 +52,31 @@ function storageStatus(error: unknown): number | undefined {
     return undefined;
   }
   return typeof error.statusCode === "number" ? error.statusCode : undefined;
+}
+
+function storageCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return undefined;
+  }
+  return typeof error.code === "string" ? error.code : undefined;
+}
+
+function isMissingEntity(error: unknown): boolean {
+  return (
+    storageStatus(error) === 404 && storageCode(error) === "EntityNotFound"
+  );
+}
+
+async function withLookupSlot<T>(operation: () => Promise<T>): Promise<T> {
+  if (activeLookups >= maxConcurrentLookups) {
+    throw new RedeemServiceBusyError("Redeem lookup capacity is exhausted");
+  }
+  activeLookups += 1;
+  try {
+    return await operation();
+  } finally {
+    activeLookups -= 1;
+  }
 }
 
 function isAvailable(
@@ -67,13 +102,32 @@ export async function lookupRedeemCode(
   if (!code) return null;
 
   try {
-    const entity = await getTableClient().getEntity<AccessCodeProperties>(
-      code.slice(0, 2),
-      code,
+    const entity = await withLookupSlot(() =>
+      getTableClient().getEntity<AccessCodeProperties>(code.slice(0, 2), code, {
+        abortSignal: AbortSignal.timeout(lookupTimeoutMs),
+      }),
     );
     return isAvailable(entity) ? entity.accessText : null;
   } catch (error: unknown) {
-    if (storageStatus(error) === 404) return null;
+    if (isMissingEntity(error)) return null;
     throw error;
   }
+}
+
+/** Verify that credentials, networking, and the configured table are usable. */
+export async function probeRedeemService(): Promise<void> {
+  const now = Date.now();
+  if (!healthProbePromise || healthProbeExpiresAt <= now) {
+    healthProbeExpiresAt = now + healthProbeCacheMs;
+    healthProbePromise = withLookupSlot(async () => {
+      try {
+        await getTableClient().getEntity("__HEALTH__", "__HEALTH__", {
+          abortSignal: AbortSignal.timeout(lookupTimeoutMs),
+        });
+      } catch (error: unknown) {
+        if (!isMissingEntity(error)) throw error;
+      }
+    });
+  }
+  await healthProbePromise;
 }
