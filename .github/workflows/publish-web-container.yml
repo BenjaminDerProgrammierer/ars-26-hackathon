@@ -49,9 +49,11 @@ jobs:
         working-directory: web
 
       - name: Build smoke-test image
+        if: github.event_name == 'push'
         run: docker build -f web/Dockerfile -t ars-hackathon-web:smoke .
 
       - name: Smoke test container
+        if: github.event_name == 'push'
         run: |
           container_id=$(docker run --detach --publish 8080:80 ars-hackathon-web:smoke)
           trap 'docker rm --force "$container_id"' EXIT
