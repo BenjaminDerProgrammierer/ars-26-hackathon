@@ -1,12 +1,40 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  type AdminOperationEntity,
+  type AdminOperationStorage,
+  setAdminOperationStorageForTests,
+} from "../src/lib/admin-operation-storage.js";
+import {
+  clearCompletedDevEnvironmentOperations,
   developmentEnvironmentDeploymentParameters,
   formatStudentLoginText,
   validateBulkAction,
   validateEnvironmentNames,
   validateStartDeploymentInput,
 } from "../src/lib/dev-environments.js";
+
+function operationEntity(id: string, status: string): AdminOperationEntity {
+  return {
+    partitionKey: "DEV_ENVIRONMENT",
+    rowKey: id,
+    kind: "create",
+    label: `Operation ${id}`,
+    status,
+    total: 1,
+    processed: status === "running" ? 0 : 1,
+    succeeded: status === "completed" ? 1 : 0,
+    failedCount: status === "failed" ? 1 : 0,
+    createdAt: "2026-07-22T10:00:00.000Z",
+    startedAt: "2026-07-22T10:00:00.000Z",
+    finishedAt: status === "running" ? "" : "2026-07-22T10:01:00.000Z",
+    error: "",
+    resultJson: "",
+    failedJson: "[]",
+    createdNamesJson: "[]",
+    detail: "",
+  };
+}
 
 test("maps a development environment to Bicep deployment parameters", () => {
   assert.deepEqual(
@@ -102,4 +130,30 @@ test("validates environment bulk actions", () => {
   ]);
   assert.equal(validateBulkAction("stop"), "stop");
   assert.throws(() => validateBulkAction("restart"), /start, stop, or delete/);
+});
+
+test("clears completed development environment operations and keeps running ones", async () => {
+  const entities = new Map(
+    [
+      operationEntity("completed", "completed"),
+      operationEntity("partial", "partial"),
+      operationEntity("failed", "failed"),
+      operationEntity("running", "running"),
+    ].map((entity) => [entity.rowKey, entity]),
+  );
+  const storage = {
+    list: async (partitionKey: string) =>
+      [...entities.values()].filter((entity) => entity.partitionKey === partitionKey),
+    delete: async (_partitionKey: string, rowKey: string) => {
+      entities.delete(rowKey);
+    },
+  } as AdminOperationStorage;
+  setAdminOperationStorageForTests(storage);
+
+  try {
+    assert.equal(await clearCompletedDevEnvironmentOperations(), 3);
+    assert.deepEqual([...entities.keys()], ["running"]);
+  } finally {
+    setAdminOperationStorageForTests();
+  }
 });

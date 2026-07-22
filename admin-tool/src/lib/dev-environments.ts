@@ -782,6 +782,14 @@ async function latestStoredOperation(): Promise<EnvironmentOperation | null> {
   }
 }
 
+export async function clearCompletedDevEnvironmentOperations(): Promise<number> {
+  const storage = getAdminOperationStorage();
+  const operations = (await storage.list(OPERATION_PARTITION)).map(deserializeOperation);
+  const completed = operations.filter(({ status }) => status !== "running");
+  await Promise.all(completed.map(({ id }) => storage.delete(OPERATION_PARTITION, id)));
+  return completed.length;
+}
+
 async function markOperationsInterrupted(operations: EnvironmentOperation[]): Promise<void> {
   for (const operation of operations) {
     operation.status = "failed";

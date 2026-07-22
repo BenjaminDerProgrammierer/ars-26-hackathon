@@ -580,6 +580,7 @@ function renderEnvironmentOperation() {
     partial: "Done with issues",
     failed: "Failed",
   }[operation.status];
+  $("#environment-clear-completed-button").hidden = operation.status === "running";
   const percentage = operation.total
     ? Math.round((operation.processed / operation.total) * 100)
     : 0;
@@ -882,6 +883,22 @@ $("#clear-completed-button").addEventListener("click", async (event) => {
   try {
     const payload = await api("/api/operations/completed", { method: "DELETE" });
     await loadOperations();
+    showToast(`${payload.cleared} completed activit${payload.cleared === 1 ? "y" : "ies"} cleared`);
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+$("#environment-clear-completed-button").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const payload = await api("/api/dev-environments/operations/completed", {
+      method: "DELETE",
+    });
+    await loadEnvironmentStatus();
     showToast(`${payload.cleared} completed activit${payload.cleared === 1 ? "y" : "ies"} cleared`);
   } catch (error) {
     showToast(error.message, true);

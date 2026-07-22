@@ -8,6 +8,7 @@ import {
   startBulkOperation,
 } from "../lib/bulk-operations.js";
 import {
+  clearCompletedDevEnvironmentOperations,
   EnvironmentOperationConflictError,
   getDevEnvironmentContext,
   getDevEnvironments,
@@ -345,6 +346,10 @@ router.get("/dev-environments", async (request, response) => {
     data: await listDevEnvironments({ refresh: request.query.refresh === "true" }),
     operation: context.operation,
   });
+});
+
+router.delete("/dev-environments/operations/completed", async (_request, response) => {
+  response.json({ cleared: await clearCompletedDevEnvironmentOperations() });
 });
 
 router.post("/dev-environments", async (request, response) => {
