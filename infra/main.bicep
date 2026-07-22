@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-@description('Azure region for the storage account.')
+@description('Azure region for the deployed resources.')
 @allowed([
   'austriaeast'
 ])
@@ -46,284 +46,74 @@ param logAnalyticsWorkspaceName string = 'arselectronicahackathon-web-logs'
 @description('Email address that receives web app HTTP 5xx alerts. Leave empty to create the alert without email delivery.')
 param alertEmailAddress string = ''
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' = {
-  name: storageAccountName
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  properties: {
-    allowBlobPublicAccess: false
-    allowCrossTenantReplication: false
-    allowSharedKeyAccess: false
-    defaultToOAuthAuthentication: true
-    minimumTlsVersion: 'TLS1_2'
-    publicNetworkAccess: 'Enabled'
-    supportsHttpsTrafficOnly: true
-    networkAcls: {
-      bypass: 'None'
-      defaultAction: 'Allow'
-      ipRules: []
-      virtualNetworkRules: []
-    }
+module storage 'modules/storage.bicep' = {
+  params: {
+    location: location
+    storageAccountName: storageAccountName
+    accessCodesTableName: accessCodesTableName
   }
 }
 
-resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2025-01-01' = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource accessCodesTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2025-01-01' = {
-  parent: tableService
-  name: accessCodesTableName
-  properties: {}
-}
-
-resource webAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: '${webAppName}-identity'
-  location: location
-}
-
-resource githubDeploymentIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: '${webAppName}-github-deploy'
-  location: location
-}
-
-resource githubMainFederatedCredential 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2024-11-30' = {
-  parent: githubDeploymentIdentity
-  name: 'github-main'
-  properties: {
-    audiences: [
-      'api://AzureADTokenExchange'
-    ]
-    issuer: 'https://token.actions.githubusercontent.com'
-    subject: 'repo:${githubOrganization}/${githubRepository}:ref:refs/heads/main'
+module identities 'modules/identities.bicep' = {
+  params: {
+    location: location
+    webAppName: webAppName
+    githubOrganization: githubOrganization
+    githubRepository: githubRepository
   }
 }
 
-resource appServicePlan 'Microsoft.Web/serverFarms@2024-11-01' = {
-  name: appServicePlanName
-  location: location
-  kind: 'linux'
-  sku: {
-    name: appServicePlanSkuName
-    capacity: appServicePlanCapacity
-  }
-  properties: {
-    reserved: true
+module logAnalytics 'modules/log-analytics.bicep' = {
+  params: {
+    location: location
+    workspaceName: logAnalyticsWorkspaceName
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2024-11-01' = {
-  name: webAppName
-  location: location
-  kind: 'app,linux,container'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${webAppIdentity.id}': {}
-    }
+module webApp 'modules/web-app.bicep' = {
+  params: {
+    location: location
+    webAppName: webAppName
+    appServicePlanName: appServicePlanName
+    appServicePlanSkuName: appServicePlanSkuName
+    appServicePlanCapacity: appServicePlanCapacity
+    webAppContainerImage: webAppContainerImage
+    storageAccountName: storageAccountName
+    accessCodesTableName: accessCodesTableName
+    webAppIdentityName: '${webAppName}-identity'
+    githubDeploymentIdentityName: '${webAppName}-github-deploy'
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    alertEmailAddress: alertEmailAddress
   }
-  properties: {
-    clientAffinityEnabled: false
-    httpsOnly: true
-    publicNetworkAccess: 'Enabled'
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      alwaysOn: true
-      ftpsState: 'Disabled'
-      healthCheckPath: '/api/health/'
-      http20Enabled: true
-      linuxFxVersion: 'DOCKER|${webAppContainerImage}'
-      minTlsVersion: '1.2'
-      appSettings: [
-        {
-          name: 'WEBSITES_PORT'
-          value: '80'
-        }
-        {
-          name: 'WEBSITE_HEALTHCHECK_MAXPINGFAILURES'
-          value: '2'
-        }
-        {
-          name: 'SITE_URL'
-          value: 'https://${webAppName}.azurewebsites.net'
-        }
-        {
-          name: 'AZURE_STORAGE_ACCOUNT_NAME'
-          value: storageAccount.name
-        }
-        {
-          name: 'AZURE_STORAGE_TABLE_NAME'
-          value: accessCodesTable.name
-        }
-        {
-          name: 'AZURE_STORAGE_TABLE_ENDPOINT'
-          value: 'https://${storageAccount.name}.table.${environment().suffixes.storage}'
-        }
-        {
-          name: 'AZURE_CLIENT_ID'
-          value: webAppIdentity.properties.clientId
-        }
-        {
-          name: 'AZURE_TOKEN_CREDENTIALS'
-          value: 'prod'
-        }
-      ]
-    }
-  }
-}
-
-resource githubWebAppRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(webApp.id, githubDeploymentIdentity.id, 'Website Contributor')
-  scope: webApp
-  properties: {
-    principalId: githubDeploymentIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      'de139f84-1756-47ae-9be6-808fbbe84772'
-    )
-  }
+  dependsOn: [
+    storage
+    identities
+    logAnalytics
+  ]
 }
 
 module webAppTableReaderRole 'modules/table-reader-role.bicep' = {
   name: 'table-reader-${uniqueString(webAppName)}'
   params: {
-    storageAccountName: storageAccount.name
-    tableName: accessCodesTable.name
-    principalId: webAppIdentity.properties.principalId
+    storageAccountName: storageAccountName
+    tableName: accessCodesTableName
+    #disable-next-line what-if-short-circuiting
+    principalId: identities.outputs.webAppIdentityPrincipalId
   }
+  dependsOn: [
+    storage
+  ]
 }
 
-resource webAppLogs 'Microsoft.Web/sites/config@2024-11-01' = {
-  parent: webApp
-  name: 'logs'
-  properties: {
-    applicationLogs: {
-      fileSystem: {
-        level: 'Information'
-      }
-    }
-    detailedErrorMessages: {
-      enabled: true
-    }
-    failedRequestsTracing: {
-      enabled: true
-    }
-    httpLogs: {
-      fileSystem: {
-        enabled: true
-        retentionInDays: 7
-        retentionInMb: 35
-      }
-    }
-  }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: logAnalyticsWorkspaceName
-  location: location
-  properties: {
-    features: {
-      enableLogAccessUsingOnlyResourcePermissions: true
-    }
-    retentionInDays: 30
-    sku: {
-      name: 'PerGB2018'
-    }
-  }
-}
-
-resource webAppDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: '${webAppName}-diagnostics'
-  scope: webApp
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'AppServiceConsoleLogs'
-        enabled: true
-      }
-      {
-        category: 'AppServicePlatformLogs'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource webAppAlertActionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
-  name: '${webAppName}-alerts'
-  location: 'Global'
-  properties: {
-    enabled: true
-    groupShortName: 'arsweb'
-    emailReceivers: empty(alertEmailAddress) ? [] : [
-      {
-        name: 'Web operations'
-        emailAddress: alertEmailAddress
-        useCommonAlertSchema: true
-      }
-    ]
-  }
-}
-
-resource webAppServerErrorAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
-  name: '${webAppName}-http-5xx'
-  location: 'global'
-  properties: {
-    description: 'The web app returned one or more HTTP 5xx responses in five minutes.'
-    severity: 2
-    enabled: true
-    scopes: [
-      webApp.id
-    ]
-    evaluationFrequency: 'PT1M'
-    windowSize: 'PT5M'
-    autoMitigate: true
-    targetResourceType: 'Microsoft.Web/sites'
-    targetResourceRegion: location
-    criteria: {
-      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
-      allOf: [
-        {
-          criterionType: 'StaticThresholdCriterion'
-          name: 'Http5xx'
-          metricName: 'Http5xx'
-          metricNamespace: 'Microsoft.Web/sites'
-          operator: 'GreaterThan'
-          threshold: 0
-          timeAggregation: 'Total'
-          skipMetricValidation: false
-        }
-      ]
-    }
-    actions: [
-      {
-        actionGroupId: webAppAlertActionGroup.id
-      }
-    ]
-  }
-}
-
-output storageAccountResourceId string = storageAccount.id
-output storageAccountName string = storageAccount.name
-output tableName string = accessCodesTable.name
-output tableServiceEndpoint string = 'https://${storageAccount.name}.table.${environment().suffixes.storage}'
-output webAppDefaultHostname string = webApp.properties.defaultHostName
-output webAppIdentityClientId string = webAppIdentity.properties.clientId
-output webAppIdentityPrincipalId string = webAppIdentity.properties.principalId
-output githubDeploymentClientId string = githubDeploymentIdentity.properties.clientId
-output githubDeploymentPrincipalId string = githubDeploymentIdentity.properties.principalId
+output storageAccountResourceId string = storage.outputs.storageAccountResourceId
+output storageAccountName string = storage.outputs.storageAccountName
+output tableName string = storage.outputs.tableName
+output tableServiceEndpoint string = storage.outputs.tableServiceEndpoint
+output webAppDefaultHostname string = webApp.outputs.defaultHostname
+output webAppIdentityClientId string = identities.outputs.webAppIdentityClientId
+output webAppIdentityPrincipalId string = identities.outputs.webAppIdentityPrincipalId
+output githubDeploymentClientId string = identities.outputs.githubDeploymentClientId
+output githubDeploymentPrincipalId string = identities.outputs.githubDeploymentPrincipalId
 output tenantId string = tenant().tenantId
 output subscriptionId string = subscription().subscriptionId
-output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.id
+output logAnalyticsWorkspaceId string = logAnalytics.outputs.resourceId

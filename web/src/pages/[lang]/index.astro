@@ -3,6 +3,7 @@ import ColorBand from "../../components/ColorBand.astro";
 import Hero from "../../components/Hero.astro";
 import Milestones from "../../components/Milestones.astro";
 import SplitSection from "../../components/SplitSection.astro";
+import { loginUrl } from "../../config";
 import { href, type Lang, useTranslations } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -20,7 +21,7 @@ const copy = {
       "A sub-event of Ars Electronica Festival 2026 // Future Begins / Negotiating Humanity",
     intro:
       "Build apps, maps, and installations that combine the festival program export with open data from the City of Linz — with optional hosted development and AI access. Two days, one festival, two data worlds.",
-    primaryAction: "Create your account",
+    primaryAction: "Sign Up",
     secondaryAction: "How the hackathon works",
     statement: "Two data worlds. One city. Two days.",
     datasets: {
@@ -134,7 +135,7 @@ const copy = {
     <div class="wrap wrap--reading">
       <p>{copy.intro}</p>
       <p class="actions">
-        <a class="button button--action" href={href(lang, "login")}>{copy.primaryAction}</a>
+        <a class="button button--action" href={loginUrl}>{copy.primaryAction}</a>
         <a class="secondary" href={href(lang, "hackathon")}>{copy.secondaryAction}</a>
       </p>
     </div>
