@@ -19,8 +19,11 @@
     "check": "biome check ."
   },
   "dependencies": {
+    "@azure/arm-compute": "^24.1.0",
+    "@azure/arm-network": "^37.0.0",
     "@azure/data-tables": "^13.3.2",
     "@azure/identity": "^4.13.1",
+    "@azure/storage-blob": "^12.33.0",
     "@openrouter/sdk": "^0.13.55",
     "express": "^5.2.1",
     "lucide": "^1.24.0"

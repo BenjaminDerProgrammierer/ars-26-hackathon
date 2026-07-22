@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { OpenRouter } from "@openrouter/sdk";
 import type {
   CreateKeysRequestBody,
@@ -13,6 +14,7 @@ export type CreateKeyInput = Omit<
 export type UpdateKeyInput = Omit<UpdateKeysRequestBody, "includeByokInLimit" | "limitReset">;
 
 export type HackathonContext = {
+  accountName: string | null;
   workspace: {
     id: string;
     name: string;
@@ -38,6 +40,23 @@ export type CreditBalance = {
 
 let client: OpenRouter | undefined;
 let contextPromise: Promise<HackathonContext> | undefined;
+const RANDOM_KEY_NAME_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+export function generateRandomApiKeyNames(count: number): string[] {
+  if (!Number.isInteger(count) || count < 1 || count > 100) {
+    throw new Error("API key count must be an integer between 1 and 100");
+  }
+  const names = new Set<string>();
+  while (names.size < count) {
+    names.add(
+      Array.from(
+        { length: 8 },
+        () => RANDOM_KEY_NAME_ALPHABET[randomInt(RANDOM_KEY_NAME_ALPHABET.length)],
+      ).join(""),
+    );
+  }
+  return [...names];
+}
 
 function getClient(): OpenRouter {
   if (client) {
@@ -111,6 +130,7 @@ async function loadHackathonContext(): Promise<HackathonContext> {
       : (await openRouter.models.count()).data.count;
 
   return {
+    accountName: process.env.OPENROUTER_ACCOUNT_NAME?.trim() || null,
     workspace: {
       id: workspace.id,
       name: workspace.name,
@@ -186,10 +206,9 @@ export async function createApiKeys(
   onCreated?: () => void,
 ): Promise<{
   created: CreateKeysResponse[];
-  assignedCount: number;
 }> {
   const openRouter = getClient();
-  const { workspace, guardrail } = await getHackathonContext();
+  const { workspace } = await getHackathonContext();
   const created: CreateKeysResponse[] = [];
 
   try {
@@ -207,23 +226,7 @@ export async function createApiKeys(
       onCreated?.();
     }
 
-    const assignment = await openRouter.guardrails.bulkAssignKeys({
-      id: guardrail.id,
-      bulkAssignKeysRequest: {
-        keyHashes: created.map(({ data }) => data.hash),
-      },
-    });
-
-    if (assignment.assignedCount !== created.length) {
-      throw new Error(
-        `OpenRouter assigned ${assignment.assignedCount} of ${created.length} keys to the guardrail`,
-      );
-    }
-
-    return {
-      created,
-      assignedCount: assignment.assignedCount,
-    };
+    return { created };
   } catch (error: unknown) {
     const rollbackFailures = await rollbackCreatedKeys(openRouter, created);
 

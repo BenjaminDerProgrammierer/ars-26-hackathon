@@ -27,9 +27,9 @@ param appServicePlanName string = 'arselectronicahackathon-web-plan'
 @description('App Service plan SKU. B1 is the default production baseline with Always On support.')
 param appServicePlanSkuName string = 'B1'
 
-@description('Number of App Service workers. Health Check requires at least two for traffic failover.')
-@minValue(2)
-param appServicePlanCapacity int = 2
+@description('Number of App Service workers. The single-worker default does not provide instance-level failover.')
+@minValue(1)
+param appServicePlanCapacity int = 1
 
 @description('Full container image reference, including its registry and tag or digest.')
 param webAppContainerImage string = 'ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest'
@@ -45,6 +45,15 @@ param logAnalyticsWorkspaceName string = 'arselectronicahackathon-web-logs'
 
 @description('Email address that receives web app HTTP 5xx alerts. Leave empty to create the alert without email delivery.')
 param alertEmailAddress string = ''
+
+@description('Name of the shared virtual network for development-environment VMs.')
+param developmentEnvironmentVirtualNetworkName string = 'vcenv-vnet'
+
+@description('Name of the subnet used by development-environment VMs.')
+param developmentEnvironmentSubnetName string = 'vcenv-subnet'
+
+@description('Name of the network security group for development-environment VMs.')
+param developmentEnvironmentNetworkSecurityGroupName string = 'vcenv-nsg'
 
 module storage 'modules/storage.bicep' = {
   params: {
@@ -67,6 +76,15 @@ module logAnalytics 'modules/log-analytics.bicep' = {
   params: {
     location: location
     workspaceName: logAnalyticsWorkspaceName
+  }
+}
+
+module developmentEnvironmentsNetwork 'modules/development-environments-network.bicep' = {
+  params: {
+    location: location
+    virtualNetworkName: developmentEnvironmentVirtualNetworkName
+    subnetName: developmentEnvironmentSubnetName
+    networkSecurityGroupName: developmentEnvironmentNetworkSecurityGroupName
   }
 }
 
@@ -117,3 +135,6 @@ output githubDeploymentPrincipalId string = identities.outputs.githubDeploymentP
 output tenantId string = tenant().tenantId
 output subscriptionId string = subscription().subscriptionId
 output logAnalyticsWorkspaceId string = logAnalytics.outputs.resourceId
+output developmentEnvironmentVirtualNetworkResourceId string = developmentEnvironmentsNetwork.outputs.virtualNetworkResourceId
+output developmentEnvironmentNetworkSecurityGroupResourceId string = developmentEnvironmentsNetwork.outputs.networkSecurityGroupResourceId
+output developmentEnvironmentSubnetResourceId string = developmentEnvironmentsNetwork.outputs.subnetResourceId

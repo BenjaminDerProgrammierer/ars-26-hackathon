@@ -486,7 +486,8 @@ h1 {
 .operation-state.running {
   border-color: var(--orange);
 }
-.operation-state.completed {
+.operation-state.completed,
+.operation-state.succeeded {
   border-color: var(--green);
   color: #006b54;
 }
@@ -782,31 +783,6 @@ dialog form {
   color: var(--gray-600);
   font-size: 11px;
 }
-.mode-switch {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-bottom: 20px;
-  padding: 0;
-  border: 1px solid var(--black);
-}
-.mode-switch button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  height: 38px;
-  border: 0;
-  border-right: 1px solid var(--black);
-  background: var(--white);
-  cursor: pointer;
-  font-size: 11px;
-}
-.mode-switch button:last-child {
-  border-right: 0;
-}
-.mode-switch button.active {
-  background: var(--orange);
-}
 .field {
   margin-bottom: 15px;
 }
@@ -866,6 +842,9 @@ dialog form {
   display: flex;
   align-items: center;
   gap: 7px;
+}
+.assignment-note > span {
+  min-width: 0;
 }
 .dialog-actions {
   display: flex;
@@ -934,6 +913,54 @@ dialog form {
   cursor: pointer;
   font-size: 10px;
   font-weight: 600;
+  text-decoration: underline;
+}
+.environment-operation-body {
+  padding: 14px;
+}
+.environment-operation-body > p {
+  margin: 0 0 12px;
+  color: var(--gray-600);
+  font-size: 10px;
+}
+.environment-operation-errors {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  color: #a11745;
+  font-size: 10px;
+  list-style: none;
+}
+.environment-operation-errors li {
+  padding: 8px 10px;
+  border-left: 4px solid var(--magenta);
+  background: #fff4f7;
+  overflow-wrap: anywhere;
+}
+#environment-operation-panel[data-status="failed"] .operation-track span,
+#environment-operation-panel[data-status="partial"] .operation-track span {
+  background: var(--magenta);
+}
+#environment-created-actions {
+  justify-content: flex-end;
+  padding-top: 14px;
+}
+#environment-table-wrap a {
+  color: inherit;
+  font-weight: 600;
+}
+.inline-copy {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gray-600);
+  cursor: pointer;
+  font-size: 10px;
   text-decoration: underline;
 }
 #refresh-button:disabled .lucide {
@@ -1029,7 +1056,7 @@ dialog form {
     display: none;
   }
   .manager-nav {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     margin-top: 0;
   }
   .manager-nav a {

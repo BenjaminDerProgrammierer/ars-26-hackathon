@@ -35,6 +35,7 @@ resource existingWebApp 'Microsoft.Web/sites@2024-11-01' existing = {
 module appServicePlan 'br/public:avm/res/web/serverfarm:0.7.0' = {
   params: {
     name: appServicePlanName
+    location: location
     kind: 'linux'
     skuName: appServicePlanSkuName
     skuCapacity: appServicePlanCapacity
@@ -44,6 +45,7 @@ module appServicePlan 'br/public:avm/res/web/serverfarm:0.7.0' = {
 module webApp 'br/public:avm/res/web/site:0.24.0' = {
   params: {
     name: webAppName
+    location: location
     kind: 'app,linux,container'
     serverFarmResourceId: resourceId('Microsoft.Web/serverFarms', appServicePlanName)
     clientAffinityEnabled: false

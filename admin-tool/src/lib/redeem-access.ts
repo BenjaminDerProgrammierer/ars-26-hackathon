@@ -1,4 +1,4 @@
-import { randomInt } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { TableClient, type TableEntityResult } from "@azure/data-tables";
 import { DefaultAzureCredential } from "@azure/identity";
 
@@ -8,6 +8,7 @@ const GENERATED_CODE_LENGTH = 12;
 type AccessKeyProperties = {
   label: string;
   accessText: string;
+  apiKeyHash?: string;
   enabled: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +19,7 @@ export type RedeemAccessKey = {
   code: string;
   label: string;
   accessText: string;
+  apiKeyHash: string | null;
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +30,7 @@ export type RedeemAccessKey = {
 export type CreateRedeemAccessKeyInput = {
   label: string;
   accessText: string;
+  apiKeyHash?: string;
   code?: string;
   expiresAt?: Date;
 };
@@ -115,6 +118,7 @@ function toRedeemAccessKey(entity: TableEntityResult<AccessKeyProperties>): Rede
     code: formatRedeemCode(entity.rowKey),
     label: entity.label,
     accessText: entity.accessText,
+    apiKeyHash: entity.apiKeyHash ?? null,
     enabled: entity.enabled,
     createdAt: asDate(entity.createdAt).toISOString(),
     updatedAt: asDate(entity.updatedAt).toISOString(),
@@ -143,9 +147,7 @@ async function getEntity(codeValue: string): Promise<TableEntityResult<AccessKey
 export type RedeemAccessContext = {
   accountName: string;
   tableName: string;
-  subscriptionId: string | null;
   subscriptionName: string | null;
-  tenantId: string | null;
   resourceGroup: string | null;
 };
 
@@ -156,7 +158,6 @@ function optionalEnvironment(name: string): string | null {
 type ArmSubscription = {
   subscriptionId: string;
   displayName: string;
-  tenantId: string;
   state: string;
 };
 
@@ -198,12 +199,11 @@ function resourceGroupFromId(resourceId: string): string | null {
 async function discoverRedeemAccessContext(): Promise<RedeemAccessContext> {
   const accountName = requiredEnvironment("AZURE_STORAGE_ACCOUNT_NAME");
   const tableName = process.env.AZURE_STORAGE_TABLE_NAME?.trim() || "AccessCodes";
+  const configuredSubscriptionId = optionalEnvironment("AZURE_SUBSCRIPTION_ID");
   const configuredContext: RedeemAccessContext = {
     accountName,
     tableName,
-    subscriptionId: optionalEnvironment("AZURE_SUBSCRIPTION_ID"),
     subscriptionName: optionalEnvironment("AZURE_SUBSCRIPTION_NAME"),
-    tenantId: optionalEnvironment("AZURE_TENANT_ID"),
     resourceGroup: optionalEnvironment("AZURE_RESOURCE_GROUP"),
   };
 
@@ -215,7 +215,6 @@ async function discoverRedeemAccessContext(): Promise<RedeemAccessContext> {
       "https://management.azure.com/subscriptions?api-version=2022-12-01",
       token.token,
     );
-    const configuredSubscriptionId = configuredContext.subscriptionId;
     subscriptions.sort((left, right) => {
       if (left.subscriptionId === configuredSubscriptionId) return -1;
       if (right.subscriptionId === configuredSubscriptionId) return 1;
@@ -236,9 +235,7 @@ async function discoverRedeemAccessContext(): Promise<RedeemAccessContext> {
         return {
           accountName,
           tableName,
-          subscriptionId: subscription.subscriptionId,
           subscriptionName: subscription.displayName,
-          tenantId: subscription.tenantId,
           resourceGroup: resourceGroupFromId(storageAccount.id),
         };
       } catch {
@@ -270,6 +267,25 @@ export async function listRedeemAccessKeys(): Promise<RedeemAccessKey[]> {
   return records.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 }
 
+export async function listRedeemAccessKeysForApiKeys(
+  hashes: string[],
+): Promise<Map<string, RedeemAccessKey[]>> {
+  const normalizedHashes = new Set(hashes.map((hash) => hash.toLocaleLowerCase()));
+  const records = new Map<string, RedeemAccessKey[]>();
+
+  for await (const entity of getTableClient().listEntities<AccessKeyProperties>()) {
+    const hash =
+      entity.apiKeyHash?.toLocaleLowerCase() ||
+      createHash("sha256").update(entity.accessText).digest("hex");
+    if (!normalizedHashes.has(hash)) continue;
+    const matches = records.get(hash) ?? [];
+    matches.push(toRedeemAccessKey(entity));
+    records.set(hash, matches);
+  }
+
+  return records;
+}
+
 export async function createRedeemAccessKey(
   input: CreateRedeemAccessKeyInput,
 ): Promise<RedeemAccessKey> {
@@ -280,6 +296,7 @@ export async function createRedeemAccessKey(
     rowKey: code,
     label: input.label,
     accessText: input.accessText,
+    ...(input.apiKeyHash ? { apiKeyHash: input.apiKeyHash.toLocaleLowerCase() } : {}),
     enabled: true,
     createdAt: now,
     updatedAt: now,
@@ -311,6 +328,7 @@ export async function updateRedeemAccessKey(
     rowKey: code,
     label: changes.label ?? current.label,
     accessText: changes.accessText ?? current.accessText,
+    ...(current.apiKeyHash ? { apiKeyHash: current.apiKeyHash } : {}),
     enabled: changes.enabled ?? current.enabled,
     createdAt: current.createdAt,
     updatedAt: new Date(),

@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
+import {
+  type AdminOperationEntity,
+  getAdminOperationStorage,
+  type OperationLease,
+} from "./admin-operation-storage.js";
 
 export type BulkOperationKind = "create" | "update" | "enable" | "disable" | "delete";
-
 export type BulkOperationStatus = "queued" | "running" | "completed" | "partial" | "failed";
 
 type BulkOperationRecord = {
@@ -27,9 +31,14 @@ export type BulkOperation = Omit<BulkOperationRecord, "result"> & {
 
 type ProgressReporter = (succeeded: boolean) => void;
 
-const operations = new Map<string, BulkOperationRecord>();
+const PARTITION_KEY = "API_KEY";
+const LEASE_NAME = "api-keys";
 const retentionMs = 60 * 60 * 1000;
 const maximumOperations = 100;
+
+export class BulkOperationConflictError extends Error {
+  readonly statusCode = 409;
+}
 
 function isTerminal(operation: BulkOperationRecord): boolean {
   return operation.status !== "queued" && operation.status !== "running";
@@ -39,34 +48,48 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function pruneOperations(): void {
-  const cutoff = Date.now() - retentionMs;
+function serialize(operation: BulkOperationRecord): AdminOperationEntity {
+  return {
+    partitionKey: PARTITION_KEY,
+    rowKey: operation.id,
+    kind: operation.kind,
+    label: operation.label,
+    status: operation.status,
+    total: operation.total,
+    processed: operation.processed,
+    succeeded: operation.succeeded,
+    failedCount: operation.failed,
+    createdAt: operation.createdAt,
+    startedAt: operation.startedAt ?? "",
+    finishedAt: operation.finishedAt ?? "",
+    error: operation.error ?? "",
+    resultJson: operation.result === undefined ? "" : JSON.stringify(operation.result),
+    failedJson: "",
+    createdNamesJson: "",
+    detail: "",
+  };
+}
 
-  for (const [id, operation] of operations) {
-    if (operation.finishedAt && new Date(operation.finishedAt).valueOf() < cutoff) {
-      operations.delete(id);
-    }
-  }
-
-  if (operations.size <= maximumOperations) {
-    return;
-  }
-
-  const removable = [...operations.values()]
-    .filter((operation) => operation.finishedAt)
-    .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
-
-  for (const operation of removable) {
-    if (operations.size <= maximumOperations) {
-      break;
-    }
-    operations.delete(operation.id);
-  }
+function deserialize(entity: AdminOperationEntity): BulkOperationRecord {
+  return {
+    id: entity.rowKey,
+    kind: entity.kind as BulkOperationKind,
+    label: entity.label,
+    status: entity.status as BulkOperationStatus,
+    total: entity.total,
+    processed: entity.processed,
+    succeeded: entity.succeeded,
+    failed: entity.failedCount,
+    createdAt: entity.createdAt,
+    startedAt: entity.startedAt || null,
+    finishedAt: entity.finishedAt || null,
+    error: entity.error || null,
+    ...(entity.resultJson ? { result: JSON.parse(entity.resultJson) as unknown } : {}),
+  };
 }
 
 function snapshot(operation: BulkOperationRecord, includeResult = false): BulkOperation {
   const { result, ...details } = operation;
-
   return {
     ...details,
     hasResult: result !== undefined,
@@ -74,47 +97,128 @@ function snapshot(operation: BulkOperationRecord, includeResult = false): BulkOp
   };
 }
 
-export function listBulkOperations(): BulkOperation[] {
-  pruneOperations();
+async function pruneOperations(operations?: BulkOperationRecord[]): Promise<void> {
+  const storage = getAdminOperationStorage();
+  const records = operations ?? (await storage.list(PARTITION_KEY)).map(deserialize);
+  const cutoff = Date.now() - retentionMs;
+  const expired = records.filter(
+    ({ finishedAt }) => finishedAt && new Date(finishedAt).valueOf() < cutoff,
+  );
+  const remaining = records.filter((record) => !expired.includes(record));
+  const excess = remaining
+    .filter(({ finishedAt }) => finishedAt)
+    .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+    .slice(0, Math.max(0, remaining.length - maximumOperations));
+  await Promise.all([...expired, ...excess].map(({ id }) => storage.delete(PARTITION_KEY, id)));
+}
 
-  return [...operations.values()]
+async function reconcileAbandonedOperations(
+  operations: BulkOperationRecord[],
+): Promise<BulkOperationRecord[]> {
+  const active = operations.filter((operation) => !isTerminal(operation));
+  if (active.length === 0) return operations;
+  const storage = getAdminOperationStorage();
+  const lease = await storage.acquireLease(LEASE_NAME);
+  if (!lease) return operations;
+  try {
+    const finishedAt = new Date().toISOString();
+    for (const operation of active) {
+      operation.status = "failed";
+      operation.error = "The server stopped before the operation finished";
+      operation.finishedAt = finishedAt;
+      await storage.replace(serialize(operation));
+    }
+    return operations;
+  } finally {
+    await lease.release();
+  }
+}
+
+export async function listBulkOperations(): Promise<BulkOperation[]> {
+  const operations = await reconcileAbandonedOperations(
+    (await getAdminOperationStorage().list(PARTITION_KEY)).map(deserialize),
+  );
+  await pruneOperations(operations);
+  return operations
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
     .map((operation) => snapshot(operation));
 }
 
-export function getBulkOperation(id: string): BulkOperation | undefined {
-  pruneOperations();
-  const operation = operations.get(id);
+export async function getBulkOperation(id: string): Promise<BulkOperation | undefined> {
+  const entity = await getAdminOperationStorage().get(PARTITION_KEY, id);
+  if (!entity) return undefined;
+  const [operation] = await reconcileAbandonedOperations([deserialize(entity)]);
   return operation ? snapshot(operation, true) : undefined;
 }
 
-export function hasActiveBulkOperations(): boolean {
-  pruneOperations();
-  return [...operations.values()].some((operation) => !isTerminal(operation));
+export async function hasActiveBulkOperations(): Promise<boolean> {
+  const operations = await reconcileAbandonedOperations(
+    (await getAdminOperationStorage().list(PARTITION_KEY)).map(deserialize),
+  );
+  return operations.some((operation) => !isTerminal(operation));
 }
 
-export function clearCompletedBulkOperations(): number {
-  pruneOperations();
-  let cleared = 0;
+export async function clearCompletedBulkOperations(): Promise<number> {
+  const storage = getAdminOperationStorage();
+  const operations = await reconcileAbandonedOperations(
+    (await storage.list(PARTITION_KEY)).map(deserialize),
+  );
+  const completed = operations.filter(isTerminal);
+  await Promise.all(completed.map(({ id }) => storage.delete(PARTITION_KEY, id)));
+  return completed.length;
+}
 
-  for (const [id, operation] of operations) {
-    if (isTerminal(operation)) {
-      operations.delete(id);
-      cleared += 1;
+async function runOperation(
+  operation: BulkOperationRecord,
+  lease: OperationLease,
+  run: (reportProgress: ProgressReporter) => Promise<unknown>,
+): Promise<void> {
+  const storage = getAdminOperationStorage();
+  let writes = Promise.resolve();
+  const persist = () => {
+    const entity = serialize(operation);
+    writes = writes.then(() => storage.replace(entity));
+  };
+  try {
+    operation.status = "running";
+    operation.startedAt = new Date().toISOString();
+    persist();
+    const reportProgress: ProgressReporter = (succeeded) => {
+      lease.assertActive();
+      operation.processed = Math.min(operation.total, operation.processed + 1);
+      if (succeeded) operation.succeeded += 1;
+      else operation.failed += 1;
+      persist();
+    };
+    operation.result = await run(reportProgress);
+    lease.assertActive();
+    operation.status = operation.failed > 0 ? "partial" : "completed";
+  } catch (error: unknown) {
+    operation.status = "failed";
+    operation.error = errorMessage(error);
+    console.error(`Bulk operation "${operation.label}" (${operation.id}) failed:`, error);
+  } finally {
+    operation.finishedAt = new Date().toISOString();
+    try {
+      await writes;
+      await storage.replace(serialize(operation));
+    } finally {
+      await lease.release();
     }
   }
-
-  return cleared;
 }
 
-export function startBulkOperation(options: {
+export async function startBulkOperation(options: {
   kind: BulkOperationKind;
   label: string;
   total: number;
   run: (reportProgress: ProgressReporter) => Promise<unknown>;
-}): BulkOperation {
-  pruneOperations();
-
+}): Promise<BulkOperation> {
+  const storage = getAdminOperationStorage();
+  const lease = await storage.acquireLease(LEASE_NAME);
+  if (!lease) {
+    throw new BulkOperationConflictError("Editing is paused while a bulk activity is in progress");
+  }
   const operation: BulkOperationRecord = {
     id: randomUUID(),
     kind: options.kind,
@@ -129,33 +233,20 @@ export function startBulkOperation(options: {
     finishedAt: null,
     error: null,
   };
-  operations.set(operation.id, operation);
-
+  try {
+    await pruneOperations();
+    await storage.create(serialize(operation));
+  } catch (error: unknown) {
+    await lease.release();
+    throw error;
+  }
   queueMicrotask(() => {
-    void (async () => {
-      operation.status = "running";
-      operation.startedAt = new Date().toISOString();
-
-      const reportProgress: ProgressReporter = (succeeded) => {
-        operation.processed = Math.min(operation.total, operation.processed + 1);
-        if (succeeded) {
-          operation.succeeded += 1;
-        } else {
-          operation.failed += 1;
-        }
-      };
-
-      try {
-        operation.result = await options.run(reportProgress);
-        operation.status = operation.failed > 0 ? "partial" : "completed";
-      } catch (error: unknown) {
-        operation.status = "failed";
-        operation.error = errorMessage(error);
-      } finally {
-        operation.finishedAt = new Date().toISOString();
-      }
-    })();
+    void runOperation(operation, lease, options.run).catch((error: unknown) => {
+      console.error(
+        `Failed to persist bulk operation "${operation.label}" (${operation.id}):`,
+        error,
+      );
+    });
   });
-
   return snapshot(operation);
 }
