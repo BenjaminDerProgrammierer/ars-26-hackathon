@@ -1,7 +1,6 @@
 const state = {
   keys: [],
   selected: new Set(),
-  createMode: "single",
   secrets: [],
   operations: [],
   ownedCreateOperations: new Set(),
@@ -12,11 +11,17 @@ const state = {
   redeemKeys: [],
   redeemSelected: new Set(),
   redeemedSecretIndexes: new Set(),
+  environments: [],
+  environmentSelected: new Set(),
+  environmentOperation: null,
+  environmentConfigured: false,
+  environmentModel: null,
 };
 const LOCALE = "de-AT";
 
 let operationsLoading = false;
 let operationsPollTimer;
+let environmentPollTimer;
 let confirmResolver = null;
 
 const $ = (selector) => document.querySelector(selector);
@@ -221,9 +226,6 @@ function renderOperations() {
       const progressLabel = isOperationActive(operation)
         ? `${operation.processed}/${operation.total}`
         : `${operation.succeeded}/${operation.total} succeeded`;
-      const canViewKeys =
-        operation.kind === "create" && operation.hasResult && operation.status === "completed";
-
       return `
       <div class="operation-row ${escapeHtml(operation.status)}">
         <div class="operation-label">
@@ -236,7 +238,6 @@ function renderOperations() {
         </div>
         <div class="operation-actions">
           <span class="operation-state ${escapeHtml(operation.status)}">${statusLabels[operation.status] ?? escapeHtml(operation.status)}</span>
-          ${canViewKeys ? `<button class="operation-view" type="button" data-view-operation="${operation.id}"><i data-lucide="eye" aria-hidden="true"></i>View keys</button>` : ""}
         </div>
       </div>`;
     })
@@ -312,9 +313,9 @@ function trackOperation(operation, revealCreatedKeys = false) {
 async function loadStatus() {
   try {
     const status = await api("/api/status");
+    $("#account-name").textContent = status.accountName || "Not configured";
     $("#workspace-name").textContent = status.workspace.name;
     $("#guardrail-name").textContent = status.guardrail.name;
-    $("#create-guardrail-name").textContent = status.guardrail.name;
     state.availableModelCount = status.guardrail.availableModelCount;
     $("#metric-credits").textContent = formatMoney(status.credits.availableCredits);
     $("#sidebar-model-list").innerHTML =
@@ -439,12 +440,9 @@ function renderRedeemKeys() {
 }
 
 function renderAzureContext(status) {
-  const subscription = status.subscriptionName
-    ? `${status.subscriptionName}${status.subscriptionId ? ` · ${status.subscriptionId}` : ""}`
-    : status.subscriptionId;
-  $("#azure-subscription").textContent = subscription || "Not configured";
-  $("#azure-tenant").textContent = status.tenantId || "Not configured";
-  $("#azure-resource-group").textContent = status.resourceGroup || "Not configured";
+  $("#azure-subscription").textContent = status.subscriptionName || "Not configured";
+  $("#azure-resource-location").textContent =
+    `${status.resourceGroup || "Not configured"} · austriaeast`;
 }
 
 async function loadAzureContext() {
@@ -483,12 +481,187 @@ async function refreshRedeemAccess() {
   }
 }
 
+function filteredEnvironments() {
+  const query = $("#environment-search-input").value.trim().toLocaleLowerCase(LOCALE);
+  if (!query) return state.environments;
+  return state.environments.filter((environment) =>
+    [environment.name, environment.publicHost, environment.status, environment.provisioningState]
+      .join(" ")
+      .toLocaleLowerCase(LOCALE)
+      .includes(query),
+  );
+}
+
+function renderEnvironmentMetrics() {
+  const running = state.environments.filter(
+    ({ status }) => status.toLocaleLowerCase(LOCALE) === "running",
+  ).length;
+  const stopped = state.environments.filter(({ status }) =>
+    ["stopped", "terminated", "deallocated"].includes(status.toLocaleLowerCase(LOCALE)),
+  ).length;
+  $("#environment-metric-total").textContent = state.environments.length;
+  $("#environment-metric-running").textContent = running;
+  $("#environment-metric-stopped").textContent = stopped;
+  $("#environment-metric-redeem").textContent = state.environments.filter(
+    ({ redeemCode }) => redeemCode,
+  ).length;
+}
+
+function renderEnvironmentSelection() {
+  const visible = filteredEnvironments();
+  const selectedVisible = visible.filter(({ name }) => state.environmentSelected.has(name));
+  $("#environment-bulk-bar").hidden = state.environmentSelected.size === 0;
+  $("#environment-selected-count").textContent = state.environmentSelected.size;
+  $("#environment-select-all").checked =
+    visible.length > 0 && selectedVisible.length === visible.length;
+  $("#environment-select-all").indeterminate =
+    selectedVisible.length > 0 && selectedVisible.length < visible.length;
+  const selected = state.environments.filter(({ name }) => state.environmentSelected.has(name));
+  $("#environment-bulk-redeem").disabled = selected.every(({ redeemCode }) => redeemCode);
+}
+
+function environmentStatusClass(status) {
+  const normalized = status.toLocaleLowerCase(LOCALE);
+  if (normalized === "running") return "";
+  if (["stopped", "terminated", "deallocated"].includes(normalized)) return "disabled";
+  return "expired";
+}
+
+function renderEnvironments() {
+  const environments = filteredEnvironments();
+  $("#environment-result-count").textContent =
+    `${environments.length} of ${state.environments.length} environments`;
+  $("#environment-empty-state").hidden = environments.length > 0;
+  $("#environment-table-wrap").hidden = environments.length === 0;
+  $("#environment-body").innerHTML = environments
+    .map(
+      (environment) => `
+      <tr class="${state.environmentSelected.has(environment.name) ? "selected" : ""}" data-name="${escapeHtml(environment.name)}">
+        <td class="checkbox-cell"><input class="environment-checkbox" type="checkbox" aria-label="Select ${escapeHtml(environment.name)}" ${state.environmentSelected.has(environment.name) ? "checked" : ""}></td>
+        <td><span class="key-name" title="${escapeHtml(environment.name)}">${escapeHtml(environment.name)}</span><span class="key-hash">${escapeHtml(environment.publicHost)}</span></td>
+        <td><a href="${escapeHtml(environment.codeServerUrl)}" target="_blank" rel="noreferrer">Open Code Server</a><button class="inline-copy copy-environment-password" type="button"><i data-lucide="copy" aria-hidden="true"></i>Copy password</button></td>
+        <td><a href="${escapeHtml(environment.devUrl)}" target="_blank" rel="noreferrer">Open app</a></td>
+        <td>${formatDate(environment.createdAt)}</td>
+        <td><span class="badge ${environmentStatusClass(environment.status)}">${escapeHtml(environment.status)}</span><span class="key-hash">${escapeHtml(environment.provisioningState)}</span></td>
+        <td>${environment.redeemCode ? `<button class="inline-copy copy-environment-redeem" type="button"><i data-lucide="copy" aria-hidden="true"></i>${escapeHtml(environment.redeemCode)}</button>` : `<button class="row-action add-environment-redeem" type="button"><i data-lucide="ticket-plus" aria-hidden="true"></i>Add key</button>`}</td>
+        <td><div class="row-actions"><button class="row-action start-environment" type="button"><i data-lucide="play" aria-hidden="true"></i>Start</button><button class="row-action stop-environment" type="button"><i data-lucide="square" aria-hidden="true"></i>Stop</button><button class="row-action delete-environment" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Delete</button></div></td>
+      </tr>`,
+    )
+    .join("");
+  renderIcons($("#environment-body"));
+  renderEnvironmentMetrics();
+  renderEnvironmentSelection();
+  const locked = state.environmentOperation?.status === "running";
+  document
+    .querySelectorAll("#environment-body button, #environment-bulk-bar button")
+    .forEach((button) => {
+      button.disabled = locked;
+    });
+  const selected = state.environments.filter(({ name }) => state.environmentSelected.has(name));
+  $("#environment-bulk-redeem").disabled = locked || selected.every(({ redeemCode }) => redeemCode);
+  $("#create-environments-button").disabled = !state.environmentConfigured || locked;
+}
+
+function renderEnvironmentOperation() {
+  const operation = state.environmentOperation;
+  const panel = $("#environment-operation-panel");
+  panel.hidden = !operation;
+  clearTimeout(environmentPollTimer);
+  if (!operation) return;
+
+  panel.dataset.status = operation.status;
+  $("#environment-operation-label").textContent = operation.label;
+  $("#environment-operation-detail").textContent = operation.detail || "Working…";
+  const status = $("#environment-operation-status");
+  status.className = `operation-state ${operation.status}`;
+  status.textContent = {
+    running: "In progress",
+    completed: "Done",
+    partial: "Done with issues",
+    failed: "Failed",
+  }[operation.status];
+  const percentage = operation.total
+    ? Math.round((operation.processed / operation.total) * 100)
+    : 0;
+  const track = $("#environment-operation-track");
+  track.setAttribute("aria-valuemax", operation.total);
+  track.setAttribute("aria-valuenow", operation.processed);
+  track.querySelector("span").style.width = `${percentage}%`;
+  $("#environment-operation-summary").textContent =
+    `${operation.processed}/${operation.total} · ${operation.succeeded} succeeded${operation.failed.length ? ` · ${operation.failed.length} failed` : ""}`;
+  const errors = $("#environment-operation-errors");
+  errors.hidden = operation.failed.length === 0;
+  errors.innerHTML = operation.failed
+    .map(({ name, error }) => `<li><strong>${escapeHtml(name)}</strong>: ${escapeHtml(error)}</li>`)
+    .join("");
+  const createdWithoutRedeem = operation.createdNames.filter((name) => {
+    const environment = state.environments.find((candidate) => candidate.name === name);
+    return environment && !environment.redeemCode;
+  });
+  $("#environment-created-actions").hidden =
+    operation.kind !== "create" ||
+    operation.status === "running" ||
+    createdWithoutRedeem.length === 0;
+  $("#redeem-created-environments-button").dataset.names = createdWithoutRedeem.join(",");
+  renderEnvironments();
+  if (operation.status === "running") {
+    environmentPollTimer = setTimeout(() => loadEnvironmentStatus(), 1_500);
+  }
+}
+
+async function loadEnvironmentStatus(refreshStates = false) {
+  const payload = await api(`/api/dev-environments/status${refreshStates ? "?refresh=true" : ""}`);
+  state.environmentOperation = payload.operation;
+  state.environmentConfigured = payload.configured && Boolean(payload.model);
+  state.environments = payload.environments;
+  state.environmentModel = payload.model;
+  state.environmentSelected = new Set(
+    [...state.environmentSelected].filter((name) =>
+      state.environments.some((environment) => environment.name === name),
+    ),
+  );
+  $("#environment-resource-location").textContent =
+    `${payload.resourceGroup} · ${payload.location}`;
+  $("#environment-subscription").textContent = payload.subscriptionName || "Not configured";
+  $("#environment-storage-account").textContent = payload.accountName || "Not configured";
+  $("#environment-table-name").textContent = payload.tableName;
+  $("#environment-image").textContent = payload.image || "Not configured";
+  $("#environment-model-id").value = payload.model
+    ? `${payload.model.name} (${payload.model.id})`
+    : "Exactly one guardrail model is required";
+  renderEnvironments();
+  renderEnvironmentOperation();
+  setConnection(
+    state.environmentConfigured
+      ? "Azure virtual machines connected"
+      : "Virtual machine configuration incomplete",
+    state.environmentConfigured ? "online" : "error",
+  );
+}
+
+async function refreshDevEnvironments() {
+  const button = $("#refresh-button");
+  button.disabled = true;
+  try {
+    await loadEnvironmentStatus(true);
+  } catch (error) {
+    setConnection("Generator error", "error");
+    showToast(error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function refreshActiveManager() {
-  return state.activeManager === "redeem-access" ? refreshRedeemAccess() : refresh();
+  if (state.activeManager === "redeem-access") return refreshRedeemAccess();
+  if (state.activeManager === "dev-environments") return refreshDevEnvironments();
+  return refresh();
 }
 
 function switchManager(manager) {
-  const next = manager === "redeem-access" ? "redeem-access" : "openrouter";
+  const next = ["openrouter", "redeem-access", "dev-environments"].includes(manager)
+    ? manager
+    : "openrouter";
   state.activeManager = next;
   document.querySelectorAll("[data-manager-view]").forEach((view) => {
     view.hidden = view.dataset.managerView !== next;
@@ -503,7 +676,11 @@ function switchManager(manager) {
   });
   $("#refresh-button").setAttribute(
     "aria-label",
-    next === "redeem-access" ? "Refresh redeem access keys" : "Refresh API keys",
+    next === "redeem-access"
+      ? "Refresh redeem access keys"
+      : next === "dev-environments"
+        ? "Refresh development environments"
+        : "Refresh API keys",
   );
   refreshActiveManager();
 }
@@ -520,6 +697,7 @@ function showSecrets(created) {
   state.secrets = created.map((item) => ({
     name: item.data.name,
     key: item.key,
+    hash: item.data.hash,
     expiresAt: item.data.expiresAt ?? null,
   }));
   state.redeemedSecretIndexes.clear();
@@ -544,6 +722,151 @@ $("#create-button").addEventListener("click", () => $("#create-dialog").showModa
 $("#refresh-button").addEventListener("click", refreshActiveManager);
 $("#search-input").addEventListener("input", renderKeys);
 $("#redeem-search-input").addEventListener("input", renderRedeemKeys);
+$("#environment-search-input").addEventListener("input", renderEnvironments);
+$("#create-environments-button").addEventListener("click", () =>
+  $("#create-environments-dialog").showModal(),
+);
+$("#environment-create-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  const count = Number(data.get("count"));
+  const confirmed = await requestConfirmation({
+    title: `Create ${count} development environment${count === 1 ? "" : "s"}?`,
+    message:
+      "Ubuntu LTS virtual machines and one OpenRouter API key using the default guardrail per environment will be created.",
+    confirmLabel: "Create environments",
+  });
+  if (!confirmed) return;
+
+  setSubmitting(form, true);
+  try {
+    const payload = await api("/api/dev-environments", {
+      method: "POST",
+      body: JSON.stringify({
+        count,
+        apiKeyLimit: nullableNumber(data.get("apiKeyLimit")),
+        apiKeyExpiresAt: data.get("apiKeyExpiresAt")
+          ? new Date(data.get("apiKeyExpiresAt")).toISOString()
+          : null,
+      }),
+    });
+    state.environmentOperation = payload.operation;
+    form.reset();
+    $("#environment-count").value = "2";
+    setSubmitting(form, false);
+    $("#create-environments-dialog").close();
+    renderEnvironmentOperation();
+    showToast("Development environment creation started");
+  } catch (error) {
+    setSubmitting(form, false);
+    showToast(error.message, true);
+  }
+});
+
+async function createEnvironmentRedeemKeys(names) {
+  const environments = state.environments.filter(
+    (environment) => names.includes(environment.name) && !environment.redeemCode,
+  );
+  if (environments.length === 0) {
+    showToast("Every selected environment already has a redeem key", true);
+    return;
+  }
+  try {
+    const payload = await api("/api/dev-environments/redeem", {
+      method: "POST",
+      body: JSON.stringify({ names: environments.map(({ name }) => name) }),
+    });
+    await loadEnvironmentStatus();
+    showToast(
+      payload.failed.length === 0
+        ? `${payload.data.length} redeem key${payload.data.length === 1 ? "" : "s"} created`
+        : `${payload.data.length} redeem keys created; ${payload.failed.length} failed`,
+      payload.failed.length > 0,
+    );
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+async function startEnvironmentBulkAction(action, names = [...state.environmentSelected]) {
+  if (names.length === 0) return;
+  if (action === "delete") {
+    const confirmed = await requestConfirmation({
+      title: `Delete ${names.length} development environment${names.length === 1 ? "" : "s"}?`,
+      message:
+        "The Azure virtual machines and their saved login records will be permanently deleted.",
+      confirmLabel: `Delete ${names.length} environment${names.length === 1 ? "" : "s"}`,
+    });
+    if (!confirmed) return;
+  }
+  try {
+    const payload = await api("/api/dev-environments/bulk", {
+      method: "POST",
+      body: JSON.stringify({ names, action }),
+    });
+    state.environmentOperation = payload.operation;
+    state.environmentSelected.clear();
+    renderEnvironmentOperation();
+    showToast(`${action[0].toUpperCase()}${action.slice(1)} operation started`);
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+$("#environment-body").addEventListener("change", (event) => {
+  const checkbox = event.target.closest(".environment-checkbox");
+  if (!checkbox) return;
+  const name = checkbox.closest("tr").dataset.name;
+  checkbox.checked ? state.environmentSelected.add(name) : state.environmentSelected.delete(name);
+  renderEnvironments();
+});
+
+$("#environment-select-all").addEventListener("change", (event) => {
+  for (const environment of filteredEnvironments()) {
+    event.target.checked
+      ? state.environmentSelected.add(environment.name)
+      : state.environmentSelected.delete(environment.name);
+  }
+  renderEnvironments();
+});
+
+$("#environment-clear-selection").addEventListener("click", () => {
+  state.environmentSelected.clear();
+  renderEnvironments();
+});
+
+$("#environment-bulk-start").addEventListener("click", () => startEnvironmentBulkAction("start"));
+$("#environment-bulk-stop").addEventListener("click", () => startEnvironmentBulkAction("stop"));
+$("#environment-bulk-delete").addEventListener("click", () => startEnvironmentBulkAction("delete"));
+$("#environment-bulk-redeem").addEventListener("click", () =>
+  createEnvironmentRedeemKeys([...state.environmentSelected]),
+);
+$("#redeem-created-environments-button").addEventListener("click", (event) =>
+  createEnvironmentRedeemKeys(event.currentTarget.dataset.names.split(",").filter(Boolean)),
+);
+
+$("#environment-body").addEventListener("click", async (event) => {
+  const row = event.target.closest("tr");
+  if (!row) return;
+  const environment = state.environments.find(({ name }) => name === row.dataset.name);
+  if (!environment) return;
+  if (event.target.closest(".copy-environment-password")) {
+    await navigator.clipboard.writeText(environment.codeServerPassword);
+    showToast("Environment password copied");
+  } else if (event.target.closest(".copy-environment-redeem")) {
+    await navigator.clipboard.writeText(environment.redeemCode);
+    showToast("Redeem key copied");
+  } else if (event.target.closest(".add-environment-redeem")) {
+    await createEnvironmentRedeemKeys([environment.name]);
+  } else if (event.target.closest(".start-environment")) {
+    await startEnvironmentBulkAction("start", [environment.name]);
+  } else if (event.target.closest(".stop-environment")) {
+    await startEnvironmentBulkAction("stop", [environment.name]);
+  } else if (event.target.closest(".delete-environment")) {
+    await startEnvironmentBulkAction("delete", [environment.name]);
+  }
+});
 $("#confirm-cancel-button").addEventListener("click", () => resolveConfirmation(false));
 $("#confirm-action-button").addEventListener("click", () => resolveConfirmation(true));
 $("#confirm-dialog").addEventListener("cancel", (event) => {
@@ -571,29 +894,10 @@ document.addEventListener("click", async (event) => {
   const closeButton = event.target.closest("[data-close]");
   if (closeButton) $(`#${closeButton.dataset.close}`).close();
 
-  const modeButton = event.target.closest("[data-create-mode]");
-  if (modeButton) {
-    state.createMode = modeButton.dataset.createMode;
-    document.querySelectorAll("[data-create-mode]").forEach((button) => {
-      button.classList.toggle("active", button === modeButton);
-    });
-    $("#single-name-field").hidden = state.createMode !== "single";
-    $("#bulk-names-field").hidden = state.createMode !== "bulk";
-  }
-
   const copyButton = event.target.closest("[data-copy-secret]");
   if (copyButton) {
     navigator.clipboard.writeText(state.secrets[Number(copyButton.dataset.copySecret)].key);
     showToast("API key copied");
-  }
-
-  const operationButton = event.target.closest("[data-view-operation]");
-  if (operationButton) {
-    try {
-      await revealCreateOperation(operationButton.dataset.viewOperation);
-    } catch (error) {
-      showToast(error.message, true);
-    }
   }
 });
 
@@ -606,33 +910,20 @@ $("#create-form").addEventListener("submit", async (event) => {
     expiresAt: data.get("expiresAt") ? new Date(data.get("expiresAt")).toISOString() : null,
   };
 
-  const path = state.createMode === "bulk" ? "/api/keys/bulk" : "/api/keys";
-  const body =
-    state.createMode === "bulk"
-      ? {
-          ...common,
-          names: String(data.get("names"))
-            .split(/\r?\n/)
-            .map((name) => name.trim())
-            .filter(Boolean),
-        }
-      : { ...common, name: data.get("name") };
+  const body = { ...common, count: Number(data.get("count")) };
 
   setSubmitting(form, true);
   try {
-    const payload = await api(path, { method: "POST", body: JSON.stringify(body) });
-    const wasBulkCreate = state.createMode === "bulk";
+    const payload = await api("/api/keys/bulk", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
     form.reset();
+    $("#create-count").value = "10";
     $("#create-dialog").close();
 
-    if (wasBulkCreate) {
-      trackOperation(payload.operation, true);
-      showToast("Bulk key creation started");
-    } else {
-      showSecrets([payload.data]);
-      await loadKeys();
-      showToast("Key created and assigned");
-    }
+    trackOperation(payload.operation, true);
+    showToast("Key creation started");
   } catch (error) {
     showToast(error.message, true);
   } finally {
@@ -677,12 +968,12 @@ $("#keys-body").addEventListener("click", async (event) => {
   if (statusButton) {
     const disabled = statusButton.dataset.disabled === "true";
     try {
-      await api(`/api/keys/${key.hash}`, {
+      const payload = await api(`/api/keys/${key.hash}`, {
         method: "PATCH",
         body: JSON.stringify({ disabled }),
       });
-      await loadKeys();
-      showToast(`“${key.name}” ${disabled ? "disabled" : "enabled"}`);
+      trackOperation(payload.operation);
+      showToast(`${disabled ? "Disable" : "Enable"} operation started for “${key.name}”`);
     } catch (error) {
       showToast(error.message, true);
     }
@@ -697,10 +988,11 @@ $("#keys-body").addEventListener("click", async (event) => {
     });
     if (!confirmed) return;
     try {
-      await api(`/api/keys/${key.hash}`, { method: "DELETE" });
+      const payload = await api(`/api/keys/${key.hash}`, { method: "DELETE" });
       state.selected.delete(key.hash);
-      await loadKeys();
-      showToast("API key deleted");
+      renderKeys();
+      trackOperation(payload.operation);
+      showToast("Delete operation started");
     } catch (error) {
       showToast(error.message, true);
     }
@@ -712,7 +1004,7 @@ $("#edit-form").addEventListener("submit", async (event) => {
   const form = event.currentTarget;
   setSubmitting(form, true);
   try {
-    await api(`/api/keys/${$("#edit-hash").value}`, {
+    const payload = await api(`/api/keys/${$("#edit-hash").value}`, {
       method: "PATCH",
       body: JSON.stringify({
         name: $("#edit-name").value,
@@ -720,8 +1012,8 @@ $("#edit-form").addEventListener("submit", async (event) => {
       }),
     });
     $("#edit-dialog").close();
-    await loadKeys();
-    showToast("API key updated");
+    trackOperation(payload.operation);
+    showToast("Update operation started");
   } catch (error) {
     showToast(error.message, true);
   } finally {
@@ -870,6 +1162,7 @@ $("#generate-redeem-keys-button").addEventListener("click", async (event) => {
         items: pending.map(({ secret }) => ({
           label: `AI API key "${secret.name}"`,
           accessText: secret.key,
+          apiKeyHash: secret.hash,
           expiresAt: secret.expiresAt,
         })),
       }),
@@ -967,10 +1260,6 @@ async function updateSelectedRedeemKeys(changes) {
 $("#bulk-edit-redeem-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const changes = {};
-  if ($("#redeem-change-label").checked) changes.label = $("#redeem-bulk-label").value;
-  if ($("#redeem-change-access-text").checked) {
-    changes.accessText = $("#redeem-bulk-access-text").value;
-  }
   if ($("#redeem-change-expires").checked) {
     changes.expiresAt = $("#redeem-bulk-expires").value
       ? new Date($("#redeem-bulk-expires").value).toISOString()
@@ -1033,6 +1322,47 @@ $("#redeem-bulk-enable-button").addEventListener("click", () => setSelectedRedee
 $("#redeem-bulk-disable-button").addEventListener("click", () =>
   setSelectedRedeemKeysEnabled(false),
 );
+
+$("#redeem-bulk-delete-button").addEventListener("click", async () => {
+  const codes = [...state.redeemSelected];
+  const confirmed = await requestConfirmation({
+    title: `Delete ${codes.length} redeem access key${codes.length === 1 ? "" : "s"}?`,
+    message: "The selected access codes will stop resolving immediately. This cannot be undone.",
+    confirmLabel: `Delete ${codes.length} key${codes.length === 1 ? "" : "s"}`,
+  });
+  if (!confirmed) return;
+
+  const button = $("#redeem-bulk-delete-button");
+  const buttons = document.querySelectorAll("#redeem-bulk-bar button");
+  buttons.forEach((candidate) => {
+    candidate.disabled = true;
+  });
+  button.querySelector(".button-label").textContent = "Deleting…";
+  try {
+    const payload = await api("/api/redeem-access/keys/bulk", {
+      method: "DELETE",
+      body: JSON.stringify({ codes }),
+    });
+    const failedCodes = new Set(payload.failed.map(({ code }) => code));
+    state.redeemSelected = new Set(
+      codes.filter((code) => failedCodes.has(code.replaceAll("-", ""))),
+    );
+    await loadRedeemAccess();
+    showToast(
+      payload.failed.length === 0
+        ? `${payload.data.length} redeem key${payload.data.length === 1 ? "" : "s"} deleted`
+        : `${payload.data.length} deleted; ${payload.failed.length} failed`,
+      payload.failed.length > 0,
+    );
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    buttons.forEach((candidate) => {
+      candidate.disabled = false;
+    });
+    button.querySelector(".button-label").textContent = "Delete selected";
+  }
+});
 
 $("#redeem-download-csv-button").addEventListener("click", () => {
   const selected = state.redeemKeys.filter((key) => state.redeemSelected.has(key.code));

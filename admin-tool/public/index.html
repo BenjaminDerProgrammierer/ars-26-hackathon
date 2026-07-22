@@ -43,8 +43,16 @@
               <i data-lucide="ticket-check" aria-hidden="true"></i>
               <span>Redeem Access Key Manager</span>
             </a>
+            <a href="#dev-environments" data-manager="dev-environments">
+              <i data-lucide="monitor-up" aria-hidden="true"></i>
+              <span>Development Environment Manager</span>
+            </a>
           </nav>
           <ul class="context-list" data-manager-context="openrouter">
+            <li>
+              <span class="context-label"><i data-lucide="building" aria-hidden="true"></i>Organization</span>
+              <strong id="account-name">Loading account…</strong>
+            </li>
             <li>
               <span class="context-label"><i data-lucide="building-2" aria-hidden="true"></i>Workspace</span>
               <strong id="workspace-name">Loading workspace…</strong>
@@ -60,6 +68,14 @@
           </ul>
           <ul class="context-list" data-manager-context="redeem-access" hidden>
             <li>
+              <span class="context-label"><i data-lucide="cloud" aria-hidden="true"></i>Subscription</span>
+              <strong id="azure-subscription">Loading subscription…</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="folder-kanban" aria-hidden="true"></i>Resource group · Region</span>
+              <strong id="azure-resource-location">Loading resource group…</strong>
+            </li>
+            <li>
               <span class="context-label"><i data-lucide="database" aria-hidden="true"></i>Storage account</span>
               <strong id="redeem-storage-account">Not connected</strong>
             </li>
@@ -67,17 +83,27 @@
               <span class="context-label"><i data-lucide="table-2" aria-hidden="true"></i>Table</span>
               <strong id="redeem-table-name">AccessCodes</strong>
             </li>
+          </ul>
+          <ul class="context-list" data-manager-context="dev-environments" hidden>
             <li>
               <span class="context-label"><i data-lucide="cloud" aria-hidden="true"></i>Subscription</span>
-              <strong id="azure-subscription">Loading subscription…</strong>
+              <strong id="environment-subscription">Loading subscription…</strong>
             </li>
             <li>
-              <span class="context-label"><i data-lucide="landmark" aria-hidden="true"></i>Tenant</span>
-              <strong id="azure-tenant">Loading tenant…</strong>
+              <span class="context-label"><i data-lucide="folder-kanban" aria-hidden="true"></i>Resource group · Region</span>
+              <strong id="environment-resource-location">ArsElectronicaHackathon · austriaeast</strong>
             </li>
             <li>
-              <span class="context-label"><i data-lucide="folder-kanban" aria-hidden="true"></i>Resource group</span>
-              <strong id="azure-resource-group">Loading resource group…</strong>
+              <span class="context-label"><i data-lucide="database" aria-hidden="true"></i>Storage account</span>
+              <strong id="environment-storage-account">Not connected</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="table-2" aria-hidden="true"></i>Table</span>
+              <strong id="environment-table-name">DevelopmentEnvironmentLogins</strong>
+            </li>
+            <li>
+              <span class="context-label"><i data-lucide="server" aria-hidden="true"></i>Image</span>
+              <strong id="environment-image">Not configured</strong>
             </li>
           </ul>
         </aside>
@@ -93,6 +119,21 @@
               <i data-lucide="plus" aria-hidden="true"></i>Create keys
             </button>
           </div>
+
+          <section class="operations-panel" id="operations-panel" aria-labelledby="operations-title" hidden>
+            <div class="operations-heading">
+              <div>
+                <span class="eyebrow">Bulk operations</span>
+                <h2 id="operations-title">Recent activity</h2>
+              </div>
+              <div class="operations-heading-actions">
+                <span id="operations-summary">No changes running</span>
+                <button class="operation-view" id="clear-completed-button" type="button" hidden><i data-lucide="trash-2" aria-hidden="true"></i>Clear completed</button>
+              </div>
+            </div>
+            <p class="editing-lock-note" id="editing-lock-note" hidden>Editing is paused until the current bulk activity finishes.</p>
+            <div class="operations-list" id="operations-list"></div>
+          </section>
 
           <section class="metrics api-key-metrics" aria-label="API key summary">
             <div class="metric-inline">
@@ -111,21 +152,6 @@
               <strong id="metric-models">—</strong>
               <span>available models</span>
             </div>
-          </section>
-
-          <section class="operations-panel" id="operations-panel" aria-labelledby="operations-title" hidden>
-            <div class="operations-heading">
-              <div>
-                <span class="eyebrow">Bulk operations</span>
-                <h2 id="operations-title">Recent activity</h2>
-              </div>
-              <div class="operations-heading-actions">
-                <span id="operations-summary">No changes running</span>
-                <button class="operation-view" id="clear-completed-button" type="button" hidden><i data-lucide="trash-2" aria-hidden="true"></i>Clear completed</button>
-              </div>
-            </div>
-            <p class="editing-lock-note" id="editing-lock-note" hidden>Editing is paused until the current bulk activity finishes.</p>
-            <div class="operations-list" id="operations-list"></div>
           </section>
 
           <section class="panel">
@@ -222,6 +248,7 @@
                 <button class="button enable" id="redeem-bulk-enable-button" type="button" hidden><i data-lucide="power" aria-hidden="true"></i><span class="button-label">Enable selected</span></button>
                 <button class="button disable" id="redeem-bulk-disable-button" type="button"><i data-lucide="ban" aria-hidden="true"></i><span class="button-label">Disable selected</span></button>
                 <button class="button subtle" id="redeem-download-csv-button" type="button"><i data-lucide="download" aria-hidden="true"></i>Download CSV</button>
+                <button class="button danger-quiet" id="redeem-bulk-delete-button" type="button"><i data-lucide="trash-2" aria-hidden="true"></i><span class="button-label">Delete selected</span></button>
                 <button class="icon-button" id="redeem-clear-selection-button" type="button" aria-label="Clear selection"><i data-lucide="x" aria-hidden="true"></i></button>
               </div>
             </div>
@@ -250,10 +277,151 @@
             </div>
           </section>
         </main>
+
+        <main class="main" id="dev-environments" data-manager-view="dev-environments" hidden>
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">Student infrastructure</span>
+              <h1>Development environments</h1>
+              <p>Manage disposable browser-based coding virtual machines on Azure.</p>
+            </div>
+            <button class="button primary" id="create-environments-button" type="button">
+              <i data-lucide="plus" aria-hidden="true"></i>Create environments
+            </button>
+          </div>
+
+          <section class="metrics" aria-label="Development environment summary">
+            <div class="metric-inline">
+              <strong><span id="environment-metric-running">—</span>/<span id="environment-metric-total">—</span></strong>
+              <span>running</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="environment-metric-stopped">—</strong>
+              <span>stopped</span>
+            </div>
+            <div class="metric-inline">
+              <strong id="environment-metric-redeem">—</strong>
+              <span>with redeem keys</span>
+            </div>
+          </section>
+
+          <section class="operations-panel" id="environment-operation-panel" hidden>
+            <div class="operations-heading">
+              <div>
+                <span class="eyebrow">Azure virtual machines</span>
+                <h2 id="environment-operation-label">Recent activity</h2>
+              </div>
+              <span class="operation-state" id="environment-operation-status">Waiting</span>
+            </div>
+            <div class="environment-operation-body">
+              <p id="environment-operation-detail">Waiting to start…</p>
+              <div class="operation-progress">
+                <div class="operation-track" id="environment-operation-track" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><span></span></div>
+                <span id="environment-operation-summary">0/0</span>
+              </div>
+              <ul class="environment-operation-errors" id="environment-operation-errors" hidden></ul>
+              <div class="dialog-actions" id="environment-created-actions" hidden>
+                <button class="button primary" id="redeem-created-environments-button" type="button">
+                  <i data-lucide="ticket-plus" aria-hidden="true"></i>Add redeem keys
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="toolbar">
+              <div>
+                <span class="eyebrow">Virtual machine management</span>
+                <h2>All environments</h2>
+              </div>
+              <label class="search">
+                <span class="sr-only">Search development environments</span>
+                <i data-lucide="search" aria-hidden="true"></i>
+                <input id="environment-search-input" type="search" placeholder="Search name, host, or status" />
+              </label>
+              <span class="result-count" id="environment-result-count"></span>
+            </div>
+
+            <div class="bulk-bar" id="environment-bulk-bar" hidden>
+              <strong><span id="environment-selected-count">0</span> selected</strong>
+              <div>
+                <button class="button enable" id="environment-bulk-start" type="button"><i data-lucide="play" aria-hidden="true"></i>Start selected</button>
+                <button class="button disable" id="environment-bulk-stop" type="button"><i data-lucide="square" aria-hidden="true"></i>Stop selected</button>
+                <button class="button subtle" id="environment-bulk-redeem" type="button"><i data-lucide="ticket-plus" aria-hidden="true"></i>Add redeem keys</button>
+                <button class="button danger-quiet" id="environment-bulk-delete" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Delete selected</button>
+                <button class="icon-button" id="environment-clear-selection" type="button" aria-label="Clear selection"><i data-lucide="x" aria-hidden="true"></i></button>
+              </div>
+            </div>
+
+            <div class="table-wrap" id="environment-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="checkbox-cell"><input id="environment-select-all" type="checkbox" aria-label="Select all visible environments" /></th>
+                    <th>Environment</th>
+                    <th>Code Server</th>
+                    <th>Dev server</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th>Redeem key</th>
+                    <th><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="environment-body"></tbody>
+              </table>
+            </div>
+
+            <div class="empty-state" id="environment-empty-state" hidden>
+              <img class="empty-icon" src="/favicon-96x96.png" alt="" />
+              <h2>No development environments found</h2>
+              <p>Create an environment or adjust your search.</p>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <dialog id="create-environments-dialog">
+      <form id="environment-create-form">
+        <div class="dialog-header">
+          <div>
+            <span class="eyebrow">Azure virtual machines</span>
+            <h2>Create development environments</h2>
+          </div>
+          <button class="icon-button" type="button" data-close="create-environments-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="environment-count">Environment count</label>
+            <input id="environment-count" name="count" type="number" min="1" max="45" value="2" required />
+          </div>
+          <div class="field">
+            <label for="environment-model-id">OpenRouter model</label>
+            <input id="environment-model-id" type="text" value="Loading…" readonly aria-readonly="true" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="environment-api-key-limit">API key spending limit (USD)</label>
+            <input id="environment-api-key-limit" name="apiKeyLimit" type="number" min="0" step="0.01" placeholder="Unlimited" />
+          </div>
+          <div class="field">
+            <label for="environment-api-key-expires">API key expires at <span>optional</span></label>
+            <input id="environment-api-key-expires" name="apiKeyExpiresAt" type="datetime-local" />
+          </div>
+        </div>
+        <div class="assignment-note">
+          <i data-lucide="shield-check" aria-hidden="true"></i>
+          A separate OpenRouter API key is created for every environment, uses the default guardrail, and is configured as pi's built-in provider.
+        </div>
+        <div class="dialog-actions">
+          <button class="button subtle" type="button" data-close="create-environments-dialog">Cancel</button>
+          <button class="button primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i>Create environments</button>
+        </div>
+      </form>
+    </dialog>
 
     <dialog id="create-dialog">
       <form id="create-form">
@@ -265,20 +433,9 @@
           <button class="icon-button" type="button" data-close="create-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
         </div>
 
-        <fieldset class="mode-switch">
-          <legend class="sr-only">Creation mode</legend>
-          <button class="active" type="button" data-create-mode="single"><i data-lucide="key-round" aria-hidden="true"></i>Single key</button>
-          <button type="button" data-create-mode="bulk"><i data-lucide="list-plus" aria-hidden="true"></i>Bulk create</button>
-        </fieldset>
-
-        <div id="single-name-field" class="field">
-          <label for="create-name">Key name</label>
-          <input id="create-name" name="name" autocomplete="off" placeholder="Participant or team name" />
-        </div>
-
-        <div id="bulk-names-field" class="field" hidden>
-          <label for="create-names">Key names <span>one per line, up to 100</span></label>
-          <textarea id="create-names" name="names" rows="7" placeholder="Team Ada&#10;Team Turing&#10;Team Lamarr"></textarea>
+        <div class="field">
+          <label for="create-count">Number of keys</label>
+          <input id="create-count" name="count" type="number" min="1" max="100" value="10" required />
         </div>
 
         <div class="form-grid">
@@ -294,12 +451,12 @@
 
         <div class="assignment-note">
           <i data-lucide="shield-check" aria-hidden="true"></i>
-          Every new key will be assigned to <strong id="create-guardrail-name">hackathon member</strong>.
+          <span>Short random names are generated automatically. OpenRouter's default guardrail applies to every new key.</span>
         </div>
 
         <div class="dialog-actions">
           <button class="button subtle" type="button" data-close="create-dialog">Cancel</button>
-          <button class="button primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i>Create and assign</button>
+          <button class="button primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i>Create keys</button>
         </div>
       </form>
     </dialog>
@@ -446,17 +603,7 @@
           <div><span class="eyebrow">Bulk action</span><h2>Edit selected redeem keys</h2></div>
           <button class="icon-button" type="button" data-close="bulk-edit-redeem-dialog" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
         </div>
-        <p class="dialog-copy">Only checked properties will be changed. The same value is applied to every selected key.</p>
-        <div class="bulk-change-row">
-          <input id="redeem-change-label" type="checkbox" />
-          <label for="redeem-bulk-label">Label</label>
-          <input id="redeem-bulk-label" maxlength="120" placeholder="Shared label" />
-        </div>
-        <div class="bulk-change-row bulk-change-row-textarea">
-          <input id="redeem-change-access-text" type="checkbox" />
-          <label for="redeem-bulk-access-text">Access information</label>
-          <textarea id="redeem-bulk-access-text" rows="5" maxlength="30000" placeholder="Shared access information"></textarea>
-        </div>
+        <p class="dialog-copy">Change the expiration for every selected key.</p>
         <div class="bulk-change-row">
           <input id="redeem-change-expires" type="checkbox" />
           <label for="redeem-bulk-expires">Expires at</label>

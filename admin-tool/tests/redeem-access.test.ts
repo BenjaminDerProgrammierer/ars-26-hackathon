@@ -57,9 +57,7 @@ test("uses configured metadata when Resource Manager discovery fails", async (co
   assert.deepEqual(await getRedeemAccessContext(), {
     accountName: "testaccount",
     tableName: "TestCodes",
-    subscriptionId: null,
     subscriptionName: null,
-    tenantId: null,
     resourceGroup: "TestGroup",
   });
 });

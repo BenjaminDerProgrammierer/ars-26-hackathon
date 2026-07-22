@@ -1,30 +1,23 @@
 #!/usr/bin/env bash
 # vcenv per-VM provisioning script.
-# This is a TEMPLATE: the deployment scripts render the ${VC_*} placeholders
-# with envsubst (restricted to the VC_* names), base64-encode the result, and
-# deliver it via cloud-init. Every other $shell reference runs on the VM.
+# This is a TEMPLATE: deploy.sh renders the ${VC_*} placeholders with envsubst
+# (restricted to the VC_* names), base64-encodes the result, and delivers it via
+# cloud-init. Every other $shell reference is evaluated at runtime on the VM.
 #
-# No `set -x` on purpose: it would leak the password into the boot log.
+# No `set -x` on purpose: it would leak the password / API key into the boot log.
 set -euo pipefail
 exec > >(tee -a /var/log/vcenv-bootstrap.log) 2>&1
 echo "=== vcenv bootstrap starting $(date -u) ==="
 
-# --- Injected by deploy.sh or deploy-locally.sh (envsubst) ---
+# --- Injected by deploy.sh (envsubst) ---
 student_user='${VC_STUDENT_USER}'
 student_password='${VC_STUDENT_PASSWORD}'
-code_server_fqdn='${VC_FQDN}'   # public DNS name, or __CONTAINER__ at image-build time
+llm_base_url='${VC_LLM_BASE_URL}'      # OpenAI-compatible endpoint (Novedu coding proxy)
+llm_api_key='${VC_LLM_API_KEY}'        # Novedu activity Code; doubles as the bearer token
+llm_model_id='${VC_LLM_MODEL_ID}'      # model id pi sends to the proxy
+llm_model_name='${VC_LLM_MODEL_NAME}'  # display label shown in pi
+code_server_fqdn='${VC_FQDN}'   # public DNS name; Caddy gets a Let's Encrypt cert for it
 # -----------------------------------------
-
-container_runtime=false
-if [[ "$code_server_fqdn" == "__CONTAINER__" ]]; then
-  container_runtime=true
-  public_host="__PUBLIC_HOST__"
-  access_note="This container's URLs are published on its Docker host."
-else
-  code_server_site="$code_server_fqdn"
-  public_host="$code_server_fqdn"
-  access_note="Port 8080 on this host is open to the internet."
-fi
 
 export DEBIAN_FRONTEND=noninteractive
 # cloud-init's runcmd shell has no HOME; several installers (code-server) need it.
@@ -33,24 +26,15 @@ home_dir="/home/$student_user"
 
 # Defensive: Azure normally creates the admin user before cloud-init runcmd.
 id "$student_user" >/dev/null 2>&1 || useradd -m -s /bin/bash "$student_user"
-# Azure sets this before cloud-init; the container image build does not. Enforce
-# it here as well so both deployment paths initialize the account consistently.
-echo "$student_user:$student_password" | chpasswd
 
 echo "--- installing base packages ---"
 apt-get update -y
-apt-get install -y curl git unzip jq ca-certificates build-essential apt-transport-https gnupg sudo \
+apt-get install -y curl git unzip jq ca-certificates build-essential apt-transport-https gnupg \
   python3-pip python3-venv python-is-python3 imagemagick
-if $container_runtime; then
-  usermod -aG sudo "$student_user"
-  printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$student_user" > "/etc/sudoers.d/$student_user"
-  chmod 440 "/etc/sudoers.d/$student_user"
-fi
 
 echo "--- installing GitHub CLI ---"
 install -m 0755 -d /etc/apt/keyrings
-curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
-  https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
 chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
 arch="$(dpkg --print-architecture)"
@@ -60,12 +44,9 @@ apt-get update -y
 apt-get install -y gh
 
 echo "--- installing .NET 10 SDK ---"
-if ! command -v dotnet >/dev/null 2>&1; then
-  curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
-    https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
-  chmod +x /tmp/dotnet-install.sh
-  /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet
-fi
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+chmod +x /tmp/dotnet-install.sh
+/tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet
 ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 cat > /etc/profile.d/dotnet.sh <<'DOTNETEOF'
 export DOTNET_ROOT=/usr/share/dotnet
@@ -74,76 +55,92 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 DOTNETEOF
 
 echo "--- installing code-server ---"
-curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
-  https://code-server.dev/install.sh | sh
+curl -fsSL https://code-server.dev/install.sh | sh
 
-# Azure binds code-server to localhost behind Caddy. A container publishes the
-# code-server port directly because it does not run a full init system.
+# code-server listens on localhost only; Caddy terminates TLS and proxies to it.
 mkdir -p "$home_dir/.config/code-server"
-if $container_runtime; then code_server_bind="0.0.0.0:9000"; else code_server_bind="127.0.0.1:9000"; fi
 cat > "$home_dir/.config/code-server/config.yaml" <<EOF
-bind-addr: $code_server_bind
+bind-addr: 127.0.0.1:9000
 auth: password
 password: "$student_password"
 cert: false
 EOF
 chown -R "$student_user:$student_user" "$home_dir/.config"
 
-if ! $container_runtime; then
-  systemctl daemon-reload
-  systemctl enable --now "code-server@$student_user"
-fi
+systemctl daemon-reload
+systemctl enable --now "code-server@$student_user"
 
-if ! $container_runtime; then
-  echo "--- installing Caddy (HTTPS reverse proxy for code-server) ---"
-  curl --retry 5 --retry-all-errors --connect-timeout 20 -1sLf \
-    'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
-    | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-  curl --retry 5 --retry-all-errors --connect-timeout 20 -1sLf \
-    'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
-    > /etc/apt/sources.list.d/caddy-stable.list
-  apt-get update -y
-  apt-get install -y caddy
+echo "--- installing Caddy (HTTPS reverse proxy for code-server) ---"
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
+  | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
+  > /etc/apt/sources.list.d/caddy-stable.list
+apt-get update -y
+apt-get install -y caddy
 
-  # Caddy obtains and renews a Let's Encrypt certificate for the public FQDN.
-  cat > /etc/caddy/Caddyfile <<EOF
-$code_server_site {
+# Caddy obtains & auto-renews a Let's Encrypt cert for the VM's public FQDN,
+# serves HTTPS on :443, redirects :80 -> :443, and reverse-proxies to code-server.
+# Student dev work stays untouched on plain HTTP :8080.
+cat > /etc/caddy/Caddyfile <<EOF
+$code_server_fqdn {
     reverse_proxy 127.0.0.1:9000
 }
 EOF
-  systemctl enable caddy
-  systemctl restart caddy
-fi
+systemctl enable caddy
+systemctl restart caddy
 
 echo "--- installing nvm + Node LTS + pi.dev (as $student_user) ---"
 sudo -u "$student_user" -H bash <<'USEREOF'
 set -euo pipefail
 export NVM_DIR="$HOME/.nvm"
-curl --retry 5 --retry-all-errors --connect-timeout 20 -fsSL \
-  https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 . "$NVM_DIR/nvm.sh"
 nvm install --lts
 nvm alias default 'lts/*'
 npm install -g @earendil-works/pi-coding-agent
 USEREOF
 
-echo "--- initializing pi.dev models and providers ---"
+echo "--- configuring pi.dev provider (models.json) ---"
 pi_agent_dir="$home_dir/.pi/agent"
 mkdir -p "$pi_agent_dir"
 
-# Leave providers empty so students can configure their own provider and models.
-cat > "$pi_agent_dir/models.json" <<'EOF'
+# Declarative custom provider + model (pi.dev/docs/latest/models). The LLM backend
+# is an OpenAI-compatible proxy (Novedu coding activity). The activity Code doubles
+# as the bearer token, so it is embedded directly as apiKey. The proxy injects the
+# real model + system prompt server-side, so this single entry is all pi needs.
+cat > "$pi_agent_dir/models.json" <<EOF
 {
-  "providers": {}
+  "providers": {
+    "novedu": {
+      "api": "openai-completions",
+      "baseUrl": "$llm_base_url",
+      "apiKey": "$llm_api_key",
+      "models": [
+        {
+          "id": "$llm_model_id",
+          "name": "$llm_model_name",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 128000,
+          "maxTokens": 4096,
+          "cost": {"input":0,"output":0,"cacheRead":0,"cacheWrite":0}
+        }
+      ]
+    }
+  }
 }
 EOF
 
-cat > "$pi_agent_dir/settings.json" <<'EOF'
-{}
+cat > "$pi_agent_dir/settings.json" <<EOF
+{
+  "defaultProvider": "novedu",
+  "defaultModel": "$llm_model_id"
+}
 EOF
 
 # Make dotnet and node/pi available to ALL shells (incl. non-interactive) by
-# prepending to .bashrc *before* Ubuntu's interactivity guard.
+# prepending to .bashrc *before* Ubuntu's interactivity guard. (pi's LLM key lives
+# in models.json, so no API key needs to be exported here.)
 node_bin="$(ls -d "$home_dir/.nvm/versions/node/"*/bin 2>/dev/null | tail -1)"
 tmp_bashrc="$(mktemp)"
 cat > "$tmp_bashrc" <<EOF
@@ -249,9 +246,9 @@ You are Pi, a coding agent running inside a temporary student VM (Ubuntu, with
 VS Code / code-server open in the browser).
 
 ## This environment
-- Browser host/address: `__DEV_FQDN__`
+- Public hostname (FQDN): `__DEV_FQDN__`
 - The student's dev server is reachable in a browser at: __DEV_URL__
-  __DEV_ACCESS_NOTE__ Bind dev servers to
+  Port 8080 on this host is open to the internet, so bind dev servers to
   `0.0.0.0:8080` (already configured for this project).
 
 ## This project
@@ -267,7 +264,7 @@ Files: `index.html` (markup), `index.ts` (logic), `style.css` (styles).
 **When the student asks how to open / view / preview their app or website, give
 them the exact URL __DEV_URL__ and remind them the dev server must be running
 (`npm run dev`).** Do not tell them to use `localhost` — their browser is on a
-different machine, so they must use the host/address above.
+different machine, so they must use the FQDN above.
 
 ## Tools available on this machine
 Node.js LTS + npm, TypeScript, Vite, .NET 10 SDK, Python 3 (`python`/`pip`/venv),
@@ -288,14 +285,10 @@ USEREOF
 # Personalise the workshop AGENTS.md with THIS VM's public dev URL so pi can hand
 # the student an exact browser link. The FQDN is known only here (render time); the
 # AGENTS.md above is a literal heredoc, hence the placeholder + sed substitution.
-if $container_runtime; then dev_url="__DEV_URL__"; else dev_url="http://${public_host}:8080/"; fi
+dev_url="http://${code_server_fqdn}:8080/"
 agents_md="$home_dir/website/AGENTS.md"
 if [ -f "$agents_md" ]; then
-  sed -i \
-    -e "s|__DEV_FQDN__|${public_host}|g" \
-    -e "s|__DEV_URL__|${dev_url}|g" \
-    -e "s|__DEV_ACCESS_NOTE__|${access_note}|g" \
-    "$agents_md"
+  sed -i -e "s|__DEV_FQDN__|${code_server_fqdn}|g" -e "s|__DEV_URL__|${dev_url}|g" "$agents_md"
   chown "$student_user:$student_user" "$agents_md"
 fi
 

@@ -1,8 +1,0 @@
-# Send only files used by container/Dockerfile. In particular, never include
-# .state/ because it contains generated student passwords.
-*
-!cloud-init/
-!cloud-init/bootstrap.sh
-!container/
-!container/Dockerfile
-!container/entrypoint.sh

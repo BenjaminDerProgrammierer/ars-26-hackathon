@@ -8,9 +8,22 @@ import {
   startBulkOperation,
 } from "../lib/bulk-operations.js";
 import {
+  EnvironmentOperationConflictError,
+  getDevEnvironmentContext,
+  getDevEnvironments,
+  listDevEnvironments,
+  setEnvironmentRedeemCode,
+  startDevEnvironmentBulkAction,
+  startDevEnvironmentCreation,
+  validateBulkAction,
+  validateEnvironmentNames,
+  validateStartDeploymentInput,
+} from "../lib/dev-environments.js";
+import {
   type CreateKeyInput,
   createApiKeys,
   deleteApiKey,
+  generateRandomApiKeyNames,
   getApiKey,
   getCreditBalance,
   getHackathonContext,
@@ -23,6 +36,7 @@ import {
   deleteRedeemAccessKey,
   getRedeemAccessContext,
   listRedeemAccessKeys,
+  listRedeemAccessKeysForApiKeys,
   normalizeRedeemCode,
   type UpdateRedeemAccessKeyInput,
   updateRedeemAccessKey,
@@ -193,8 +207,8 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function assertEditingAvailable(): void {
-  if (hasActiveBulkOperations()) {
+async function assertEditingAvailable(): Promise<void> {
+  if (await hasActiveBulkOperations()) {
     throw new HttpError("Editing is paused while a bulk activity is in progress", 409);
   }
 }
@@ -217,6 +231,73 @@ async function bulkProcess<T>(
     }
   }
   return { succeeded, failed };
+}
+
+async function startKeyCreationOperation(inputs: CreateKeyInput[]) {
+  return startBulkOperation({
+    kind: "create",
+    label: `Creating ${inputs.length} key${inputs.length === 1 ? "" : "s"}`,
+    total: inputs.length,
+    run: (reportProgress) => createApiKeys(inputs, () => reportProgress(true)),
+  });
+}
+
+async function startKeyUpdateOperation(hashes: string[], changes: UpdateKeyInput) {
+  let kind: BulkOperationKind = "update";
+  let action = "Updating";
+  if (Object.keys(changes).length === 1 && changes.disabled === true) {
+    kind = "disable";
+    action = "Disabling";
+  } else if (Object.keys(changes).length === 1 && changes.disabled === false) {
+    kind = "enable";
+    action = "Enabling";
+  }
+  return startBulkOperation({
+    kind,
+    label: `${action} ${hashes.length} key${hashes.length === 1 ? "" : "s"}`,
+    total: hashes.length,
+    run: async (reportProgress) => {
+      const syncRedeemKeys = Object.hasOwn(changes, "name") || Object.hasOwn(changes, "disabled");
+      const redeemKeys = syncRedeemKeys ? await listRedeemAccessKeysForApiKeys(hashes) : new Map();
+      return bulkProcess(
+        hashes,
+        async (hash) => {
+          const updated = await updateApiKey(hash, changes);
+          for (const redeemKey of redeemKeys.get(hash.toLocaleLowerCase()) ?? []) {
+            await updateRedeemAccessKey(redeemKey.code, {
+              ...(Object.hasOwn(changes, "name") ? { label: `AI API key "${updated.name}"` } : {}),
+              ...(Object.hasOwn(changes, "disabled") ? { enabled: !updated.disabled } : {}),
+              etag: redeemKey.etag,
+            });
+          }
+          return updated;
+        },
+        reportProgress,
+      );
+    },
+  });
+}
+
+async function startKeyDeleteOperation(hashes: string[]) {
+  return startBulkOperation({
+    kind: "delete",
+    label: `Deleting ${hashes.length} key${hashes.length === 1 ? "" : "s"}`,
+    total: hashes.length,
+    run: async (reportProgress) => {
+      const redeemKeys = await listRedeemAccessKeysForApiKeys(hashes);
+      return bulkProcess(
+        hashes,
+        async (hash) => {
+          await deleteApiKey(hash);
+          for (const redeemKey of redeemKeys.get(hash.toLocaleLowerCase()) ?? []) {
+            await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag);
+          }
+          return hash;
+        },
+        reportProgress,
+      );
+    },
+  });
 }
 
 const router = Router();
@@ -243,6 +324,113 @@ router.get("/redeem-access/keys", async (_request, response) => {
   response.json({ data: await listRedeemAccessKeys() });
 });
 
+router.get("/dev-environments/status", async (request, response) => {
+  const context = await getDevEnvironmentContext();
+  const openRouterContext = context.configured ? await getHackathonContext() : null;
+  response.json({
+    ...context,
+    model:
+      openRouterContext?.guardrail.availableModels.length === 1
+        ? openRouterContext.guardrail.availableModels[0]
+        : null,
+    environments: context.configured
+      ? await listDevEnvironments({ refresh: request.query.refresh === "true" })
+      : [],
+  });
+});
+
+router.get("/dev-environments", async (request, response) => {
+  const context = await getDevEnvironmentContext();
+  response.json({
+    data: await listDevEnvironments({ refresh: request.query.refresh === "true" }),
+    operation: context.operation,
+  });
+});
+
+router.post("/dev-environments", async (request, response) => {
+  const input = (() => {
+    try {
+      return validateStartDeploymentInput(request.body);
+    } catch (error: unknown) {
+      throw new HttpError(errorMessage(error));
+    }
+  })();
+  const { guardrail } = await getHackathonContext();
+  const model = guardrail.availableModels[0];
+  if (guardrail.availableModels.length !== 1 || !model) {
+    throw new HttpError("Development environments require exactly one guardrail model", 503);
+  }
+  try {
+    const operation = await startDevEnvironmentCreation({
+      ...input,
+      modelId: model.id,
+    });
+    response.status(202).json({ operation });
+  } catch (error: unknown) {
+    if (error instanceof EnvironmentOperationConflictError) {
+      throw new HttpError(error.message, 409);
+    }
+    throw new HttpError(errorMessage(error), 503);
+  }
+});
+
+router.post("/dev-environments/bulk", async (request, response) => {
+  const body = asRecord(request.body);
+  let names: string[];
+  let action: ReturnType<typeof validateBulkAction>;
+  try {
+    names = validateEnvironmentNames(body.names);
+    action = validateBulkAction(body.action);
+  } catch (error: unknown) {
+    throw new HttpError(errorMessage(error));
+  }
+  try {
+    response.status(202).json({ operation: await startDevEnvironmentBulkAction(names, action) });
+  } catch (error: unknown) {
+    if (error instanceof EnvironmentOperationConflictError) {
+      throw new HttpError(error.message, 409);
+    }
+    throw new HttpError(errorMessage(error), 503);
+  }
+});
+
+router.post("/dev-environments/redeem", async (request, response) => {
+  const body = asRecord(request.body);
+  let names: string[];
+  try {
+    names = validateEnvironmentNames(body.names);
+  } catch (error: unknown) {
+    throw new HttpError(errorMessage(error));
+  }
+  const expiresAt = parseExpiration(body.expiresAt);
+  const environments = await getDevEnvironments(names);
+  const created = [];
+  const failed: Array<{ name: string; error: string }> = [];
+  for (const environment of environments) {
+    if (environment.redeemCode) {
+      failed.push({ name: environment.name, error: "A redeem key already exists" });
+      continue;
+    }
+    try {
+      const redeemKey = await createRedeemAccessKey({
+        label: `Development environment ${environment.name}`,
+        accessText: environment.loginText,
+        ...(expiresAt ? { expiresAt } : {}),
+      });
+      try {
+        await setEnvironmentRedeemCode(environment.name, redeemKey.code);
+      } catch (error: unknown) {
+        await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag).catch(() => undefined);
+        throw error;
+      }
+      created.push({ name: environment.name, redeemKey });
+    } catch (error: unknown) {
+      failed.push({ name: environment.name, error: errorMessage(error) });
+    }
+  }
+  response.status(failed.length > 0 ? 207 : 201).json({ data: created, failed });
+});
+
 router.post("/redeem-access/keys/bulk", async (request, response) => {
   const body = asRecord(request.body);
   if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -255,9 +443,16 @@ router.post("/redeem-access/keys/bulk", async (request, response) => {
   const inputs = body.items.map((value) => {
     const item = asRecord(value);
     const expiresAt = parseExpiration(item.expiresAt);
+    if (
+      item.apiKeyHash !== undefined &&
+      (typeof item.apiKeyHash !== "string" || !/^[a-f0-9]{64}$/i.test(item.apiKeyHash))
+    ) {
+      throw new HttpError("API key hash must be a 64-character hexadecimal string");
+    }
     return {
       label: parseRequiredText(item.label, "Label", 120),
       accessText: parseRequiredText(item.accessText, "Access information", 30_000),
+      ...(typeof item.apiKeyHash === "string" ? { apiKeyHash: item.apiKeyHash } : {}),
       ...(expiresAt ? { expiresAt } : {}),
     };
   });
@@ -297,7 +492,11 @@ router.post("/redeem-access/keys", async (request, response) => {
 router.patch("/redeem-access/keys/bulk", async (request, response) => {
   const body = asRecord(request.body);
   const codes = parseRedeemCodes(body.codes);
-  const changes = parseRedeemUpdate(body.changes);
+  const requestedChanges = asRecord(body.changes);
+  if (Object.hasOwn(requestedChanges, "label") || Object.hasOwn(requestedChanges, "accessText")) {
+    throw new HttpError("Bulk redeem-key edits support only expiration and enabled state");
+  }
+  const changes = parseRedeemUpdate(requestedChanges);
   const updated = [];
   const failed: Array<{ code: string; error: string }> = [];
 
@@ -310,6 +509,24 @@ router.patch("/redeem-access/keys/bulk", async (request, response) => {
   }
 
   response.status(failed.length > 0 ? 207 : 200).json({ data: updated, failed });
+});
+
+router.delete("/redeem-access/keys/bulk", async (request, response) => {
+  const body = asRecord(request.body);
+  const codes = parseRedeemCodes(body.codes);
+  const deleted: string[] = [];
+  const failed: Array<{ code: string; error: string }> = [];
+
+  for (const code of codes) {
+    try {
+      await deleteRedeemAccessKey(code);
+      deleted.push(code);
+    } catch (error: unknown) {
+      failed.push({ code, error: errorMessage(error) });
+    }
+  }
+
+  response.status(failed.length > 0 ? 207 : 200).json({ data: deleted, failed });
 });
 
 router.patch("/redeem-access/keys/:code", async (request, response) => {
@@ -327,98 +544,59 @@ router.delete("/redeem-access/keys/:code", async (request, response) => {
   response.status(204).end();
 });
 
-router.get("/operations", (_request, response) => {
-  response.json({ data: listBulkOperations() });
+router.get("/operations", async (_request, response) => {
+  response.json({ data: await listBulkOperations() });
 });
 
-router.get("/operations/:id", (request, response) => {
-  const operation = getBulkOperation(request.params.id ?? "");
+router.get("/operations/:id", async (request, response) => {
+  const operation = await getBulkOperation(request.params.id ?? "");
   if (!operation) {
     throw new HttpError("Bulk operation not found", 404);
   }
   response.json({ data: operation });
 });
 
-router.delete("/operations/completed", (_request, response) => {
-  response.json({ cleared: clearCompletedBulkOperations() });
+router.delete("/operations/completed", async (_request, response) => {
+  response.json({ cleared: await clearCompletedBulkOperations() });
 });
 
 router.post("/keys/bulk", async (request, response) => {
-  assertEditingAvailable();
+  await assertEditingAvailable();
   const body = asRecord(request.body);
-  if (!Array.isArray(body.names) || body.names.length === 0) {
-    throw new HttpError("At least one key name is required");
+  if (!Number.isInteger(body.count) || (body.count as number) < 1 || (body.count as number) > 100) {
+    throw new HttpError("Bulk creation count must be an integer between 1 and 100");
   }
-  if (body.names.length > 100) throw new HttpError("Bulk creation is limited to 100 keys");
-
-  const names = body.names.map(parseName);
-  const duplicateName = names.find((name, index) => names.indexOf(name) !== index);
-  if (duplicateName) throw new HttpError(`Duplicate key name: ${duplicateName}`);
+  const names = generateRandomApiKeyNames(body.count as number);
 
   const keyOptions = parseCreateOptions(body);
-  const operation = startBulkOperation({
-    kind: "create",
-    label: `Creating ${names.length} key${names.length === 1 ? "" : "s"}`,
-    total: names.length,
-    run: (reportProgress) =>
-      createApiKeys(
-        names.map((name) => ({ name, ...keyOptions })),
-        () => reportProgress(true),
-      ),
-  });
+  const operation = await startKeyCreationOperation(names.map((name) => ({ name, ...keyOptions })));
   response.status(202).json({ operation });
 });
 
 router.patch("/keys/bulk", async (request, response) => {
-  assertEditingAvailable();
+  await assertEditingAvailable();
   const body = asRecord(request.body);
   const hashes = parseHashes(body.hashes);
   const changes = parseUpdate(body.changes);
-  let kind: BulkOperationKind = "update";
-  let action = "Updating";
-  if (Object.keys(changes).length === 1 && changes.disabled === true) {
-    kind = "disable";
-    action = "Disabling";
-  } else if (Object.keys(changes).length === 1 && changes.disabled === false) {
-    kind = "enable";
-    action = "Enabling";
-  }
-  const operation = startBulkOperation({
-    kind,
-    label: `${action} ${hashes.length} key${hashes.length === 1 ? "" : "s"}`,
-    total: hashes.length,
-    run: (reportProgress) =>
-      bulkProcess(hashes, (hash) => updateApiKey(hash, changes), reportProgress),
-  });
+  const operation = await startKeyUpdateOperation(hashes, changes);
   response.status(202).json({ operation });
 });
 
 router.delete("/keys/bulk", async (request, response) => {
-  assertEditingAvailable();
+  await assertEditingAvailable();
   const body = asRecord(request.body);
   const hashes = parseHashes(body.hashes);
-  const operation = startBulkOperation({
-    kind: "delete",
-    label: `Deleting ${hashes.length} key${hashes.length === 1 ? "" : "s"}`,
-    total: hashes.length,
-    run: (reportProgress) =>
-      bulkProcess(
-        hashes,
-        async (hash) => {
-          await deleteApiKey(hash);
-          return hash;
-        },
-        reportProgress,
-      ),
-  });
+  const operation = await startKeyDeleteOperation(hashes);
   response.status(202).json({ operation });
 });
 
 router.post("/keys", async (request, response) => {
-  assertEditingAvailable();
+  await assertEditingAvailable();
   const body = asRecord(request.body);
-  const result = await createApiKeys([{ name: parseName(body.name), ...parseCreateOptions(body) }]);
-  response.status(201).json({ data: result.created[0], assignedCount: result.assignedCount });
+  const operation = await startKeyCreationOperation([
+    { name: generateRandomApiKeyNames(1)[0], ...parseCreateOptions(body) },
+  ]);
+  response.status(202).json({ operation });
 });
 
 router.get("/keys/:hash", async (request, response) => {
@@ -426,14 +604,15 @@ router.get("/keys/:hash", async (request, response) => {
 });
 
 router.patch("/keys/:hash", async (request, response) => {
-  assertEditingAvailable();
-  response.json({ data: await updateApiKey(getHash(request), parseUpdate(request.body)) });
+  await assertEditingAvailable();
+  const operation = await startKeyUpdateOperation([getHash(request)], parseUpdate(request.body));
+  response.status(202).json({ operation });
 });
 
 router.delete("/keys/:hash", async (request, response) => {
-  assertEditingAvailable();
-  await deleteApiKey(getHash(request));
-  response.status(204).end();
+  await assertEditingAvailable();
+  const operation = await startKeyDeleteOperation([getHash(request)]);
+  response.status(202).json({ operation });
 });
 
 export default router;

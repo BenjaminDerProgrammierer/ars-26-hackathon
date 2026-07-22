@@ -28,10 +28,16 @@ az deployment group create \
 
 Override `webAppContainerImage` to deploy a different public image tag or digest.
 
-The template creates a two-worker Linux App Service plan, a container web app
+The template creates a single-worker Linux App Service plan, a container web app
 listening on port 80, a Log Analytics workspace, retained diagnostics, an HTTP
-5xx alert, and a user-assigned managed identity. The identity is attached to the
-web app and receives `Storage Table Data Reader` on the `AccessCodes` table only.
+5xx alert, a user-assigned managed identity, and the shared VNet, subnet, and NSG
+used by the admin tool's development-environment VMs. The NSG permits inbound
+TCP traffic on ports 22, 80, 443, and 8080. The identity is attached to the web
+app and receives `Storage Table Data Reader` on the `AccessCodes` table only.
+The shared network uses Azure Verified Modules for its VNet and NSG. The admin
+tool deploys each development-environment VM, NIC, public IP, and OS disk from
+`modules/development-environment.bicep`, which uses the AVM virtual-machine
+module.
 Set `alertEmailAddress` to route the alert to an operator; leaving it empty keeps
 the Azure Monitor alert active without email delivery.
 The image must be publicly pullable unless registry authentication is configured
