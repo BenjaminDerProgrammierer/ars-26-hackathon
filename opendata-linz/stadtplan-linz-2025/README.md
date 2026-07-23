@@ -10,15 +10,13 @@ data_vintage: "2025 Q3"
 
 ## Beschreibung
 
-Der Stadtplan wird als Farb- und Graustufenraster in EPSG:31255 angeboten; jede TIFF-Datei ist rund 419 MB groß. Die Kartenobjekte sind Pixel und besitzen keine verknüpfbaren Attribute. Für Webprojekte ist ein begrenzter Ausschnitt zu wählen und zu optimieren; die beobachtete Pixelgröße widerspricht der Katalogangabe von 25 cm und muss geprüft werden.
+Der Stadtplan wird als Farb- und Graustufenraster in EPSG:31255 angeboten; jede TIFF-Datei ist rund 419 MB groß. Die Kartenobjekte sind Pixel und besitzen keine verknüpfbaren Attribute.
 
-## Kontakt zur verantwortlichen Stelle
+## Verwendungshinweise
 
-Magistrat Linz, Vermessung und Geoinformation; aktuelle Kontaktdaten stehen im Katalog.
+Für Webprojekte ist ein begrenzter Ausschnitt zu wählen, umzuprojizieren und zu optimieren. Die beobachtete Pixelgröße widerspricht der Katalogangabe von 25 cm und muss vor maßstabsabhängigen Anwendungen geprüft werden.
 
 ## Quellen
 
-- [Official catalog](https://www.data.gv.at/katalog/datasets/stadtplan-linz-2025)
-- [Official source directory](https://data.linz.gv.at/katalog/geodata/stadtplan/2025/)
-- [Orthophotos review](../orthofotos/)
-- [Historical city maps review](../historische-stadtplaene/)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/stadtplan-linz-2025)
+- [Download-Verzeichnis](https://data.linz.gv.at/katalog/geodata/stadtplan/2025/)

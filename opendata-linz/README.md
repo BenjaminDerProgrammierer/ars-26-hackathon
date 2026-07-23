@@ -10,10 +10,12 @@ export analysis, GitHub defect handoff, and a 2026-07-16 publisher-directory
 delta crawl.
 
 Each dataset page now provides compact frontmatter for status, format, license,
-and data vintage, followed by a short factual description, contact information,
-and source links. Detailed review evidence remains in the research archive and
-consolidated report. Current catalog evidence was reviewed through 2026-07-16;
+and data vintage, followed by a short factual description, practical usage
+notes, and source links. Detailed review evidence remains in the research
+archive and consolidated report. Current catalog evidence was reviewed through 2026-07-16;
 Orthofotos 2023 and Stadtplan Linz 2025 were added and checked on 2026-07-17.
+Street names, drinking fountains, and public toilets received prepared,
+validated CSV snapshots on 2026-07-23.
 The affected verdicts link to the publisher fixes and live endpoint checks
 recorded in the relevant GitHub issues. The
 verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data
@@ -58,27 +60,25 @@ remain optional, pending, or outside the festival portfolio.
 | Dataset | Final decision | Role |
 |---|---|---|
 | [Baumkataster](baumkataster/) | **USE** | Current geocoded urban-tree data; strongest standalone source. |
-| [Linztermine events](linztermine-veranstaltungen/) | **USE** | City events during the exact festival window. |
-| [Linztermine locations](linztermine-orte/) | **USE** | Venue IDs and addresses for joining city and festival events. |
-| [Linztermine organizers](linztermine-veranstalterinnen/) | **USE** | Organizer identity bridge, including Ars Electronica ID 7. |
-| [Street names and meanings](strassennamen/) | **USE** | Wikidata-linked city storytelling via venue addresses. |
+| [Linztermine](linztermine/) | **USE WITH PREPARATION** | Combined event, occurrence, location, organizer, and category snapshot for the festival window. |
+| [Street names and meanings](strassennamen/) | **USE** | Two normalized CSVs with stable IDs, Wikidata links, and historical successor names. |
 | [Guest origin countries](herkunftslaender-gaeste/) | **USE** | Country join to festival contacts. |
 | [Playgrounds and sports facilities](spielplaetze/) | **USE** | Working geocoded CSV plus a repaired 2023 equipment Shapefile. |
 | [LINZ AG lines and stops](linz-ag-linien-2025/) | **USE WITH PREPARATION** | Static transit geometry; publish converted GeoJSON. |
-| [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Live routing/departures; provide proxy, example, and fallback. |
+| [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Legacy live API without a provided adapter; browser-direct requests are blocked by CORS. |
 | [Boudicca.Events public API](boudicca-events/) | **USE WITH PREPARATION** | Snapshot and normalize the multi-source event API; preserve per-source provenance, attribution and a cached fallback. |
 | [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
 | [Stadtplan Linz 2025](stadtplan-linz-2025/) | **OPTIONAL** | Current municipal cartographic raster; crop, reproject, and optimize one variant before browser use. |
 | [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use the 2025 refresh and preconvert selected festival-area tiles; repair stale `/2022/` links in its index. |
 | [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Convert/reproject and label 2022 freshness. |
-| [Public toilets](wc-anlagen/) | **USE WITH PREPARATION** | Reproject and normalize accessibility/opening-hours data. |
-| [Drinking fountains](trinkbrunnen/) | **USE WITH PREPARATION** | EPSG:31255 is now documented; reproject and verify current service status. |
+| [Public toilets](wc-anlagen/) | **USE** | Prepared 68-location CSV with WGS84 coordinates and normalized accessibility fields; service details remain dated. |
+| [Drinking fountains](trinkbrunnen/) | **USE** | Prepared 132-record CSV with 84 WGS84 locations; current operation and drinkability still require verification. |
 | [Air and weather](luftguete-messwerte/) | **USE WITH PREPARATION** | Five working live stations; monitor and cache. |
-| [Linztermine tags](linztermine-schlagworte/) | **USE WITH PREPARATION** | Helper taxonomy only, bundled with Linztermine events. |
 | [Defibrillators](defibrillatoren/) | **OPTIONAL** | Prototype-only safety layer; 2022 data is not operational guidance. |
 | [Public Wi-Fi](hotspots/) | **OPTIONAL** | Useful venue layer, but usage and locations are from 2022. |
 | [Orthophotos](orthofotos/) | **OPTIONAL** | Heavy experimental visual source, now including the 2023 edition, requiring selection and web tiling. |
 | [Short-term parking zones](kurzparkzonen/) | **OPTIONAL** | Utility layer with projected Shapefile conversion. |
+| [Cycling counter measurements](radverkehr-zaehlstellen/) | **OPTIONAL** | Historical 2024–2025 hourly counts and WGS84 counter locations for exploratory mobility analysis. |
 | [Hecken die Schmecken](hecken-die-schmecken/) | **OPTIONAL** | Small playful garnish with no coordinates and 2022 data. |
 | [Dog zones](hundezonen/) | **OPTIONAL** | Public downloads are repaired; convert the dated EPSG:31255 polygons and avoid current-rule claims. |
 | [Baulandreserven 2022](baulandreserven-2022/) | **OPTIONAL** | Corrected complete 2022 layer for niche, clearly dated land-use context. |
@@ -92,7 +92,6 @@ remain optional, pending, or outside the festival portfolio.
 
 | Candidate | Current status | Required decision or request |
 |---|---|---|
-| [Cycling counter measurements](radverkehr-zaehlstellen/) | **REQUEST METADATA, THEN USE WITH PREPARATION** | Confirm license, attribution, timezone/DST semantics, missing-value meaning, and update cadence for the new 2024–2025 hourly files. |
 | 2025 neighborhood statistics pack | **PREPARATION CANDIDATE** | Bundle population, one-year age counts, and 2014-system district geometry with encoding and blank-row cleanup. |
 | [Council transcripts](gemeinderatsprotokolle/) | **REASSESS** | Previously excluded despite an A-tier catalog review. |
 | [Pool occupancy](baederauslastung/) | **REQUEST DATA** | No open dataset was found. Ask LINZ AG for an anonymous feed or snapshot before considering a scraper. |

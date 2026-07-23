@@ -6,6 +6,9 @@ dist/
 # dependencies
 node_modules/
 
+# prepared dataset files copied from ../opendata-linz by sync:datasets
+public/datasets/
+
 # logs
 npm-debug.log*
 yarn-debug.log*

@@ -58,7 +58,6 @@ const copy = {
     license: "License",
     vintage: "Data vintage",
     sourceLanguage: "The authoritative notes below are maintained in German.",
-    source: "View source README",
     apiDocs: "Read the API documentation",
     statusLabel: {
       essential: "Use",
@@ -76,7 +75,6 @@ const copy = {
     vintage: "Datenstand",
     sourceLanguage:
       "Die folgenden verbindlichen Hinweise werden auf Deutsch gepflegt.",
-    source: "Quell-README öffnen",
     apiDocs: "API-Dokumentation lesen",
     statusLabel: {
       essential: "Verwenden",
@@ -90,8 +88,6 @@ const copy = {
 function datasetHref(id: string): string {
   return href(lang, `datasets/${id.split("/")[0]}`);
 }
-
-const sourceUrl = `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/${entry.id.split("/")[0]}/README.md`;
 ---
 
 <ProseLayout
@@ -130,7 +126,6 @@ const sourceUrl = `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/
 
   {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
 
-  <p class="source-link"><a href={sourceUrl}>{copy.source} ↗</a></p>
   {
     datasetDocument && (
       <p class="source-link">
