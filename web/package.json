@@ -10,7 +10,7 @@
     "build": "astro build",
     "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview",
-    "test": "node --experimental-strip-types --test src/redeem/data.test.ts",
+    "test": "node --experimental-strip-types --test src/redeem/data.test.ts src/markdown/dataset-links.test.mjs",
     "astro": "astro",
     "format": "biome format --write .",
     "lint": "biome check .",

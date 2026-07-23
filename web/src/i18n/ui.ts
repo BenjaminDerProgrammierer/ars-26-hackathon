@@ -61,7 +61,7 @@ export const ui = {
     "nav.tutorials": "Tutorials",
     "nav.datasets": "Datensätze",
     "nav.agents": "Entwicklung & KI",
-    "nav.signUp": "Sign Up",
+    "nav.signUp": "Konto erstellen",
     "nav.local.label": "Hackathon-Navigation",
 
     "footer.claim": "Ein Sub-Event des Ars Electronica Festival 2026.",

@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import { href, type Lang } from "../../../i18n/ui";
 import ProseLayout from "../../../layouts/ProseLayout.astro";
+import { rewriteDatasetLinks } from "../../../markdown/dataset-links.mjs";
 
 const statusOrder = [
   "essential",
@@ -24,6 +25,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const lang = Astro.params.lang as Lang;
 const { Content } = await render(entry);
+const slug = entry.id.split("/")[0];
+const datasetDocument = (await getCollection("datasetDocs")).find(
+  (document) => document.id.split("/")[0] === slug,
+);
 
 const datasets = (await getCollection("datasets")).sort((a, b) => {
   const statusDifference =
@@ -33,6 +38,16 @@ const datasets = (await getCollection("datasets")).sort((a, b) => {
 const index = datasets.findIndex((dataset) => dataset.id === entry.id);
 const previous = index > 0 ? datasets[index - 1] : undefined;
 const next = index < datasets.length - 1 ? datasets[index + 1] : undefined;
+const datasetSlugs = new Set(
+  datasets.map((dataset) => dataset.id.split("/")[0]),
+);
+const renderedContent = entry.rendered?.html
+  ? rewriteDatasetLinks(
+      entry.rendered.html,
+      href(lang, "datasets"),
+      datasetSlugs,
+    )
+  : undefined;
 
 const copy = {
   en: {
@@ -44,6 +59,7 @@ const copy = {
     vintage: "Data vintage",
     sourceLanguage: "The authoritative notes below are maintained in German.",
     source: "View source README",
+    apiDocs: "Read the API documentation",
     statusLabel: {
       essential: "Use",
       recommended: "Recommended",
@@ -61,6 +77,7 @@ const copy = {
     sourceLanguage:
       "Die folgenden verbindlichen Hinweise werden auf Deutsch gepflegt.",
     source: "Quell-README öffnen",
+    apiDocs: "API-Dokumentation lesen",
     statusLabel: {
       essential: "Verwenden",
       recommended: "Empfohlen",
@@ -111,9 +128,18 @@ const sourceUrl = `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/
 
   {lang === "en" && <p class="language-note">{copy.sourceLanguage}</p>}
 
-  <Content />
+  {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
 
   <p class="source-link"><a href={sourceUrl}>{copy.source} ↗</a></p>
+  {
+    datasetDocument && (
+      <p class="source-link">
+        <a href={href(lang, `datasets/${datasetDocument.id}`)}>
+          {copy.apiDocs} →
+        </a>
+      </p>
+    )
+  }
 
   <nav class="pager" aria-label={copy.back}>
     {
