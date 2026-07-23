@@ -34,18 +34,15 @@ const renderedContent = entry.rendered?.html
     )
   : undefined;
 const datasetUrl = href(lang, `datasets/${slug}`);
-const sourceUrl = `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/${slug}/API.md`;
 const copy = {
   en: {
     back: "Back to dataset",
     sourceLanguage:
       "The authoritative API reference below is maintained in German.",
-    source: "View source Markdown",
   },
   de: {
     back: "Zurück zum Datensatz",
     sourceLanguage: "",
-    source: "Quell-Markdown öffnen",
   },
 }[lang];
 ---
@@ -62,6 +59,4 @@ const copy = {
   {lang === "en" && <p class="language-note">{copy.sourceLanguage}</p>}
 
   {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
-
-  <p><a href={sourceUrl}>{copy.source} ↗</a></p>
 </ProseLayout>

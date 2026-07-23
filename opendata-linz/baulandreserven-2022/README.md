@@ -2,22 +2,25 @@
 title: "Baulandreserven 2022"
 summary: "Unbebaute oder nur untergeordnet bebaute Baulandflächen in Linz"
 provider: "Stadt Linz / data.linz.gv.at"
-status: "in-progress"
-format: "ESRI Shapefile (Polygon)"
+status: "recommended"
+format: "GeoJSON (Polygone); Quelle: ESRI Shapefile"
 license: "CC BY 4.0"
 data_vintage: "2022"
 ---
 
 ## Beschreibung
 
-Der vollständige Polygon-Layer besteht aus `.shp`, `.shx`, `.dbf`, `.prj` und `.cpg`. Die Projektion ist EPSG:31255; für Webkarten ist eine Umprojektion notwendig. Wegen des Stands 2022 darf der Layer nicht als aktuelle Aussage über verfügbare Grundstücke verwendet werden.
+Der Layer zeigt Flächen, die 2022 unbebaut oder nur untergeordnet bebaut waren. `Baulandreserven.json` ist eine für Webkarten vorbereitete und von EPSG:31255 nach WGS84 (EPSG:4326) umprojizierte Fassung des ursprünglichen Shapefiles.
 
-## Kontakt zur verantwortlichen Stelle
+## Download
 
-Magistrat Linz, Planung, Technik und Umwelt / Stadtplanung; [ptu@mag.linz.at](mailto:ptu@mag.linz.at)
+[Baulandreserven.json herunterladen (ca. 545 KB)](/datasets/baulandreserven-2022/Baulandreserven.json)
+
+## Verwendungshinweise
+
+`Baulandreserven.json` kann direkt als GeoJSON-Quelle in Webkarten verwendet werden. Die Quelldaten enthalten keine stabilen Objekt-IDs. Anwendungen, die Features dauerhaft referenzieren, müssen deshalb eigene Snapshot-IDs erzeugen. Wegen des Datenstands darf der Layer nicht als aktuelle Aussage über verfügbare Grundstücke verwendet werden.
 
 ## Quellen
 
-- [Official catalog](https://www.data.gv.at/katalog/datasets/f48d3329-fc06-4d84-86e8-e73946425e31)
-- [Corrected 2022 directory](https://data.linz.gv.at/katalog/geodata/baulandreserven/2022/)
-- [Issue #9](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/9)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/f48d3329-fc06-4d84-86e8-e73946425e31)
+- [Originales Shapefile im Download-Verzeichnis 2022](https://data.linz.gv.at/katalog/geodata/baulandreserven/2022/)

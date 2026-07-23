@@ -2,24 +2,23 @@
 title: "Radverkehr-Zählstellen"
 summary: "Zählstellen und stündliche Radverkehrsmessungen in Linz"
 provider: "Stadt Linz / data.linz.gv.at"
-status: "in-progress"
+status: "optional"
 format: "Semikolon-CSV und WGS84 GeoJSON"
-license: "Noch nicht bestätigt"
+license: "CC BY 4.0"
 data_vintage: "2024–2025"
 ---
 
 ## Beschreibung
 
-Die Dateien enthalten 15 Richtungszähler an acht Koordinatenpaaren und 263.160 stündliche Messzeilen. `Zaehlstelle` verknüpft Messwerte mit Standorten; 1.674 Zählwerte sind leer. Vor einer Veröffentlichung müssen Lizenz, Zeitzone und Sommerzeitbehandlung, Bedeutung fehlender Werte sowie Aktualisierungsrhythmus bestätigt werden.
+Die Dateien enthalten 15 Richtungszähler an acht Koordinatenpaaren und 263.160 stündliche Messzeilen. `Zaehlstelle` verknüpft Messwerte mit Standorten; 1.674 Zählwerte sind leer.
 
-## Kontakt zur verantwortlichen Stelle
+## Verwendungshinweise
 
-Kontakt und Lizenz müssen bei Stadt Linz bestätigt werden.
+`Zaehlstelle` ist der Schlüssel zwischen Messwerten und Standorten. Die 1.674 leeren Zählwerte sind als fehlende Messungen zu behandeln und dürfen nicht in Nullen umgewandelt werden. Die Dateien bilden einen historischen Datenstand ab und sind keine Live-Zählung.
 
 ## Quellen
 
-- [Official publisher directory](https://data.linz.gv.at/katalog/verkehr/radverkehr/)
-- [Hourly measurements](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Messwerte.csv)
-- [Counter CSV](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Zaehlstellen.csv)
-- [Counter GeoJSON](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Zaehlstellen.geojson)
-- [Catalog delta review](../archive/2026-07-16-catalog-delta-usability.md)
+- [Download-Verzeichnis](https://data.linz.gv.at/katalog/verkehr/radverkehr/)
+- [Stündliche Messwerte](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Messwerte.csv)
+- [Zählstellen als CSV](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Zaehlstellen.csv)
+- [Zählstellen als GeoJSON](https://data.linz.gv.at/katalog/verkehr/radverkehr/StadtLinz_Radverkehr_Zaehlstellen.geojson)

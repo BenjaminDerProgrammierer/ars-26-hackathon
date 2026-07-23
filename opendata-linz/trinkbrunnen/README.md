@@ -3,22 +3,41 @@ title: "Trinkbrunnen"
 summary: "Öffentliche Trinkwasserstellen und Zierbrunnen in Linz"
 provider: "Stadt Linz / data.linz.gv.at"
 status: "recommended"
-format: "UTF-8 CSV mit Dezimalkomma"
+format: "Kommagetrennte UTF-8-CSV-Datei mit WGS84-Koordinaten"
 license: "CC BY 4.0"
-data_vintage: "Rollierende Datei; dokumentierte Snapshots bis 2023"
+data_vintage: "Quelldatei vom 4. Juli 2023"
 ---
 
 ## Beschreibung
 
-Die Quelle unterscheidet Trinkwasserstellen (`TB`), trinkbare Zierbrunnen (`BoP`) und Zierbrunnen ohne Trinkwasser (`BmP`) und enthält Standort, Betriebsstatus, Wasseranalyse, Betriebszeit und Koordinaten. Die Koordinaten sind EPSG:31255 und müssen umprojiziert werden. Potabilität und Betrieb sind vor einer öffentlichen Nutzung aktuell zu bestätigen.
+`Trinkbrunnen.csv` enthält 132 Brunnen. Die Quelle unterscheidet unter anderem
+Trinkwasserstellen (`TB`), trinkbare Zierbrunnen (`BoP`) und Zierbrunnen ohne
+Trinkwasser (`BmP`). Sie enthält Standort, Brunnenart, Betriebsstatus,
+Wasseranalyse und Betriebszeit. Für 84 Brunnen sind Koordinaten vorhanden.
 
-## Kontakt zur verantwortlichen Stelle
+## Download
 
-Die verantwortliche Stelle ist im offiziellen Katalogeintrag angegeben.
+[Aufbereitete Datei `Trinkbrunnen.csv` herunterladen (ca. 53 KB)](/datasets/trinkbrunnen/Trinkbrunnen.csv)
+
+## Verwendungshinweise
+
+`lon` und `lat` sind für Webkarten nach WGS84 umgerechnete
+Brunnenkoordinaten. Die ursprünglichen Werte bleiben als `epsg31255_x` und
+`epsg31255_y` erhalten. In der Quelle sind die Achsen irreführend benannt: Das
+Feld mit dem Suffix `_y` enthält den Ostwert und jenes mit `_x` den Nordwert.
+Der Konverter ordnet sie korrekt zu.
+
+`in_betrieb`, `trinkwasser` und `wasseranalyse` enthalten `true`, `false` oder
+ein leeres Feld für „keine Angabe“. Ein historisch positiver Wert garantiert
+nicht, dass ein Brunnen 2026 tatsächlich in Betrieb oder trinkbar ist.
+
+Die Konvertierung ist reproduzierbar:
+
+```sh
+python3 prepare_trinkbrunnen.py
+```
 
 ## Quellen
 
-- [Official catalog](https://www.data.gv.at/katalog/datasets/ee7668cf-46bc-4246-a6fa-4adfdb52a513)
-- [Official rolling CSV](https://data.linz.gv.at/katalog/Freizeit/trinkbrunnen/Trinkbrunnen.csv)
-- [Issue #7](https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/issues/7)
-- [Original hands-on review](../archive/2026-07-13-reviews-rainer/trinkbrunnen.md)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/ee7668cf-46bc-4246-a6fa-4adfdb52a513)
+- [Aktuelle CSV-Datei](https://data.linz.gv.at/katalog/Freizeit/trinkbrunnen/Trinkbrunnen.csv)

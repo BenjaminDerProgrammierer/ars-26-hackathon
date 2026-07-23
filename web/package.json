@@ -6,10 +6,13 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "npm run sync:datasets",
     "dev": "astro dev",
+    "prebuild": "npm run sync:datasets",
     "build": "astro build",
     "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview",
+    "sync:datasets": "node scripts/sync-datasets.mjs",
     "test": "node --experimental-strip-types --test src/redeem/data.test.ts src/markdown/dataset-links.test.mjs",
     "astro": "astro",
     "format": "biome format --write .",
