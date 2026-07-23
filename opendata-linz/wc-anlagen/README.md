@@ -3,22 +3,40 @@ title: "Öffentliche WC-Anlagen"
 summary: "Standorte und Ausstattungsmerkmale öffentlicher Toiletten in Linz"
 provider: "Stadt Linz / Gebäudemanagement und Tiefbau"
 status: "recommended"
-format: "Semikolon-getrennte UTF-8 CSV"
+format: "Kommagetrennte UTF-8-CSV-Datei mit WGS84-Koordinaten"
 license: "CC BY 4.0"
-data_vintage: "Datenstand 2023; Metadaten 2024"
+data_vintage: "Datenstand 2023; Quelldatei vom 8. Juli 2024"
 ---
 
 ## Beschreibung
 
-Die Datei enthält rund 40 Anlagen mit Typ, Bezeichnung, EPSG:31255-Koordinaten, Barrierefreiheits- und Eurokey-Angaben, Öffnungszeiten, Wickeltisch, Wintersperre und Anmerkungen. Einige Felder enthalten Zeilenumbrüche in Anführungszeichen und benötigen einen echten CSV-Parser. Öffnung, Zugänglichkeit und Ausstattung sind für 2026 nicht garantiert.
+`WC-Anlagen.csv` enthält 68 öffentliche Toiletten: 41 feste Anlagen und 27
+mobile WC-Kabinen. Erfasst sind Typ, Bezeichnung, Koordinaten,
+Barrierefreiheits- und Eurokey-Angaben, Öffnungszeiten, Wickeltisch,
+Wintersperre und Anmerkungen.
 
-## Kontakt zur verantwortlichen Stelle
+## Download
 
-Die verantwortliche Stelle ist im offiziellen Katalogeintrag angegeben.
+[Aufbereitete Datei `WC-Anlagen.csv` herunterladen (ca. 10 KB)](/datasets/wc-anlagen/WC-Anlagen.csv)
+
+## Verwendungshinweise
+
+Für Webkarten sind `lon` und `lat` zu verwenden. Die ursprünglichen
+EPSG:31255-Werte bleiben erhalten. Eingebettete Zeilenumbrüche wurden zu
+Leerzeichen normalisiert. `barrierefrei`, `eurokey` und `wickeltisch` enthalten
+standardisierte Wahrheitswerte.
+
+Öffnungszeiten, Zugänglichkeit, mobile Standorte und Ausstattung sind für 2026
+nicht garantiert. Anwendungen sollten die Daten deshalb nicht als
+verbindliche aktuelle Auskunft darstellen.
+
+Die Konvertierung ist reproduzierbar:
+
+```sh
+python3 prepare_wc_anlagen.py
+```
 
 ## Quellen
 
-- [Official catalog](https://www.data.gv.at/katalog/datasets/461b3bd7-346d-4401-91d6-8009538c54a1)
-- [Official rolling CSV](https://data.linz.gv.at/katalog/Freizeit/toiletten/WC_Anlagen.csv)
-- [Hands-on source review](../archive/2026-07-13-reviews-rainer/wc-anlagen.md) (observations dated 2026-07-13)
-- [Consolidated usability report](../archive/2026-07-13-linz-open-data-hackathon-usability.md)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/461b3bd7-346d-4401-91d6-8009538c54a1)
+- [Aktuelle CSV-Datei](https://data.linz.gv.at/katalog/Freizeit/toiletten/WC_Anlagen.csv)

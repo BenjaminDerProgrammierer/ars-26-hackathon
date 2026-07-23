@@ -2,23 +2,27 @@
 title: "Herkunftsländer der Gäste"
 summary: "Ankünfte und Übernachtungen in Linz nach Herkunft und Quartal"
 provider: "Stadt Linz / data.linz.gv.at"
-status: "essential"
-format: "Semikolon-getrennte CSV, Latin-1"
+status: "recommended"
+format: "Kommagetrennte UTF-8-CSV-Datei"
 license: "CC BY 4.0"
-data_vintage: "Jahresreihe bis 2024"
+data_vintage: "2024"
 ---
 
 ## Beschreibung
 
-Die Jahresdateien enthalten Quartalswerte zu Ankünften und Übernachtungen nach Herkunftsland oder -region. Herkunftsbezeichnungen sind nicht durchgehend ISO-codiert und müssen für Länder-Verknüpfungen normalisiert werden. Die Werte beschreiben aggregierte Tourismusströme, keine einzelnen Unterkünfte oder Personen.
+Die aufbereitete Datei enthält 232 Quartalswerte zu Ankünften und Übernachtungen nach Herkunftsland oder -region im Jahr 2024. Jede Zeile beschreibt genau eine Herkunft und ein Quartal. Die Werte sind aggregierte Tourismusdaten und enthalten keine einzelnen Unterkünfte oder Personen.
 
-## Kontakt zur verantwortlichen Stelle
+## Download
 
-Die verantwortliche Stelle ist im offiziellen Katalogeintrag angegeben.
+[Aufbereitete Datei `Herkunftslaender.csv` herunterladen (ca. 15 KB)](/datasets/herkunftslaender-gaeste/Herkunftslaender.csv)
+
+## Verwendungshinweise
+
+`quartal` hat die Werte 1 bis 4. `ankuenfte` und `uebernachtungen` sind nichtnegative ganze Zahlen. Für eindeutige Länder enthält `iso2` einen zweistelligen ISO-Ländercode; bei Summen und Ländergruppen bleibt das Feld leer. Mit `herkunft_typ` können Anwendungen zwischen `land`, `gruppe` und `summe` unterscheiden. Für Ländervergleiche sollte nach `herkunft_typ = land` gefiltert werden.
+
+Die Bezeichnungen in `herkunft` bleiben unverändert aus der Quelle erhalten. Insbesondere Zeilen mit Fußnoten oder zusammengefassten Ländern dürfen nicht als einzelne Länder interpretiert werden.
 
 ## Quellen
 
-- [Official data.gv.at catalog](https://www.data.gv.at/katalog/datasets/e7b92bb8-75e4-41ac-8b78-b43e25734e0d)
-- [Official 2024 CSV](https://data.linz.gv.at/katalog/tourismus/herkunftsnationen/2024/thdg_2024.csv)
-- [Hands-on source review](../archive/2026-07-13-reviews-rainer/herkunftslaender-gaeste.md) (observations dated 2026-07-13)
-- [Consolidated usability report](../archive/2026-07-13-linz-open-data-hackathon-usability.md) (portfolio decision dated 2026-07-13)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/e7b92bb8-75e4-41ac-8b78-b43e25734e0d)
+- [CSV-Datei 2024](https://data.linz.gv.at/katalog/tourismus/herkunftsnationen/2024/thdg_2024.csv)

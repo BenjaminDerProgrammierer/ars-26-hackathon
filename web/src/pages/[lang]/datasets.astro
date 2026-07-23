@@ -34,7 +34,6 @@ const copy = {
     format: "Format",
     vintage: "Data vintage",
     open: "View dataset notes",
-    overview: "Read the review method and full verdict",
     festival: {
       eyebrow: "Start here // Official Festival dataset",
       title: "Festival 2026 Program Export",
@@ -50,16 +49,16 @@ const copy = {
     },
     status: {
       essential: {
-        heading: "Essential",
+        heading: "Essential datasets",
         label: "Use",
         description:
-          "Strong default sources that need only light normalization.",
+          "Core data and services for the default hackathon toolkit.",
       },
       recommended: {
-        heading: "Recommended",
+        heading: "Recommended datasets",
         label: "Recommended",
         description:
-          "Strong candidates that sit between essential defaults and optional sources.",
+          "Reviewed sources that are ready for clearly documented hackathon use.",
       },
       "in-progress": {
         heading: "Decision in progress",
@@ -68,10 +67,10 @@ const copy = {
           "Promising sources with metadata, licensing, or preparation still to resolve.",
       },
       optional: {
-        heading: "Optional and experimental",
+        heading: "Optional datasets",
         label: "Optional",
         description:
-          "Secondary sources for clearly scoped prototypes and showcase ideas.",
+          "Additional sources for exploratory, clearly scoped prototypes.",
       },
     },
   },
@@ -85,7 +84,6 @@ const copy = {
     format: "Format",
     vintage: "Datenstand",
     open: "Datensatzhinweise öffnen",
-    overview: "Prüfmethode und Gesamturteil lesen",
     festival: {
       eyebrow: "Hier beginnen // Offizieller Festival-Datensatz",
       title: "Festival 2026 Programm-Export",
@@ -101,16 +99,16 @@ const copy = {
     },
     status: {
       essential: {
-        heading: "Essenziell",
+        heading: "Essenzielle Datensätze",
         label: "Verwenden",
         description:
-          "Starke Standardquellen, die nur leicht normalisiert werden müssen.",
+          "Kerndaten und Dienste für das Standardangebot des Hackathons.",
       },
       recommended: {
-        heading: "Empfohlen",
+        heading: "Empfohlene Datensätze",
         label: "Empfohlen",
         description:
-          "Starke Kandidaten zwischen essenziellen Standardquellen und optionalen Quellen.",
+          "Geprüfte Quellen für klar dokumentierte Hackathon-Anwendungen.",
       },
       "in-progress": {
         heading: "Entscheidung offen",
@@ -119,19 +117,21 @@ const copy = {
           "Vielversprechende Quellen mit offenen Metadaten-, Lizenz- oder Aufbereitungsfragen.",
       },
       optional: {
-        heading: "Optional und experimentell",
+        heading: "Optionale Datensätze",
         label: "Optional",
         description:
-          "Sekundäre Quellen für klar begrenzte Prototypen und Showcase-Ideen.",
+          "Zusätzliche Quellen für explorative, klar begrenzte Prototypen.",
       },
     },
   },
 }[lang];
 
-const groups = statusOrder.map((status) => ({
-  status,
-  items: datasets.filter((dataset) => dataset.data.status === status),
-}));
+const groups = statusOrder
+  .map((status) => ({
+    status,
+    items: datasets.filter((dataset) => dataset.data.status === status),
+  }))
+  .filter(({ items }) => items.length > 0);
 
 function slugFor(id: string): string {
   return id.split("/")[0];
@@ -145,12 +145,6 @@ function slugFor(id: string): string {
       <h1>{t("nav.datasets")}</h1>
       <p class="intro">{copy.intro}</p>
       <p class="language-note">{copy.sourceLanguage}</p>
-      <a
-        class="overview-link"
-        href="https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/README.md"
-      >
-        {copy.overview} ↗
-      </a>
     </div>
   </section>
 
@@ -279,10 +273,6 @@ function slugFor(id: string): string {
     max-width: var(--width-reading);
     margin: var(--space-4) 0;
     font-size: var(--text-sm);
-  }
-
-  .overview-link {
-    font-weight: 600;
   }
 
   .group {

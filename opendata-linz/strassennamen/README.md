@@ -2,25 +2,50 @@
 title: "Straßennamen und deren Bedeutung"
 summary: "Aktuelle und historische Linzer Straßennamen mit Benennungsgeschichte"
 provider: "Stadt Linz / data.linz.gv.at"
-status: "essential"
-format: "Zwei UTF-8-CSV-Dateien mit BOM"
+status: "recommended"
+format: "Zwei kommagetrennte UTF-8-CSV-Dateien"
 license: "CC BY 4.0"
-data_vintage: "Katalogstand März 2025"
+data_vintage: "Quelldateien vom 7. März 2025"
 ---
 
 ## Beschreibung
 
-Die aktuellen und historischen Dateien umfassen rund 1.211 beziehungsweise 369 Einträge mit Name, Katastralgemeinde, Beschreibung, Benennungsdaten, Nachfolgebezeichnungen und teilweise Wikidata- sowie Personendaten. Geometrien und Koordinaten sind nicht enthalten. Adressverknüpfungen benötigen kontrollierte Namensnormalisierung und müssen historische Umbenennungen berücksichtigen.
+`Strassennamen-aktuell.csv` enthält 1.211 aktuelle Straßennamen.
+`Strassennamen-historisch.csv` enthält 364 historische Namen. Beide Dateien
+umfassen Namen, Katastralgemeinde, Beschreibung und stabile IDs sowie teilweise
+Wikidata- und Personendaten. Historische Einträge können zusätzlich einen
+heutigen Straßennamen und Angaben zum Benennungszeitraum enthalten.
 
-## Kontakt zur verantwortlichen Stelle
+Geometrien und Koordinaten sind nicht enthalten.
 
-Die verantwortliche Stelle ist im offiziellen Katalogeintrag angegeben.
+## Download
+
+- [Aktuelle Straßennamen `Strassennamen-aktuell.csv` herunterladen (ca. 476 KB)](/datasets/strassennamen/Strassennamen-aktuell.csv)
+- [Historische Straßennamen `Strassennamen-historisch.csv` herunterladen (ca. 114 KB)](/datasets/strassennamen/Strassennamen-historisch.csv)
+
+## Verwendungshinweise
+
+`id` ist innerhalb der jeweiligen Datei eindeutig; `quell_id` bewahrt die
+numerische ID der Stadt Linz. Personendaten und Wikidata-Felder sind nur für
+einen Teil der Straßen vorhanden. Datumswerte wurden auf `YYYY-MM-DD`
+vereinheitlicht. Freie historische Jahresangaben wie `um 1800` bleiben als Text
+erhalten.
+
+`benennung_code` übernimmt die Quellwerte `M`, `W`, `X` oder leer unverändert.
+Der Code sollte nicht ohne zusätzliche Quelldokumentation als vollständige
+Geschlechterklassifikation interpretiert werden. Adressverknüpfungen benötigen
+weiterhin eine kontrollierte Namensnormalisierung und müssen historische
+Umbenennungen berücksichtigen.
+
+Die Konvertierung ist reproduzierbar:
+
+```sh
+python3 prepare_strassennamen.py
+```
 
 ## Quellen
 
-- [Official data.gv.at catalog](https://www.data.gv.at/katalog/datasets/807645f0-2e80-4e24-b142-3673b108dde6)
-- [Official current-streets CSV](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-aktuell.csv)
-- [Official historical-streets CSV](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-historisch.csv)
-- [Mapping Diversity](https://mappingdiversity.eu/) (product and Linked Data reference)
-- [Hands-on source review](../archive/2026-07-13-reviews-rainer/strassennamen.md) (observations dated 2026-07-13)
-- [Consolidated usability report](../archive/2026-07-13-linz-open-data-hackathon-usability.md) (portfolio decision dated 2026-07-13)
+- [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/807645f0-2e80-4e24-b142-3673b108dde6)
+- [Aktuelle Straßennamen](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-aktuell.csv)
+- [Historische Straßennamen](https://data.linz.gv.at/katalog/stadt/strassen/Strassennamen-historisch.csv)
+- [Mapping Diversity](https://mappingdiversity.eu/)

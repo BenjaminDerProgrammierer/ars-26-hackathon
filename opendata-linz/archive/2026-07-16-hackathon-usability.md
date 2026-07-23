@@ -52,21 +52,18 @@ necessarily the date represented by the data.
 | Dataset | Decision | Hackathon role and main qualification |
 |---|---|---|
 | [Baumkataster](baumkataster/) | **USE** | Current WGS84 urban-tree inventory for venue proximity, biodiversity, and approximate crown-context projects. `BaumNr` is not unique; generate a snapshot key. |
-| [Linztermine events](linztermine-veranstaltungen/) | **USE** | City events during the festival window; join through the companion location, organizer, and tag feeds. |
-| [Linztermine locations](linztermine-orte/) | **USE** | Venue IDs and addresses for joining city and festival events. |
-| [Linztermine organizers](linztermine-veranstalterinnen/) | **USE** | Organizer identity bridge, including Ars Electronica organizer ID 7. |
+| [Linztermine](linztermine/) | **USE WITH PREPARATION** | Combined event, occurrence, location, organizer, and category snapshot for the festival window. |
 | [Street names and meanings](strassennamen/) | **USE** | Compact Wikidata-linked storytelling source joined through venue addresses. |
 | [Guest origin countries](herkunftslaender-gaeste/) | **USE** | 2024 tourism country totals joinable to festival contacts' countries; use only as aggregate context. |
 | [Playgrounds and sports facilities](spielplaetze/) | **USE** | Geocoded CSV plus repaired 2023 equipment Shapefile; suitable for family-oriented maps with a visible vintage. |
 | [LINZ AG lines and stops](linz-ag-linien-2025/) | **USE WITH PREPARATION** | Static 2025 network geometry; publish converted GeoJSON and do not imply realtime service. |
-| [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Live routing/departures require a proxy, examples, request limits, and a fallback. |
+| [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Legacy live API without an organizer-provided adapter; participants need their own backend, request limits, and fallback. |
 | [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
 | [3D city model](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use selected tiles from the indexed 2025 edition and convert them to browser-ready assets; repair and verify stale `/2022/` URLs in its index. |
 | [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Reproject the 2022 snapshot and label its age; it does not establish current availability. |
 | [Public toilets](wc-anlagen/) | **USE WITH PREPARATION** | Reproject and normalize accessibility/opening-hours attributes; verify current service status. |
 | [Drinking fountains](trinkbrunnen/) | **USE WITH PREPARATION** | Reproject EPSG:31255 coordinates and verify the rolling file's current service status. |
 | [Air and weather](luftguete-messwerte/) | **USE WITH PREPARATION** | Five working live stations; monitor failures, cache responses, and expose missing stations. |
-| [Linztermine tags](linztermine-schlagworte/) | **USE WITH PREPARATION** | Helper taxonomy bundled with Linztermine events, not a standalone track. |
 | [Defibrillators](defibrillatoren/) | **OPTIONAL** | Prototype-only 2022 safety layer; never present as operational emergency guidance. |
 | [Public Wi-Fi](hotspots/) | **OPTIONAL** | Useful venue-support layer, but locations and usage data are from 2022. |
 | [Orthophotos](orthofotos/) | **OPTIONAL** | Strong image-analysis material requiring organizer selection, tiling, storage, and web preparation. |
