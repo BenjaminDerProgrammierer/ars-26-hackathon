@@ -10,8 +10,8 @@ const lang = isLang(Astro.params.lang) ? Astro.params.lang : "en";
 const t = useTranslations(lang);
 Astro.response.headers.set("Cache-Control", "private, no-store, max-age=0");
 Astro.response.headers.set("Pragma", "no-cache");
-// Keep form POST origins usable for Astro's CSRF check without leaking URL details.
-Astro.response.headers.set("Referrer-Policy", "origin");
+// Astro's CSRF check needs the browser to send an Origin on this page's POST.
+Astro.response.headers.set("Referrer-Policy", "same-origin");
 Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
 
 let code = "";
