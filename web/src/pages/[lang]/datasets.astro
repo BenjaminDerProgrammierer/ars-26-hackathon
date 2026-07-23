@@ -13,8 +13,8 @@ const t = useTranslations(lang);
 const statusOrder = [
   "essential",
   "recommended",
-  "in-progress",
   "optional",
+  "in-progress",
 ] as const;
 
 const datasets = (await getCollection("datasets")).sort((a, b) => {
@@ -42,7 +42,7 @@ const copy = {
         "The current Negotiating Humanity program export as one JSON file: 706 projects, 360 contacts, 138 locations, and 278 calendar rows.",
       provider: "Ars Electronica",
       format: "JSON, approximately 3 MB",
-      vintage: "Export from July 20, 2026",
+      vintage: "Exports, updated regularly",
       description:
         "This is a working CMS export with bilingual program descriptions, categories, ticket requirements, contacts, venues, and calendar slots. Normalize linked IDs to their trailing hashes, read event times from the calendar side, filter internal records, and validate coordinates before spatial use.",
       download: "Download the latest export",
@@ -56,10 +56,10 @@ const copy = {
           "Strong default sources that need only light normalization.",
       },
       recommended: {
-        heading: "Recommended with preparation",
-        label: "Prepare",
+        heading: "Recommended",
+        label: "Recommended",
         description:
-          "Useful sources that need a snapshot, adapter, conversion, or fallback.",
+          "Strong candidates that sit between essential defaults and optional sources.",
       },
       "in-progress": {
         heading: "Decision in progress",
@@ -93,7 +93,7 @@ const copy = {
         "Der aktuelle Programm-Export von Negotiating Humanity als eine JSON-Datei: 706 Projekte, 360 Kontakte, 138 Orte und 278 Kalenderzeilen.",
       provider: "Ars Electronica",
       format: "JSON, etwa 3 MB",
-      vintage: "Export vom 20. Juli 2026",
+      vintage: "Exports, regemäßig aktualisiert",
       description:
         "Dies ist ein Arbeits-Export aus dem CMS mit zweisprachigen Programmbeschreibungen, Kategorien, Ticketangaben, Kontakten, Orten und Kalenderterminen. Normalisiert verknüpfte IDs auf den abschließenden Hash, lest Veranstaltungszeiten von der Kalenderseite, filtert interne Einträge und prüft Koordinaten vor räumlichen Anwendungen.",
       download: "Aktuellen Export herunterladen",
@@ -107,10 +107,10 @@ const copy = {
           "Starke Standardquellen, die nur leicht normalisiert werden müssen.",
       },
       recommended: {
-        heading: "Empfohlen mit Aufbereitung",
-        label: "Aufbereiten",
+        heading: "Empfohlen",
+        label: "Empfohlen",
         description:
-          "Nützliche Quellen, die Snapshot, Adapter, Konvertierung oder Fallback benötigen.",
+          "Starke Kandidaten zwischen essenziellen Standardquellen und optionalen Quellen.",
       },
       "in-progress": {
         heading: "Entscheidung offen",

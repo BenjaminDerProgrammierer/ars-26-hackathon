@@ -1,5 +1,5 @@
 ---
-import { loginUrl } from "../config";
+import { signUpUrl } from "../config";
 import { href, type Lang, useTranslations } from "../i18n/ui";
 
 interface Props {
@@ -43,10 +43,10 @@ function isCurrent(url: string, exact = false): boolean {
       }
     </ul>
     <a
-      class="button button--action login"
-      href={loginUrl}
+      class="button button--action sign-up"
+      href={signUpUrl}
     >
-      {t("nav.login")}
+      {t("nav.signUp")}
     </a>
   </div>
 </nav>
@@ -75,7 +75,7 @@ function isCurrent(url: string, exact = false): boolean {
     padding: 0;
   }
 
-  a:not(.login) {
+  a:not(.sign-up) {
     display: inline-block;
     padding-block: var(--space-2);
     text-decoration: none;
@@ -83,16 +83,16 @@ function isCurrent(url: string, exact = false): boolean {
     border-bottom: 3px solid transparent;
   }
 
-  a:not(.login):hover {
+  a:not(.sign-up):hover {
     border-bottom-color: var(--color-rule);
   }
 
-  a:not(.login)[aria-current="page"] {
+  a:not(.sign-up)[aria-current="page"] {
     font-weight: 700;
     border-bottom-color: var(--color-identity);
   }
 
-  .login {
+  .sign-up {
     padding: var(--space-2) var(--space-4);
   }
 </style>

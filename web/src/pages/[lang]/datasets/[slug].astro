@@ -6,8 +6,8 @@ import ProseLayout from "../../../layouts/ProseLayout.astro";
 const statusOrder = [
   "essential",
   "recommended",
-  "in-progress",
   "optional",
+  "in-progress",
 ] as const;
 type DatasetStatus = (typeof statusOrder)[number];
 
@@ -46,7 +46,7 @@ const copy = {
     source: "View source README",
     statusLabel: {
       essential: "Use",
-      recommended: "Prepare",
+      recommended: "Recommended",
       "in-progress": "Pending",
       optional: "Optional",
     },
@@ -63,7 +63,7 @@ const copy = {
     source: "Quell-README öffnen",
     statusLabel: {
       essential: "Verwenden",
-      recommended: "Aufbereiten",
+      recommended: "Empfohlen",
       "in-progress": "In Klärung",
       optional: "Optional",
     },
