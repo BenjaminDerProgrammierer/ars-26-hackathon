@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import { href, type Lang } from "../../../../i18n/ui";
 import ProseLayout from "../../../../layouts/ProseLayout.astro";
+import { rewriteDatasetLinks } from "../../../../markdown/dataset-links.mjs";
 
 export async function getStaticPaths() {
   const documents = await getCollection("datasetDocs");
@@ -21,16 +22,29 @@ export async function getStaticPaths() {
 const { entry, slug } = Astro.props;
 const lang = Astro.params.lang as Lang;
 const { Content } = await render(entry);
+const datasets = await getCollection("datasets");
+const datasetSlugs = new Set(
+  datasets.map((dataset) => dataset.id.split("/")[0]),
+);
+const renderedContent = entry.rendered?.html
+  ? rewriteDatasetLinks(
+      entry.rendered.html,
+      href(lang, "datasets"),
+      datasetSlugs,
+    )
+  : undefined;
 const datasetUrl = href(lang, `datasets/${slug}`);
-const sourceUrl =
-  `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/${slug}/API.md`;
+const sourceUrl = `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/${slug}/API.md`;
 const copy = {
   en: {
     back: "Back to dataset",
+    sourceLanguage:
+      "The authoritative API reference below is maintained in German.",
     source: "View source Markdown",
   },
   de: {
     back: "Zurück zum Datensatz",
+    sourceLanguage: "",
     source: "Quell-Markdown öffnen",
   },
 }[lang];
@@ -45,7 +59,9 @@ const copy = {
 >
   <p><a href={datasetUrl}>← {copy.back}</a></p>
 
-  <Content />
+  {lang === "en" && <p class="language-note">{copy.sourceLanguage}</p>}
+
+  {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
 
   <p><a href={sourceUrl}>{copy.source} ↗</a></p>
 </ProseLayout>
