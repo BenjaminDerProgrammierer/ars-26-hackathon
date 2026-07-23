@@ -23,7 +23,7 @@ import {
 import {
   type CreateKeyInput,
   createApiKeys,
-  deleteApiKey,
+  deleteApiKeyIfExists,
   generateRandomApiKeyNames,
   getApiKey,
   getCreditBalance,
@@ -268,7 +268,6 @@ async function startKeyUpdateOperation(hashes: string[], changes: UpdateKeyInput
             await updateRedeemAccessKey(redeemKey.code, {
               ...(Object.hasOwn(changes, "name") ? { label: `AI API key "${updated.name}"` } : {}),
               ...(Object.hasOwn(changes, "disabled") ? { enabled: !updated.disabled } : {}),
-              etag: redeemKey.etag,
             });
           }
           return updated;
@@ -289,9 +288,9 @@ async function startKeyDeleteOperation(hashes: string[]) {
       return bulkProcess(
         hashes,
         async (hash) => {
-          await deleteApiKey(hash);
+          await deleteApiKeyIfExists(hash);
           for (const redeemKey of redeemKeys.get(hash.toLocaleLowerCase()) ?? []) {
-            await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag);
+            await deleteRedeemAccessKey(redeemKey.code);
           }
           return hash;
         },
@@ -416,6 +415,13 @@ router.post("/dev-environments/redeem", async (request, response) => {
       failed.push({ name: environment.name, error: "A redeem key already exists" });
       continue;
     }
+    if (environment.provisioningState !== "Succeeded") {
+      failed.push({
+        name: environment.name,
+        error: "The environment must finish provisioning before a redeem key can be created",
+      });
+      continue;
+    }
     try {
       const redeemKey = await createRedeemAccessKey({
         label: `Development environment ${environment.name}`,
@@ -423,9 +429,16 @@ router.post("/dev-environments/redeem", async (request, response) => {
         ...(expiresAt ? { expiresAt } : {}),
       });
       try {
-        await setEnvironmentRedeemCode(environment.name, redeemKey.code);
+        await setEnvironmentRedeemCode(environment.name, redeemKey.code, environment.etag);
       } catch (error: unknown) {
-        await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag).catch(() => undefined);
+        try {
+          await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag);
+        } catch (cleanupError: unknown) {
+          throw new Error(
+            `${errorMessage(error)}. The unassociated redeem key ${redeemKey.code} could not be removed: ${errorMessage(cleanupError)}`,
+            { cause: error },
+          );
+        }
         throw error;
       }
       created.push({ name: environment.name, redeemKey });

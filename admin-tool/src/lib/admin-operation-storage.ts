@@ -42,6 +42,20 @@ export interface AdminOperationStorage {
   acquireLease(name: string): Promise<OperationLease | null>;
 }
 
+export class RecoveringWriteQueue {
+  private writes = Promise.resolve();
+
+  constructor(private readonly onError: (error: unknown) => void = () => undefined) {}
+
+  enqueue(write: () => Promise<void>): void {
+    this.writes = this.writes.catch((error: unknown) => this.onError(error)).then(write);
+  }
+
+  async drain(): Promise<void> {
+    await this.writes;
+  }
+}
+
 function statusCode(error: unknown): number | undefined {
   if (typeof error !== "object" || error === null) return undefined;
   if ("statusCode" in error && typeof error.statusCode === "number") return error.statusCode;

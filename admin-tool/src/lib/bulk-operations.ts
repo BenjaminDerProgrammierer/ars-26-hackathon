@@ -35,6 +35,8 @@ const PARTITION_KEY = "API_KEY";
 const LEASE_NAME = "api-keys";
 const retentionMs = 60 * 60 * 1000;
 const maximumOperations = 100;
+const operationResults = new Map<string, unknown>();
+const operationResultTimers = new Map<string, NodeJS.Timeout>();
 
 export class BulkOperationConflictError extends Error {
   readonly statusCode = 409;
@@ -63,7 +65,7 @@ function serialize(operation: BulkOperationRecord): AdminOperationEntity {
     startedAt: operation.startedAt ?? "",
     finishedAt: operation.finishedAt ?? "",
     error: operation.error ?? "",
-    resultJson: operation.result === undefined ? "" : JSON.stringify(operation.result),
+    resultJson: "",
     failedJson: "",
     createdNamesJson: "",
     detail: "",
@@ -84,8 +86,27 @@ function deserialize(entity: AdminOperationEntity): BulkOperationRecord {
     startedAt: entity.startedAt || null,
     finishedAt: entity.finishedAt || null,
     error: entity.error || null,
-    ...(entity.resultJson ? { result: JSON.parse(entity.resultJson) as unknown } : {}),
   };
+}
+
+function withInMemoryResult(operation: BulkOperationRecord): BulkOperationRecord {
+  const result = operationResults.get(operation.id);
+  return result === undefined ? operation : { ...operation, result };
+}
+
+function discardOperationResult(id: string): void {
+  operationResults.delete(id);
+  const timer = operationResultTimers.get(id);
+  if (timer) clearTimeout(timer);
+  operationResultTimers.delete(id);
+}
+
+function retainOperationResult(id: string, result: unknown): void {
+  discardOperationResult(id);
+  operationResults.set(id, result);
+  const timer = setTimeout(() => discardOperationResult(id), retentionMs);
+  timer.unref();
+  operationResultTimers.set(id, timer);
 }
 
 function snapshot(operation: BulkOperationRecord, includeResult = false): BulkOperation {
@@ -109,7 +130,12 @@ async function pruneOperations(operations?: BulkOperationRecord[]): Promise<void
     .filter(({ finishedAt }) => finishedAt)
     .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
     .slice(0, Math.max(0, remaining.length - maximumOperations));
-  await Promise.all([...expired, ...excess].map(({ id }) => storage.delete(PARTITION_KEY, id)));
+  await Promise.all(
+    [...expired, ...excess].map(async ({ id }) => {
+      discardOperationResult(id);
+      await storage.delete(PARTITION_KEY, id);
+    }),
+  );
 }
 
 async function reconcileAbandonedOperations(
@@ -122,13 +148,22 @@ async function reconcileAbandonedOperations(
   if (!lease) return operations;
   try {
     const finishedAt = new Date().toISOString();
-    for (const operation of active) {
-      operation.status = "failed";
-      operation.error = "The server stopped before the operation finished";
-      operation.finishedAt = finishedAt;
-      await storage.replace(serialize(operation));
+    const byId = new Map(operations.map((operation) => [operation.id, operation]));
+    for (const staleOperation of active) {
+      const currentEntity = await storage.get(PARTITION_KEY, staleOperation.id);
+      if (!currentEntity) continue;
+      const current = deserialize(currentEntity);
+      if (isTerminal(current)) {
+        byId.set(current.id, current);
+        continue;
+      }
+      current.status = "failed";
+      current.error = "The server stopped before the operation finished";
+      current.finishedAt = finishedAt;
+      await storage.replace(serialize(current));
+      byId.set(current.id, current);
     }
-    return operations;
+    return [...byId.values()];
   } finally {
     await lease.release();
   }
@@ -141,14 +176,14 @@ export async function listBulkOperations(): Promise<BulkOperation[]> {
   await pruneOperations(operations);
   return operations
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-    .map((operation) => snapshot(operation));
+    .map((operation) => snapshot(withInMemoryResult(operation)));
 }
 
 export async function getBulkOperation(id: string): Promise<BulkOperation | undefined> {
   const entity = await getAdminOperationStorage().get(PARTITION_KEY, id);
   if (!entity) return undefined;
   const [operation] = await reconcileAbandonedOperations([deserialize(entity)]);
-  return operation ? snapshot(operation, true) : undefined;
+  return operation ? snapshot(withInMemoryResult(operation), true) : undefined;
 }
 
 export async function hasActiveBulkOperations(): Promise<boolean> {
@@ -164,7 +199,12 @@ export async function clearCompletedBulkOperations(): Promise<number> {
     (await storage.list(PARTITION_KEY)).map(deserialize),
   );
   const completed = operations.filter(isTerminal);
-  await Promise.all(completed.map(({ id }) => storage.delete(PARTITION_KEY, id)));
+  await Promise.all(
+    completed.map(async ({ id }) => {
+      discardOperationResult(id);
+      await storage.delete(PARTITION_KEY, id);
+    }),
+  );
   return completed.length;
 }
 
@@ -191,6 +231,7 @@ async function runOperation(
       persist();
     };
     operation.result = await run(reportProgress);
+    retainOperationResult(operation.id, operation.result);
     lease.assertActive();
     operation.status = operation.failed > 0 ? "partial" : "completed";
   } catch (error: unknown) {
