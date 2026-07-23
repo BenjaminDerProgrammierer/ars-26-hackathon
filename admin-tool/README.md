@@ -62,11 +62,12 @@ the optional `AZURE_SUBSCRIPTION_*`, `AZURE_TENANT_ID`, and
 - Show the guardrail's available model count and allowed model details.
 
 Bulk-operation records are retained for one hour, up to 100 records. Completed
-bulk-creation records retain their plaintext keys for that window so they can be
-viewed after a page or server reload. A renewable 60-second blob lease prevents
-concurrent API-key operations across server replicas. If a server stops during
-an operation, its lease expires and the abandoned record is marked failed when
-the dashboard next reads it.
+bulk-creation secrets remain only in the process that created them, so they can
+be viewed after a page reload without writing plaintext API keys to Azure Table
+Storage. Restarting that process intentionally discards unrevealed secrets. A
+renewable 60-second blob lease prevents concurrent API-key operations across
+server replicas. If a server stops during an operation, its lease expires and
+the abandoned record is marked failed when the dashboard next reads it.
 
 ## Redeem access manager capabilities
 

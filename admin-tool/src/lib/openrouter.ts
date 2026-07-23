@@ -77,6 +77,13 @@ function getClient(): OpenRouter {
   return client;
 }
 
+function statusCode(error: unknown): number | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  if ("statusCode" in error && typeof error.statusCode === "number") return error.statusCode;
+  if ("status" in error && typeof error.status === "number") return error.status;
+  return undefined;
+}
+
 function humanizeModelId(id: string): string {
   const modelName = id.slice(id.indexOf("/") + 1).replace(/-\d{8}$/, "");
   return modelName
@@ -261,4 +268,12 @@ export async function deleteApiKey(hash: string): Promise<void> {
   const openRouter = getClient();
   await getApiKey(hash);
   await openRouter.apiKeys.delete({ hash });
+}
+
+export async function deleteApiKeyIfExists(hash: string): Promise<void> {
+  try {
+    await deleteApiKey(hash);
+  } catch (error: unknown) {
+    if (statusCode(error) !== 404) throw error;
+  }
 }

@@ -13,8 +13,10 @@ import {
   type AdminOperationEntity,
   getAdminOperationStorage,
   type OperationLease,
+  RecoveringWriteQueue,
 } from "./admin-operation-storage.js";
-import { createApiKeys, deleteApiKey } from "./openrouter.js";
+import { createApiKeys, deleteApiKeyIfExists } from "./openrouter.js";
+import { deleteRedeemAccessKey } from "./redeem-access.js";
 
 const LOCATION = "austriaeast";
 const RESOURCE_GROUP = "ArsElectronicaHackathon";
@@ -102,13 +104,19 @@ export class EnvironmentOperationConflictError extends Error {
   readonly statusCode = 409;
 }
 
+export class EnvironmentRedeemConflictError extends Error {
+  readonly statusCode = 409;
+}
+
 let credential: DefaultAzureCredential | undefined;
 let computeClient: ComputeManagementClient | undefined;
 let networkClient: NetworkManagementClient | undefined;
 let tableClient: TableClient | undefined;
 let tableReady: Promise<void> | undefined;
 let activeOperation: EnvironmentOperation | null = null;
-let operationWrites = Promise.resolve();
+let operationWrites = new RecoveringWriteQueue((error) => {
+  console.error("Failed to persist an intermediate development environment update:", error);
+});
 
 function serializeOperation(operation: EnvironmentOperation): AdminOperationEntity {
   return {
@@ -154,7 +162,7 @@ function deserializeOperation(entity: AdminOperationEntity): EnvironmentOperatio
 function persistActiveOperation(): void {
   if (!activeOperation) return;
   const entity = serializeOperation(activeOperation);
-  operationWrites = operationWrites.then(() => getAdminOperationStorage().replace(entity));
+  operationWrites.enqueue(() => getAdminOperationStorage().replace(entity));
 }
 
 function setOperationDetail(detail: string): void {
@@ -266,8 +274,10 @@ function errorMessage(error: unknown): string {
 }
 
 function azureStatus(error: unknown): number | undefined {
-  if (!error || typeof error !== "object" || !("statusCode" in error)) return undefined;
-  return typeof error.statusCode === "number" ? error.statusCode : undefined;
+  if (!error || typeof error !== "object") return undefined;
+  if ("statusCode" in error && typeof error.statusCode === "number") return error.statusCode;
+  if ("status" in error && typeof error.status === "number") return error.status;
+  return undefined;
 }
 
 function generatePassword(length = 16): string {
@@ -397,6 +407,33 @@ export function developmentEnvironmentDeploymentParameters(input: {
   };
 }
 
+export function developmentEnvironmentDeploymentArguments(
+  input: {
+    name: string;
+    parameterFile: string;
+  },
+  subscriptionId: string,
+): string[] {
+  return [
+    "deployment",
+    "group",
+    "create",
+    "--name",
+    `vm-${input.name}`,
+    "--resource-group",
+    RESOURCE_GROUP,
+    "--subscription",
+    subscriptionId,
+    "--template-file",
+    DEVELOPMENT_ENVIRONMENT_TEMPLATE,
+    "--parameters",
+    `@${input.parameterFile}`,
+    "--only-show-errors",
+    "--output",
+    "none",
+  ];
+}
+
 async function deployDevelopmentEnvironment(input: {
   name: string;
   password: string;
@@ -418,22 +455,10 @@ async function deployDevelopmentEnvironment(input: {
     );
     await execFileAsync(
       "az",
-      [
-        "deployment",
-        "group",
-        "create",
-        "--name",
-        `vm-${input.name}`,
-        "--resource-group",
-        RESOURCE_GROUP,
-        "--template-file",
-        DEVELOPMENT_ENVIRONMENT_TEMPLATE,
-        "--parameters",
-        `@${parameterFile}`,
-        "--only-show-errors",
-        "--output",
-        "none",
-      ],
+      developmentEnvironmentDeploymentArguments(
+        { name: input.name, parameterFile },
+        requiredEnvironment("AZURE_SUBSCRIPTION_ID"),
+      ),
       { maxBuffer: 4 * 1024 * 1024 },
     );
   } finally {
@@ -503,7 +528,6 @@ async function provisionEnvironment(
   apiKey: string,
   openRouterKeyHash: string,
 ): Promise<DevEnvironment> {
-  await runOperationStage("Preparing the development environment login table", ensureTable);
   const subnetId = developmentEnvironmentSubnetId();
   const publicHost = `${name}.${LOCATION}.cloudapp.azure.com`;
   const provisioningCommand = await renderProvisioningCommand(input, password, publicHost, apiKey);
@@ -559,6 +583,114 @@ async function provisionEnvironment(
   );
 }
 
+function provisionalEnvironmentEntity(input: {
+  ordinal: number;
+  name: string;
+  password: string;
+  openRouterKeyHash: string;
+}): {
+  partitionKey: string;
+  rowKey: string;
+} & EnvironmentProperties {
+  const publicHost = `${input.name}.${LOCATION}.cloudapp.azure.com`;
+  const codeServerUrl = `https://${publicHost}/`;
+  const devUrl = `http://${publicHost}:8080/`;
+  const now = new Date();
+  return {
+    partitionKey: TABLE_PARTITION,
+    rowKey: input.name,
+    ordinal: input.ordinal,
+    codeServerUrl,
+    codeServerPassword: input.password,
+    devUrl,
+    publicHost,
+    sshHost: publicHost,
+    sshUser: ADMIN_USERNAME,
+    sshPassword: input.password,
+    status: "Creating",
+    provisioningState: "Deploying",
+    image: "Ubuntu 24.04 LTS",
+    loginText: formatStudentLoginText({
+      ordinal: input.ordinal,
+      name: input.name,
+      codeServerUrl,
+      password: input.password,
+      devUrl,
+      sshHost: publicHost,
+    }),
+    openRouterKeyHash: input.openRouterKeyHash,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+async function deleteEnvironmentTableEntity(name: string): Promise<void> {
+  try {
+    await getTableClient().deleteEntity(TABLE_PARTITION, name, { etag: "*" });
+  } catch (error: unknown) {
+    if (azureStatus(error) !== 404) throw error;
+  }
+}
+
+async function deleteAzureEnvironmentResources(name: string): Promise<string[]> {
+  const failures: string[] = [];
+  const resources: Array<[string, () => Promise<unknown>]> = [
+    [
+      "virtual machine",
+      () => getComputeClient().virtualMachines.beginDeleteAndWait(RESOURCE_GROUP, name),
+    ],
+    [
+      "network interface",
+      () => getNetworkClient().networkInterfaces.beginDeleteAndWait(RESOURCE_GROUP, `${name}-nic`),
+    ],
+    [
+      "public IP",
+      () => getNetworkClient().publicIPAddresses.beginDeleteAndWait(RESOURCE_GROUP, `${name}-pip`),
+    ],
+    [
+      "OS disk",
+      () => getComputeClient().disks.beginDeleteAndWait(RESOURCE_GROUP, `${name}-osdisk`),
+    ],
+  ];
+
+  for (const [kind, remove] of resources) {
+    setOperationDetail(`Deleting the ${kind} for ${name}`);
+    try {
+      await remove();
+    } catch (error: unknown) {
+      if (azureStatus(error) !== 404) {
+        failures.push(`Failed to delete ${kind} for ${name}: ${errorMessage(error)}`);
+      }
+    }
+  }
+  return failures;
+}
+
+async function recordCleanupRequired(name: string, error: string): Promise<void> {
+  try {
+    await getTableClient().updateEntity(
+      {
+        partitionKey: TABLE_PARTITION,
+        rowKey: name,
+        status: "Cleanup required",
+        provisioningState: "Failed",
+        updatedAt: new Date(),
+      },
+      "Merge",
+      { etag: "*" },
+    );
+  } catch (updateError: unknown) {
+    if (azureStatus(updateError) !== 404) {
+      throw new Error(
+        `${error}. Failed to preserve the cleanup record: ${errorMessage(updateError)}`,
+        {
+          cause: updateError,
+        },
+      );
+    }
+  }
+}
+
 async function createEnvironment(
   input: StartDeploymentInput,
   ordinal: number,
@@ -578,6 +710,17 @@ async function createEnvironment(
   if (!openRouterKey) throw new Error(`OpenRouter did not return an API key for ${name}`);
 
   try {
+    await runOperationStage("Preparing the development environment login table", ensureTable);
+    await runOperationStage(`Saving a provisional login record for ${name}`, () =>
+      getTableClient().createEntity(
+        provisionalEnvironmentEntity({
+          ordinal,
+          name,
+          password,
+          openRouterKeyHash: openRouterKey.data.hash,
+        }),
+      ),
+    );
     return await provisionEnvironment(
       input,
       ordinal,
@@ -587,13 +730,27 @@ async function createEnvironment(
       openRouterKey.data.hash,
     );
   } catch (error: unknown) {
+    const cleanupFailures = await deleteAzureEnvironmentResources(name);
     try {
-      await deleteApiKey(openRouterKey.data.hash);
+      await deleteApiKeyIfExists(openRouterKey.data.hash);
     } catch (cleanupError: unknown) {
-      throw new Error(
-        `${errorMessage(error)}. The unused OpenRouter key could not be removed: ${errorMessage(cleanupError)}`,
-        { cause: error },
+      cleanupFailures.push(
+        `The unused OpenRouter key could not be removed: ${errorMessage(cleanupError)}`,
       );
+    }
+    if (cleanupFailures.length === 0) {
+      try {
+        await deleteEnvironmentTableEntity(name);
+      } catch (cleanupError: unknown) {
+        cleanupFailures.push(
+          `The provisional login could not be removed: ${errorMessage(cleanupError)}`,
+        );
+      }
+    }
+    if (cleanupFailures.length > 0) {
+      const cleanupMessage = `${errorMessage(error)}. ${cleanupFailures.join(". ")}`;
+      await recordCleanupRequired(name, cleanupMessage);
+      throw new Error(cleanupMessage, { cause: error });
     }
     throw error;
   }
@@ -672,18 +829,31 @@ export async function getDevEnvironments(names: string[]): Promise<DevEnvironmen
   );
 }
 
-export async function setEnvironmentRedeemCode(name: string, code: string): Promise<void> {
+export async function setEnvironmentRedeemCode(
+  name: string,
+  code: string,
+  etag: string,
+): Promise<void> {
   await ensureTable();
-  await getTableClient().updateEntity(
-    {
-      partitionKey: TABLE_PARTITION,
-      rowKey: name,
-      redeemCode: code,
-      updatedAt: new Date(),
-    },
-    "Merge",
-    { etag: "*" },
-  );
+  try {
+    await getTableClient().updateEntity(
+      {
+        partitionKey: TABLE_PARTITION,
+        rowKey: name,
+        redeemCode: code,
+        updatedAt: new Date(),
+      },
+      "Merge",
+      { etag },
+    );
+  } catch (error: unknown) {
+    if (azureStatus(error) === 412) {
+      throw new EnvironmentRedeemConflictError(
+        `Development environment ${name} changed while its redeem key was being created`,
+      );
+    }
+    throw error;
+  }
 }
 
 async function runEnvironmentAction(name: string, action: EnvironmentBulkAction): Promise<null> {
@@ -719,38 +889,33 @@ async function runEnvironmentAction(name: string, action: EnvironmentBulkAction)
     TABLE_PARTITION,
     name,
   );
-  setOperationDetail(`Deleting the virtual machine ${name}`);
-  try {
-    await virtualMachines.beginDeleteAndWait(RESOURCE_GROUP, name);
-  } catch (error: unknown) {
-    if (azureStatus(error) !== 404) throw error;
-  }
-  for (const [kind, deleteResource] of [
-    [
-      "network interface",
-      () => getNetworkClient().networkInterfaces.beginDeleteAndWait(RESOURCE_GROUP, `${name}-nic`),
-    ],
-    [
-      "public IP",
-      () => getNetworkClient().publicIPAddresses.beginDeleteAndWait(RESOURCE_GROUP, `${name}-pip`),
-    ],
-  ] as const) {
+  const failures = await deleteAzureEnvironmentResources(name);
+
+  if (environmentEntity.openRouterKeyHash) {
     try {
-      await deleteResource();
+      await deleteApiKeyIfExists(environmentEntity.openRouterKeyHash);
+    } catch (error: unknown) {
+      failures.push(`Failed to delete the OpenRouter key for ${name}: ${errorMessage(error)}`);
+    }
+  }
+  if (environmentEntity.redeemCode) {
+    try {
+      await deleteRedeemAccessKey(environmentEntity.redeemCode);
     } catch (error: unknown) {
       if (azureStatus(error) !== 404) {
-        throw new Error(`Failed to delete ${kind} for ${name}: ${errorMessage(error)}`);
+        failures.push(`Failed to delete the redeem key for ${name}: ${errorMessage(error)}`);
       }
     }
   }
-  if (environmentEntity.openRouterKeyHash) {
-    try {
-      await deleteApiKey(environmentEntity.openRouterKeyHash);
-    } catch (error: unknown) {
-      if (azureStatus(error) !== 404) throw error;
-    }
+  if (failures.length > 0) {
+    throw new Error(failures.join(". "));
   }
-  await getTableClient().deleteEntity(TABLE_PARTITION, name);
+
+  try {
+    await getTableClient().deleteEntity(TABLE_PARTITION, name, { etag: "*" });
+  } catch (error: unknown) {
+    if (azureStatus(error) !== 404) throw error;
+  }
   return null;
 }
 
@@ -776,7 +941,9 @@ async function latestStoredOperation(): Promise<EnvironmentOperation | null> {
   if (!lease) return latest;
   try {
     await markOperationsInterrupted(running);
-    return latest ?? null;
+    if (!latest) return null;
+    const current = await getAdminOperationStorage().get(OPERATION_PARTITION, latest.id);
+    return current ? deserializeOperation(current) : null;
   } finally {
     await lease.release();
   }
@@ -792,11 +959,15 @@ export async function clearCompletedDevEnvironmentOperations(): Promise<number> 
 
 async function markOperationsInterrupted(operations: EnvironmentOperation[]): Promise<void> {
   for (const operation of operations) {
-    operation.status = "failed";
-    operation.detail = "The server stopped before the operation finished";
-    operation.failed.push({ name: "operation", error: operation.detail });
-    operation.finishedAt = new Date().toISOString();
-    await getAdminOperationStorage().replace(serializeOperation(operation));
+    const currentEntity = await getAdminOperationStorage().get(OPERATION_PARTITION, operation.id);
+    if (!currentEntity) continue;
+    const current = deserializeOperation(currentEntity);
+    if (current.status !== "running") continue;
+    current.status = "failed";
+    current.detail = "The server stopped before the operation finished";
+    current.failed.push({ name: "operation", error: current.detail });
+    current.finishedAt = new Date().toISOString();
+    await getAdminOperationStorage().replace(serializeOperation(current));
   }
 }
 
@@ -844,6 +1015,9 @@ async function startOperation(
       .map(deserializeOperation)
       .filter(({ status }) => status === "running");
     await markOperationsInterrupted(abandoned);
+    operationWrites = new RecoveringWriteQueue((error) => {
+      console.error("Failed to persist an intermediate development environment update:", error);
+    });
     activeOperation = {
       id: randomUUID(),
       kind,
@@ -891,10 +1065,19 @@ async function startOperation(
           persistActiveOperation();
         }
         try {
-          await operationWrites;
+          await operationWrites.drain().catch((error: unknown) => {
+            console.error(
+              "Failed to persist the queued final environment operation update:",
+              error,
+            );
+          });
+          if (activeOperation) {
+            await getAdminOperationStorage().replace(serializeOperation(activeOperation));
+          }
         } finally {
           await lease.release();
           activeOperation = null;
+          operationWrites = new RecoveringWriteQueue();
         }
       }
     })().catch((error: unknown) => {

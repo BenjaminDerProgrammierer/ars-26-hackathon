@@ -1,14 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { TableClient, TableServiceClient } from "@azure/data-tables";
 import {
   type AdminOperationEntity,
   type AdminOperationStorage,
+  RecoveringWriteQueue,
   setAdminOperationStorageForTests,
 } from "../src/lib/admin-operation-storage.js";
 import {
   clearCompletedDevEnvironmentOperations,
+  developmentEnvironmentDeploymentArguments,
   developmentEnvironmentDeploymentParameters,
+  EnvironmentRedeemConflictError,
   formatStudentLoginText,
+  setEnvironmentRedeemCode,
   validateBulkAction,
   validateEnvironmentNames,
   validateStartDeploymentInput,
@@ -59,6 +64,27 @@ test("maps a development environment to Bicep deployment parameters", () => {
       },
     },
   );
+});
+
+test("pins Azure CLI deployments to the configured subscription", () => {
+  const args = developmentEnvironmentDeploymentArguments(
+    {
+      name: "vcenv-example-1",
+      parameterFile: "/tmp/parameters.json",
+    },
+    "subscription-id",
+  );
+  assert.deepEqual(args.slice(0, 9), [
+    "deployment",
+    "group",
+    "create",
+    "--name",
+    "vm-vcenv-example-1",
+    "--resource-group",
+    "ArsElectronicaHackathon",
+    "--subscription",
+    "subscription-id",
+  ]);
 });
 
 test("validates Azure virtual machine creation options", () => {
@@ -130,6 +156,43 @@ test("validates environment bulk actions", () => {
   ]);
   assert.equal(validateBulkAction("stop"), "stop");
   assert.throws(() => validateBulkAction("restart"), /start, stop, or delete/);
+});
+
+test("uses optimistic concurrency when associating an environment redeem key", async (context) => {
+  const previousAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  context.after(() => {
+    if (previousAccountName === undefined) delete process.env.AZURE_STORAGE_ACCOUNT_NAME;
+    else process.env.AZURE_STORAGE_ACCOUNT_NAME = previousAccountName;
+  });
+  process.env.AZURE_STORAGE_ACCOUNT_NAME = "testaccount";
+  context.mock.method(TableServiceClient.prototype, "createTable", async () => undefined);
+  const updates: unknown[] = [];
+  context.mock.method(TableClient.prototype, "updateEntity", async (...args: unknown[]) => {
+    updates.push(args);
+    throw Object.assign(new Error("precondition failed"), { statusCode: 412 });
+  });
+
+  await assert.rejects(
+    setEnvironmentRedeemCode("vcenv-example-1", "ABCD-EFGH-2345", 'W/"etag"'),
+    EnvironmentRedeemConflictError,
+  );
+  assert.deepEqual((updates[0] as unknown[])[2], { etag: 'W/"etag"' });
+});
+
+test("continues queued persistence after a transient write failure", async () => {
+  const errors: unknown[] = [];
+  const writes: string[] = [];
+  const queue = new RecoveringWriteQueue((error) => errors.push(error));
+  queue.enqueue(async () => {
+    throw new Error("temporary table failure");
+  });
+  queue.enqueue(async () => {
+    writes.push("final state");
+  });
+
+  await queue.drain();
+  assert.equal(errors.length, 1);
+  assert.deepEqual(writes, ["final state"]);
 });
 
 test("clears completed development environment operations and keeps running ones", async () => {

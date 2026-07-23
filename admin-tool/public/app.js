@@ -16,6 +16,7 @@ const state = {
   environmentOperation: null,
   environmentConfigured: false,
   environmentModel: null,
+  environmentRedeemPending: new Set(),
 };
 const LOCALE = "de-AT";
 
@@ -23,6 +24,9 @@ let operationsLoading = false;
 let operationsPollTimer;
 let environmentPollTimer;
 let confirmResolver = null;
+let environmentStateRevision = 0;
+let environmentLoadSequence = 0;
+let lastAppliedEnvironmentLoad = 0;
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -43,6 +47,18 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function safeEnvironmentUrl(value, environment, allowedProtocols) {
+  try {
+    const url = new URL(value);
+    if (!allowedProtocols.includes(url.protocol) || url.hostname !== environment.publicHost) {
+      return null;
+    }
+    return url.href;
+  } catch {
+    return null;
+  }
 }
 
 async function api(path, options = {}) {
@@ -226,6 +242,11 @@ function renderOperations() {
       const progressLabel = isOperationActive(operation)
         ? `${operation.processed}/${operation.total}`
         : `${operation.succeeded}/${operation.total} succeeded`;
+      const canReveal =
+        operation.kind === "create" &&
+        operation.status === "completed" &&
+        operation.hasResult &&
+        !state.revealedCreateOperations.has(operation.id);
       return `
       <div class="operation-row ${escapeHtml(operation.status)}">
         <div class="operation-label">
@@ -237,6 +258,7 @@ function renderOperations() {
           <span>${progressLabel}</span>
         </div>
         <div class="operation-actions">
+          ${canReveal ? `<button class="operation-view reveal-operation" type="button" data-operation-id="${escapeHtml(operation.id)}"><i data-lucide="eye" aria-hidden="true"></i>Reveal keys</button>` : ""}
           <span class="operation-state ${escapeHtml(operation.status)}">${statusLabels[operation.status] ?? escapeHtml(operation.status)}</span>
         </div>
       </div>`;
@@ -261,6 +283,19 @@ async function revealCreateOperation(id) {
     showSecrets(created);
   }
 }
+
+$("#operations-list").addEventListener("click", async (event) => {
+  const button = event.target.closest(".reveal-operation");
+  if (!button) return;
+  button.disabled = true;
+  try {
+    await revealCreateOperation(button.dataset.operationId);
+    renderOperations();
+  } catch (error) {
+    button.disabled = false;
+    showToast(error.message, true);
+  }
+});
 
 async function loadOperations() {
   if (operationsLoading) return;
@@ -517,7 +552,9 @@ function renderEnvironmentSelection() {
   $("#environment-select-all").indeterminate =
     selectedVisible.length > 0 && selectedVisible.length < visible.length;
   const selected = state.environments.filter(({ name }) => state.environmentSelected.has(name));
-  $("#environment-bulk-redeem").disabled = selected.every(({ redeemCode }) => redeemCode);
+  $("#environment-bulk-redeem").disabled =
+    selected.every(({ redeemCode }) => redeemCode) ||
+    selected.some(({ name }) => state.environmentRedeemPending.has(name));
 }
 
 function environmentStatusClass(status) {
@@ -534,19 +571,22 @@ function renderEnvironments() {
   $("#environment-empty-state").hidden = environments.length > 0;
   $("#environment-table-wrap").hidden = environments.length === 0;
   $("#environment-body").innerHTML = environments
-    .map(
-      (environment) => `
+    .map((environment) => {
+      const codeServerUrl = safeEnvironmentUrl(environment.codeServerUrl, environment, ["https:"]);
+      const devUrl = safeEnvironmentUrl(environment.devUrl, environment, ["http:", "https:"]);
+      const redeemPending = state.environmentRedeemPending.has(environment.name);
+      return `
       <tr class="${state.environmentSelected.has(environment.name) ? "selected" : ""}" data-name="${escapeHtml(environment.name)}">
         <td class="checkbox-cell"><input class="environment-checkbox" type="checkbox" aria-label="Select ${escapeHtml(environment.name)}" ${state.environmentSelected.has(environment.name) ? "checked" : ""}></td>
         <td><span class="key-name" title="${escapeHtml(environment.name)}">${escapeHtml(environment.name)}</span><span class="key-hash">${escapeHtml(environment.publicHost)}</span></td>
-        <td><a href="${escapeHtml(environment.codeServerUrl)}" target="_blank" rel="noreferrer">Open Code Server</a><button class="inline-copy copy-environment-password" type="button"><i data-lucide="copy" aria-hidden="true"></i>Copy password</button></td>
-        <td><a href="${escapeHtml(environment.devUrl)}" target="_blank" rel="noreferrer">Open app</a></td>
+        <td>${codeServerUrl ? `<a href="${escapeHtml(codeServerUrl)}" target="_blank" rel="noreferrer">Open Code Server</a>` : "<span>Unavailable</span>"}<button class="inline-copy copy-environment-password" type="button"><i data-lucide="copy" aria-hidden="true"></i>Copy password</button></td>
+        <td>${devUrl ? `<a href="${escapeHtml(devUrl)}" target="_blank" rel="noreferrer">Open app</a>` : "<span>Unavailable</span>"}</td>
         <td>${formatDate(environment.createdAt)}</td>
         <td><span class="badge ${environmentStatusClass(environment.status)}">${escapeHtml(environment.status)}</span><span class="key-hash">${escapeHtml(environment.provisioningState)}</span></td>
-        <td>${environment.redeemCode ? `<button class="inline-copy copy-environment-redeem" type="button"><i data-lucide="copy" aria-hidden="true"></i>${escapeHtml(environment.redeemCode)}</button>` : `<button class="row-action add-environment-redeem" type="button"><i data-lucide="ticket-plus" aria-hidden="true"></i>Add key</button>`}</td>
+        <td>${environment.redeemCode ? `<button class="inline-copy copy-environment-redeem" type="button"><i data-lucide="copy" aria-hidden="true"></i>${escapeHtml(environment.redeemCode)}</button>` : `<button class="row-action add-environment-redeem" type="button" ${redeemPending ? "disabled" : ""}><i data-lucide="ticket-plus" aria-hidden="true"></i>${redeemPending ? "Adding…" : "Add key"}</button>`}</td>
         <td><div class="row-actions"><button class="row-action start-environment" type="button"><i data-lucide="play" aria-hidden="true"></i>Start</button><button class="row-action stop-environment" type="button"><i data-lucide="square" aria-hidden="true"></i>Stop</button><button class="row-action delete-environment" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Delete</button></div></td>
-      </tr>`,
-    )
+      </tr>`;
+    })
     .join("");
   renderIcons($("#environment-body"));
   renderEnvironmentMetrics();
@@ -555,10 +595,13 @@ function renderEnvironments() {
   document
     .querySelectorAll("#environment-body button, #environment-bulk-bar button")
     .forEach((button) => {
-      button.disabled = locked;
+      button.disabled ||= locked;
     });
   const selected = state.environments.filter(({ name }) => state.environmentSelected.has(name));
-  $("#environment-bulk-redeem").disabled = locked || selected.every(({ redeemCode }) => redeemCode);
+  $("#environment-bulk-redeem").disabled =
+    locked ||
+    selected.every(({ redeemCode }) => redeemCode) ||
+    selected.some(({ name }) => state.environmentRedeemPending.has(name));
   $("#create-environments-button").disabled = !state.environmentConfigured || locked;
 }
 
@@ -611,7 +654,16 @@ function renderEnvironmentOperation() {
 }
 
 async function loadEnvironmentStatus(refreshStates = false) {
+  const requestSequence = ++environmentLoadSequence;
+  const requestRevision = environmentStateRevision;
   const payload = await api(`/api/dev-environments/status${refreshStates ? "?refresh=true" : ""}`);
+  if (
+    requestRevision !== environmentStateRevision ||
+    requestSequence < lastAppliedEnvironmentLoad
+  ) {
+    return;
+  }
+  lastAppliedEnvironmentLoad = requestSequence;
   state.environmentOperation = payload.operation;
   state.environmentConfigured = payload.configured && Boolean(payload.model);
   state.environments = payload.environments;
@@ -752,6 +804,7 @@ $("#environment-create-form").addEventListener("submit", async (event) => {
           : null,
       }),
     });
+    environmentStateRevision += 1;
     state.environmentOperation = payload.operation;
     form.reset();
     $("#environment-count").value = "2";
@@ -767,17 +820,24 @@ $("#environment-create-form").addEventListener("submit", async (event) => {
 
 async function createEnvironmentRedeemKeys(names) {
   const environments = state.environments.filter(
-    (environment) => names.includes(environment.name) && !environment.redeemCode,
+    (environment) =>
+      names.includes(environment.name) &&
+      !environment.redeemCode &&
+      !state.environmentRedeemPending.has(environment.name),
   );
   if (environments.length === 0) {
     showToast("Every selected environment already has a redeem key", true);
     return;
   }
+  const pendingNames = environments.map(({ name }) => name);
+  for (const name of pendingNames) state.environmentRedeemPending.add(name);
+  renderEnvironments();
   try {
     const payload = await api("/api/dev-environments/redeem", {
       method: "POST",
-      body: JSON.stringify({ names: environments.map(({ name }) => name) }),
+      body: JSON.stringify({ names: pendingNames }),
     });
+    environmentStateRevision += 1;
     await loadEnvironmentStatus();
     showToast(
       payload.failed.length === 0
@@ -787,6 +847,9 @@ async function createEnvironmentRedeemKeys(names) {
     );
   } catch (error) {
     showToast(error.message, true);
+  } finally {
+    for (const name of pendingNames) state.environmentRedeemPending.delete(name);
+    renderEnvironments();
   }
 }
 
@@ -806,6 +869,7 @@ async function startEnvironmentBulkAction(action, names = [...state.environmentS
       method: "POST",
       body: JSON.stringify({ names, action }),
     });
+    environmentStateRevision += 1;
     state.environmentOperation = payload.operation;
     state.environmentSelected.clear();
     renderEnvironmentOperation();

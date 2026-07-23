@@ -103,6 +103,7 @@ test("tracks a completed operation and only reveals its result by id", async () 
   assert.equal(completed.processed, 2);
   assert.equal(completed.succeeded, 2);
   assert.deepEqual(completed.result, { updated: 2 });
+  assert.equal(storage.entities.get(`API_KEY/${operation.id}`)?.resultJson, "");
 
   const listed = (await listBulkOperations()).find(({ id }) => id === operation.id);
   assert.ok(listed);
@@ -204,4 +205,41 @@ test("marks a persisted running operation as failed after its lease expires", as
   const operation = await getBulkOperation(operationId);
   assert.equal(operation?.status, "failed");
   assert.match(operation?.error ?? "", /server stopped/);
+});
+
+test("re-reads an operation after acquiring its recovery lease", async () => {
+  const operationId = "00000000-0000-4000-8000-000000000002";
+  const entity: AdminOperationEntity = {
+    partitionKey: "API_KEY",
+    rowKey: operationId,
+    kind: "update",
+    label: "Finishing operation",
+    status: "running",
+    total: 1,
+    processed: 0,
+    succeeded: 0,
+    failedCount: 0,
+    createdAt: new Date().toISOString(),
+    startedAt: new Date().toISOString(),
+    finishedAt: "",
+    error: "",
+    resultJson: "",
+    failedJson: "",
+    createdNamesJson: "",
+    detail: "",
+  };
+  await storage.create(entity);
+  const acquireLease = storage.acquireLease.bind(storage);
+  storage.acquireLease = async (name) => {
+    entity.status = "completed";
+    entity.processed = 1;
+    entity.succeeded = 1;
+    entity.finishedAt = new Date().toISOString();
+    await storage.replace(entity);
+    return acquireLease(name);
+  };
+
+  const operation = (await listBulkOperations()).find(({ id }) => id === operationId);
+  assert.equal(operation?.status, "completed");
+  assert.equal(operation?.succeeded, 1);
 });
