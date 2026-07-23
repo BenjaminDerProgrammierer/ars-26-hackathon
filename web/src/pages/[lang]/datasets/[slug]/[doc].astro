@@ -1,0 +1,51 @@
+---
+import { getCollection, render } from "astro:content";
+import { href, type Lang } from "../../../../i18n/ui";
+import ProseLayout from "../../../../layouts/ProseLayout.astro";
+
+export async function getStaticPaths() {
+  const documents = await getCollection("datasetDocs");
+
+  return ["en", "de"].flatMap((lang) =>
+    documents.map((entry) => {
+      const [slug, filename] = entry.id.split("/");
+
+      return {
+        params: { lang, slug, doc: filename.toLowerCase() },
+        props: { entry, slug },
+      };
+    }),
+  );
+}
+
+const { entry, slug } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const { Content } = await render(entry);
+const datasetUrl = href(lang, `datasets/${slug}`);
+const sourceUrl =
+  `https://github.com/BenjaminDerProgrammierer/ars-26-hackathon/blob/main/opendata-linz/${slug}/API.md`;
+const copy = {
+  en: {
+    back: "Back to dataset",
+    source: "View source Markdown",
+  },
+  de: {
+    back: "Zurück zum Datensatz",
+    source: "Quell-Markdown öffnen",
+  },
+}[lang];
+---
+
+<ProseLayout
+  lang={lang}
+  title={entry.data.title}
+  intro={entry.data.summary}
+  bandColor="var(--color-places)"
+  textColor="var(--color-paper)"
+>
+  <p><a href={datasetUrl}>← {copy.back}</a></p>
+
+  <Content />
+
+  <p><a href={sourceUrl}>{copy.source} ↗</a></p>
+</ProseLayout>

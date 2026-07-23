@@ -27,6 +27,17 @@ const datasets = defineCollection({
   }),
 });
 
+const datasetDocs = defineCollection({
+  loader: glob({
+    pattern: "*/API.md",
+    base: "../opendata-linz",
+  }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+  }),
+});
+
 const pages = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/pages" }),
   schema: z.object({
@@ -35,4 +46,4 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { tutorials, datasets, pages };
+export const collections = { tutorials, datasets, datasetDocs, pages };
