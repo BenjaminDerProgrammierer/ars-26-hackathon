@@ -405,14 +405,19 @@
             <input id="environment-model-id" type="text" value="Loading…" readonly aria-readonly="true" />
           </div>
         </div>
-        <div class="form-grid">
+        <div class="form-grid expiration-grid">
           <div class="field">
             <label for="environment-api-key-limit">API key spending limit (USD)</label>
             <input id="environment-api-key-limit" name="apiKeyLimit" type="number" min="0" step="0.01" placeholder="Unlimited" />
           </div>
           <div class="field">
             <label for="environment-api-key-expires">API key expires at <span>optional</span></label>
-            <input id="environment-api-key-expires" name="apiKeyExpiresAt" type="datetime-local" />
+            <div class="datetime-with-timezone">
+              <input id="environment-api-key-expires" name="apiKeyExpiresAt" type="datetime-local" lang="en-GB" />
+              <select class="timezone-indicator" aria-label="Timezone used for API key expiration" disabled>
+                <option>Local timezone</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="assignment-note">
@@ -441,14 +446,19 @@
           <input id="create-count" name="count" type="number" min="1" max="100" value="10" required />
         </div>
 
-        <div class="form-grid">
+        <div class="form-grid expiration-grid">
           <div class="field">
             <label for="create-limit">Spending limit (USD)</label>
             <input id="create-limit" name="limit" type="number" min="0" step="0.01" placeholder="Unlimited" />
           </div>
           <div class="field">
             <label for="create-expires">Expires at</label>
-            <input id="create-expires" name="expiresAt" type="datetime-local" />
+            <div class="datetime-with-timezone">
+              <input id="create-expires" name="expiresAt" type="datetime-local" lang="en-GB" />
+              <select class="timezone-indicator" aria-label="Timezone used for expiration" disabled>
+                <option>Local timezone</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -560,7 +570,12 @@
         </div>
         <div class="field">
           <label for="create-redeem-expires">Expires at <span>optional</span></label>
-          <input id="create-redeem-expires" name="expiresAt" type="datetime-local" />
+          <div class="datetime-with-timezone">
+            <input id="create-redeem-expires" name="expiresAt" type="datetime-local" lang="en-GB" />
+            <select class="timezone-indicator" aria-label="Timezone used for expiration" disabled>
+              <option>Local timezone</option>
+            </select>
+          </div>
         </div>
         <div class="assignment-note">
           <i data-lucide="database" aria-hidden="true"></i>
@@ -591,7 +606,12 @@
         </div>
         <div class="field">
           <label for="edit-redeem-expires">Expires at <span>optional</span></label>
-          <input id="edit-redeem-expires" type="datetime-local" />
+          <div class="datetime-with-timezone">
+            <input id="edit-redeem-expires" type="datetime-local" lang="en-GB" />
+            <select class="timezone-indicator" aria-label="Timezone used for expiration" disabled>
+              <option>Local timezone</option>
+            </select>
+          </div>
         </div>
         <div class="dialog-actions">
           <button class="button subtle" type="button" data-close="edit-redeem-dialog">Cancel</button>
@@ -610,7 +630,12 @@
         <div class="bulk-change-row">
           <input id="redeem-change-expires" type="checkbox" />
           <label for="redeem-bulk-expires">Expires at</label>
-          <input id="redeem-bulk-expires" type="datetime-local" />
+          <div class="datetime-with-timezone">
+            <input id="redeem-bulk-expires" type="datetime-local" lang="en-GB" />
+            <select class="timezone-indicator" aria-label="Timezone used for expiration" disabled>
+              <option>Local timezone</option>
+            </select>
+          </div>
         </div>
         <div class="dialog-actions">
           <button class="button subtle" type="button" data-close="bulk-edit-redeem-dialog">Cancel</button>

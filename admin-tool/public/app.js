@@ -40,6 +40,24 @@ function renderIcons(root = document) {
   });
 }
 
+function renderTimezoneIndicators() {
+  const now = new Date();
+  const getTimezonePart = (timeZoneName) =>
+    new Intl.DateTimeFormat("en-GB", { timeZoneName })
+      .formatToParts(now)
+      .find((part) => part.type === "timeZoneName")?.value;
+  const shortName = getTimezonePart("short");
+  const shortOffset = getTimezonePart("shortOffset");
+  const timezone =
+    shortName && shortOffset && shortName !== shortOffset
+      ? `${shortName} (${shortOffset})`
+      : shortName || shortOffset || "Local time";
+  document.querySelectorAll(".timezone-indicator").forEach((indicator) => {
+    indicator.options[0].textContent = timezone;
+    indicator.title = timezone;
+  });
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -118,6 +136,7 @@ function formatDate(value) {
   return new Intl.DateTimeFormat(LOCALE, {
     dateStyle: "medium",
     timeStyle: "short",
+    hourCycle: "h23",
   }).format(new Date(value));
 }
 
@@ -1547,5 +1566,6 @@ $("#edit-redeem-form").addEventListener("submit", async (event) => {
 
 window.addEventListener("hashchange", () => switchManager(location.hash.slice(1)));
 
+renderTimezoneIndicators();
 renderIcons();
 switchManager(location.hash.slice(1));
