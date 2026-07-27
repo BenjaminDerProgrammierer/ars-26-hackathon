@@ -2,6 +2,7 @@ targetScope = 'resourceGroup'
 
 param location string
 param webAppName string
+param webAppCustomHostname string
 param appServicePlanName string
 param appServicePlanSkuName string
 param appServicePlanCapacity int
@@ -130,6 +131,19 @@ resource webAppSettings 'Microsoft.Web/sites/config@2024-11-01' = {
   ]
 }
 
+resource webAppCustomHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2024-11-01' = {
+  parent: existingWebApp
+  name: webAppCustomHostname
+  properties: {
+    customHostNameDnsRecordType: 'CName'
+    hostNameType: 'Verified'
+    siteName: webAppName
+  }
+  dependsOn: [
+    webApp
+  ]
+}
+
 resource githubWebAppRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(existingWebApp.id, githubDeploymentIdentity.id, 'Website Contributor')
   scope: existingWebApp
@@ -201,3 +215,4 @@ resource webAppServerErrorAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
 }
 
 output defaultHostname string = webApp.outputs.defaultHostname
+output customHostname string = webAppCustomHostnameBinding.name
