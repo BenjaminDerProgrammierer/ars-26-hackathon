@@ -1,16 +1,9 @@
 ---
 import { getCollection, render } from "astro:content";
+import { compareDatasets, type DatasetStatus } from "../../../datasets/sort";
 import { href, type Lang } from "../../../i18n/ui";
 import ProseLayout from "../../../layouts/ProseLayout.astro";
 import { rewriteDatasetLinks } from "../../../markdown/dataset-links.mjs";
-
-const statusOrder = [
-  "essential",
-  "recommended",
-  "optional",
-  "in-progress",
-] as const;
-type DatasetStatus = (typeof statusOrder)[number];
 
 export async function getStaticPaths() {
   const datasets = await getCollection("datasets");
@@ -30,11 +23,7 @@ const datasetDocument = (await getCollection("datasetDocs")).find(
   (document) => document.id.split("/")[0] === slug,
 );
 
-const datasets = (await getCollection("datasets")).sort((a, b) => {
-  const statusDifference =
-    statusOrder.indexOf(a.data.status) - statusOrder.indexOf(b.data.status);
-  return statusDifference || a.data.title.localeCompare(b.data.title, "de");
-});
+const datasets = (await getCollection("datasets")).sort(compareDatasets);
 const index = datasets.findIndex((dataset) => dataset.id === entry.id);
 const previous = index > 0 ? datasets[index - 1] : undefined;
 const next = index < datasets.length - 1 ? datasets[index + 1] : undefined;

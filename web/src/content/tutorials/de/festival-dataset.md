@@ -1,22 +1,21 @@
 ---
 title: "Arbeiten mit dem Festival-Datensatz"
-description: "Die vier Datenbanken des Festival-Exports verstehen: Verknüpfungen, Besonderheiten und Stolperfallen."
+description: "Die Sammlungen des Festival-Datensatzes verstehen: Verknüpfungen, Besonderheiten und Stolperfallen."
 order: 1
 ---
 
-Der Festival-Datensatz ist ein einzelner JSON-Export aus dem Content-System des
-Festivals. Der aktuelle Snapshot enthält vier verknüpfte Datenbanken:
-**projects** (546 Datensätze), **contacts** (240), **locations** (111) und
-**calendar** (178 Zeilen) sowie Export-Metadaten. Es sind rohe CMS-Datensätze:
-Interne und Test-Inhalte sind enthalten, und eine Orts- oder Kalenderzeile ist
-nicht automatisch ein eindeutiger öffentlicher Ort oder Event.
+Der Festival-Datensatz wird als einzelne JSON-Datei aus dem Content-System des
+Festivals bereitgestellt. Der aktuelle Snapshot enthält die verknüpften
+Sammlungen **projects**, **contacts**, **locations** und **calendar** sowie
+Datensatz-Metadaten. Es sind rohe CMS-Datensätze: Interne und Test-Inhalte sind
+enthalten, und eine Orts- oder Kalenderzeile ist nicht automatisch ein
+eindeutiger öffentlicher Ort oder Event.
 
 ## Daten beziehen
 
-Ladet den neuesten Export über den offiziellen Hackathon-Endpunkt auf der
-Datensatzseite. Die JSON-Datei ist rund 2 MB groß. Felder können in der Praxis
-`null` sein, Koordinaten verwenden Dezimalkommas und strukturierte Werte müssen
-bewusst normalisiert werden.
+Ladet den neuesten Datensatz über den offiziellen Hackathon-Endpunkt auf der
+Datensatzseite. Felder können in der Praxis `null` sein, Koordinaten verwenden
+Dezimalkommas und strukturierte Werte müssen bewusst normalisiert werden.
 
 ## Datenbanken verknüpfen
 

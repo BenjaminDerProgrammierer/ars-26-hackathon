@@ -13,7 +13,7 @@
     "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview",
     "sync:datasets": "node scripts/sync-datasets.mjs",
-    "test": "node --experimental-strip-types --test src/redeem/data.test.ts src/markdown/dataset-links.test.mjs",
+    "test": "node --experimental-strip-types --test src/redeem/data.test.ts src/markdown/dataset-links.test.mjs src/datasets/sort.test.ts",
     "astro": "astro",
     "format": "biome format --write .",
     "lint": "biome check .",

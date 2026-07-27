@@ -9,13 +9,13 @@ decision after the full 820-record catalog review, live endpoint checks, festiva
 export analysis, GitHub defect handoff, and a 2026-07-16 publisher-directory
 delta crawl.
 
-Each dataset page now provides compact frontmatter for status, format, license,
-and data vintage, followed by a short factual description, practical usage
-notes, and source links. Detailed review evidence remains in the research
-archive and consolidated report. Current catalog evidence was reviewed through 2026-07-16;
-Orthofotos 2023 and Stadtplan Linz 2025 were added and checked on 2026-07-17.
-Street names, drinking fountains, and public toilets received prepared,
-validated CSV snapshots on 2026-07-23.
+Each dataset page now provides compact frontmatter for status, optional sorting
+priority, format, license, and data vintage, followed by a short factual
+description, practical usage notes, and source links. Detailed review evidence
+remains in the research archive and consolidated report. Current catalog
+evidence was reviewed through 2026-07-16; Orthofotos 2023 and Stadtplan Linz
+2025 were added and checked on 2026-07-17. Street names, drinking fountains,
+and public toilets received prepared, validated CSV snapshots on 2026-07-23.
 The affected verdicts link to the publisher fixes and live endpoint checks
 recorded in the relevant GitHub issues. The
 verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data

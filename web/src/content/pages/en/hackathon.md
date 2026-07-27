@@ -5,13 +5,29 @@ intro: "Two days of building with festival data, City of Linz open data, and AI 
 
 The AI Hackathon is an official sub-event of Ars Electronica Festival 2026,
 **Future Begins / Negotiating Humanity**, taking place September 11–12, 2026,
-in Linz, Austria. Teams of two to five people build working prototypes —
-apps, websites, installations, visualizations — that combine the festival's
-own program data with open data published by the City of Linz.
+at Grand Garage in Linz, Austria. Teams of two to five people build working
+prototypes — apps, websites, installations, visualizations — that combine the
+festival's own program data with open data published by the City of Linz.
+
+> **Register by August 31, 2026.** Participation is free; registration is
+> required. [Sign up on the City of Linz participation platform](https://partizipation.linz.at/de-AT/projects/ki-hackathon-ars-electronica).
+
+## At a glance
+
+- **Hackathon:** September 11–12, 2026, at Grand Garage in Linz
+- **Registration:** July 21 through August 31, 2026
+- **Cost:** Free; registration is sufficient
+- **Minimum age:** 14
+- **Experience:** Prior coding or vibe-coding experience is not required
+- **Ways to join:** Alone, alone with a request for team matching, or as an
+  existing team
+- **Team size:** Two to five people
+- **Next information:** Registered participants receive the detailed schedule
+  by email in mid-August
 
 ## The challenge
 
-**How can we experience Linz and the festival in new ways?**
+**Linz neu entdecken — rediscover Linz.**
 
 At this two-day AI hackathon, develop creative digital projects using festival
 data and open data from the City of Linz.
@@ -23,9 +39,8 @@ the festival differently.
 
 ## What you get
 
-- The current festival export: 546 project records, 240 contacts, 111 location
-  records, and 178 calendar rows — exported directly from the festival's
-  content system and accompanied by cleaning guidance.
+- The current festival dataset, provided directly from the festival's content
+  system and accompanied by cleaning guidance.
 - A curated selection of City of Linz open data: events, trees, mobility,
   visitor services, environmental readings, historical maps, and more. Sources
   that need conversion or caching will be prepared centrally.
@@ -34,19 +49,42 @@ the festival differently.
 - Optional OpenRouter access to Mistral Medium 3.5 with a $20 budget per
   attendee. This add-on is required if you choose the hosted environment.
 - The freedom to use other models through your own, self-funded accounts.
+- An optional browser-based development environment, so you can work directly
+  in a browser without first installing a local development setup.
+- Food during the hackathon. The registration form asks about dietary
+  preferences, intolerances, and allergies.
 - Mentoring from festival staff, city data specialists, and AI engineers.
 
 ## Who can take part
 
-Anyone with a festival pass can register — students, artists, developers,
-designers, researchers. You do not need a finished team; we run a team-matching
-session on the first evening.
+Participation is open to everyone aged 14 or older. You can register alone,
+ask to be matched with a team, or sign up as an existing team of two to five
+people. The registration form explicitly welcomes people with no previous
+coding or vibe-coding experience.
+
+## Optional AI tool and development environment
+
+The organizers provide optional, free access to **Mistral Medium 3.5** through
+OpenRouter. Personal registration data is not shared with OpenRouter. Use the
+tool at your own responsibility and only for the hackathon; never enter
+sensitive personal information such as health data, passwords, identity
+documents, or confidential information into AI tools.
+
+You can instead use your own AI tools. You may also request the optional
+browser-based development environment during registration.
+
+## Ars Electronica Festival 2026
+
+The wider festival runs from September 9–13, 2026, across central Linz. Under
+the theme **Negotiating Humanity**, international artists, researchers, and
+innovators examine what it means to be human amid AI, global crises, and
+technological change. Its program includes exhibitions, performances,
+concerts, conferences, and interactive formats.
+
+[Explore the festival program and tickets](https://ars.electronica.art/negotiatinghumanity/en/highlights/).
 
 ## How winners are chosen
 
 A jury of festival curators, city representatives, and engineers reviews all
 submissions on the final afternoon. Projects are judged on idea, execution,
 and how meaningfully they connect the two data worlds.
-
-> Prize details, the venue, and the registration deadline will be announced
-> here.

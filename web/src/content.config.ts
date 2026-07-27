@@ -21,6 +21,7 @@ const datasets = defineCollection({
     summary: z.string(),
     provider: z.string(),
     status: z.enum(["essential", "recommended", "optional", "in-progress"]),
+    priority: z.number().default(0),
     format: z.string(),
     license: z.string(),
     data_vintage: z.string(),

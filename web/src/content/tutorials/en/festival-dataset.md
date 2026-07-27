@@ -1,22 +1,20 @@
 ---
 title: "Working with the Festival Dataset"
-description: "Understand the four databases in the festival export, how they link together, and the pitfalls to avoid."
+description: "Understand the collections in the festival dataset, how they link together, and the pitfalls to avoid."
 order: 1
 ---
 
-The festival dataset is a single JSON export from the festival's content
-system. The current snapshot contains four interlinked databases: **projects**
-(546 records), **contacts** (240), **locations** (111), and **calendar** (178
-rows), plus export metadata. These are raw CMS records: internal/test content is
-mixed in, and a location or calendar row is not necessarily a unique public
-venue or event.
+The festival dataset is provided as a single JSON file from the festival's
+content system. The current snapshot contains the interlinked **projects**,
+**contacts**, **locations**, and **calendar** collections, plus dataset
+metadata. These are raw CMS records: internal/test content is mixed in, and a
+location or calendar row is not necessarily a unique public venue or event.
 
 ## Getting the data
 
-Download the latest export from the official hackathon data endpoint on the
-datasets page. The file is around 2 MB of JSON. Fields are nullable in practice,
-coordinates use decimal-comma strings, and structured values need deliberate
-normalization.
+Download the latest dataset from the official hackathon data endpoint on the
+datasets page. Fields are nullable in practice, coordinates use decimal-comma
+strings, and structured values need deliberate normalization.
 
 ## How the databases link
 

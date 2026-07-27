@@ -159,10 +159,14 @@ title:
 summary:
 provider:
 status: essential | recommended | optional | in-progress
+priority: 0
 format:
 license:
 data_vintage:
 ```
+
+`priority` is optional and defaults to `0`. Higher values appear first within
+the same status; equal priorities are sorted lexically by title.
 
 The body should contain:
 

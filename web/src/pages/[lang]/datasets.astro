@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { compareDatasets, datasetStatusOrder } from "../../datasets/sort";
 import { href, type Lang, useTranslations } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -10,24 +11,13 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 
-const statusOrder = [
-  "essential",
-  "recommended",
-  "optional",
-  "in-progress",
-] as const;
-
-const datasets = (await getCollection("datasets")).sort((a, b) => {
-  const statusDifference =
-    statusOrder.indexOf(a.data.status) - statusOrder.indexOf(b.data.status);
-  return statusDifference || a.data.title.localeCompare(b.data.title, "de");
-});
+const datasets = (await getCollection("datasets")).sort(compareDatasets);
 
 const copy = {
   en: {
     eyebrow: "Festival & Linz Open Data",
     intro:
-      "Start with the Festival 2026 program export, then explore a reviewed catalog of Linz datasets. Each entry records readiness, format, data vintage, practical limitations, and primary sources.",
+      "Start with the Festival 2026 program dataset, then explore a curated catalog of Linz datasets. Each entry documents format, data vintage, practical limitations, and primary sources.",
     sourceLanguage:
       "The authoritative dataset notes are maintained in German. Interface labels remain available in English and German.",
     count: `${datasets.length + 1} datasets`,
@@ -36,15 +26,15 @@ const copy = {
     open: "View dataset notes",
     festival: {
       eyebrow: "Start here // Official Festival dataset",
-      title: "Festival 2026 Program Export",
+      title: "Festival 2026 Program Dataset",
       summary:
-        "The current Negotiating Humanity program export as one JSON file: 706 projects, 360 contacts, 138 locations, and 278 calendar rows.",
+        "The current Negotiating Humanity program dataset in one JSON file.",
       provider: "Ars Electronica",
-      format: "JSON, approximately 3 MB",
-      vintage: "Exports, updated regularly",
+      format: "JSON",
+      vintage: "Updated regularly",
       description:
-        "This is a working CMS export with bilingual program descriptions, categories, ticket requirements, contacts, venues, and calendar slots. Normalize linked IDs to their trailing hashes, read event times from the calendar side, filter internal records, and validate coordinates before spatial use.",
-      download: "Download the latest export",
+        "This is a working CMS dataset with bilingual program descriptions, categories, ticket requirements, contacts, venues, and calendar slots. Normalize linked IDs to their trailing hashes, read event times from the calendar side, filter internal records, and validate coordinates before spatial use.",
+      download: "Download the latest dataset",
       guide: "Read the dataset guide",
     },
     status: {
@@ -77,7 +67,7 @@ const copy = {
   de: {
     eyebrow: "Festival- & Linz-Open-Data",
     intro:
-      "Beginnt mit dem Programm-Export des Festivals 2026 und erkundet danach den geprüften Katalog Linzer Datensätze. Jeder Eintrag dokumentiert Reifegrad, Format, Datenstand, praktische Einschränkungen und Primärquellen.",
+      "Beginnt mit dem Programmdatensatz des Festivals 2026 und erkundet danach den kuratierten Katalog Linzer Datensätze. Jeder Eintrag dokumentiert Format, Datenstand, praktische Einschränkungen und Primärquellen.",
     sourceLanguage:
       "Die verbindlichen Datensatzhinweise werden auf Deutsch gepflegt. Die Navigation ist auf Deutsch und Englisch verfügbar.",
     count: `${datasets.length + 1} Datensätze`,
@@ -86,15 +76,15 @@ const copy = {
     open: "Datensatzhinweise öffnen",
     festival: {
       eyebrow: "Hier beginnen // Offizieller Festival-Datensatz",
-      title: "Festival 2026 Programm-Export",
+      title: "Festival 2026 Programmdatensatz",
       summary:
-        "Der aktuelle Programm-Export von Negotiating Humanity als eine JSON-Datei: 706 Projekte, 360 Kontakte, 138 Orte und 278 Kalenderzeilen.",
+        "Der aktuelle Programmdatensatz von Negotiating Humanity in einer JSON-Datei.",
       provider: "Ars Electronica",
-      format: "JSON, etwa 3 MB",
-      vintage: "Exporte, regelmäßig aktualisiert",
+      format: "JSON",
+      vintage: "Regelmäßig aktualisiert",
       description:
-        "Dies ist ein Arbeits-Export aus dem CMS mit zweisprachigen Programmbeschreibungen, Kategorien, Ticketangaben, Kontakten, Orten und Kalenderterminen. Normalisiert verknüpfte IDs auf den abschließenden Hash, lest Veranstaltungszeiten von der Kalenderseite, filtert interne Einträge und prüft Koordinaten vor räumlichen Anwendungen.",
-      download: "Aktuellen Export herunterladen",
+        "Dies ist ein Arbeitsdatensatz aus dem CMS mit zweisprachigen Programmbeschreibungen, Kategorien, Ticketangaben, Kontakten, Orten und Kalenderterminen. Normalisiert verknüpfte IDs auf den abschließenden Hash, lest Veranstaltungszeiten von der Kalenderseite, filtert interne Einträge und prüft Koordinaten vor räumlichen Anwendungen.",
+      download: "Aktuellen Datensatz herunterladen",
       guide: "Datensatz-Anleitung lesen",
     },
     status: {
@@ -126,7 +116,7 @@ const copy = {
   },
 }[lang];
 
-const groups = statusOrder
+const groups = datasetStatusOrder
   .map((status) => ({
     status,
     items: datasets.filter((dataset) => dataset.data.status === status),
