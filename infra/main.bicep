@@ -21,6 +21,9 @@ param accessCodesTableName string = 'AccessCodes'
 @maxLength(60)
 param webAppName string = 'arselectronicahackathon-web'
 
+@description('Custom hostname bound to the web app.')
+param webAppCustomHostname string = 'hackathon.ars.electronica.art'
+
 @description('Name of the App Service plan that hosts the web app.')
 param appServicePlanName string = 'arselectronicahackathon-web-plan'
 
@@ -92,6 +95,7 @@ module webApp 'modules/web-app.bicep' = {
   params: {
     location: location
     webAppName: webAppName
+    webAppCustomHostname: webAppCustomHostname
     appServicePlanName: appServicePlanName
     appServicePlanSkuName: appServicePlanSkuName
     appServicePlanCapacity: appServicePlanCapacity
@@ -128,6 +132,7 @@ output storageAccountName string = storage.outputs.storageAccountName
 output tableName string = storage.outputs.tableName
 output tableServiceEndpoint string = storage.outputs.tableServiceEndpoint
 output webAppDefaultHostname string = webApp.outputs.defaultHostname
+output webAppCustomHostname string = webApp.outputs.customHostname
 output webAppIdentityClientId string = identities.outputs.webAppIdentityClientId
 output webAppIdentityPrincipalId string = identities.outputs.webAppIdentityPrincipalId
 output githubDeploymentClientId string = identities.outputs.githubDeploymentClientId
