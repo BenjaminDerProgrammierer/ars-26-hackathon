@@ -1,13 +1,19 @@
 ---
 import { getCollection, render } from "astro:content";
+import ContentLanguageNotice from "../../../components/ContentLanguageNotice.astro";
 import { href, type Lang, useTranslations } from "../../../i18n/ui";
 import ProseLayout from "../../../layouts/ProseLayout.astro";
 
 export async function getStaticPaths() {
-  const entries = await getCollection("tutorials");
-  return entries.map((entry) => {
-    const [lang, slug] = entry.id.split("/");
-    return { params: { lang, slug }, props: { entry } };
+  const entries = await getCollection("tutorials", (entry) =>
+    entry.id.startsWith("de/"),
+  );
+  return entries.flatMap((entry) => {
+    const slug = entry.id.split("/")[1];
+    return ["en", "de"].map((lang) => ({
+      params: { lang, slug },
+      props: { entry },
+    }));
   });
 }
 
@@ -17,7 +23,7 @@ const t = useTranslations(lang);
 const { Content } = await render(entry);
 
 const siblings = (
-  await getCollection("tutorials", (e) => e.id.startsWith(`${lang}/`))
+  await getCollection("tutorials", (e) => e.id.startsWith("de/"))
 ).sort((a, b) => a.data.order - b.data.order);
 const index = siblings.findIndex((e) => e.id === entry.id);
 const prev = index > 0 ? siblings[index - 1] : undefined;
@@ -34,7 +40,9 @@ function tutorialHref(id: string): string {
   intro={entry.data.description}
   bandColor="var(--color-program)"
   textColor="var(--color-ink)"
+  contentLang="de"
 >
+  <ContentLanguageNotice lang={lang} />
   <Content />
 
   <nav class="pager" aria-label={t("nav.tutorials")}>

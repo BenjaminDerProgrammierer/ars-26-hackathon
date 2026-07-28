@@ -1,12 +1,15 @@
 ---
-title: "Arbeiten mit der Online-Entwicklungsumgebung"
-description: "Als Teilnehmer hast du bei der Anmeldung die Möglichkeit, eine Online-Entwicklungsumgebung anzufordern. In diesem Tutorial erfährst du, wie du diese Umgebung nutzen kannst."
-order: 5
+title: "Online-Entwicklungsumgebung einrichten"
+description: "Meldet euch an, startet den Entwicklungsserver und öffnet pi.dev in der bereitgestellten Browser-Umgebung."
+order: 1
 ---
 
 ## Schritt 1: Anmeldung
 
-Du bekommst, solltest du dich für die Online-Entwicklungsumgebung angemeldet haben, beim Eingang des Hackathons einen Zettel mit einem Shortcode. Diesen Shortcode kannst du auf dieser Webseite auf [der Redeem-Seite](../../redeem/) eingeben, um die Zugangsdaten für die Online-Entwicklungsumgebung zu erhalten. Die Zugangsdaten sehen so aus:
+Wenn ihr euch für die Online-Entwicklungsumgebung angemeldet habt, bekommt ihr
+beim Eingang des Hackathons einen Zettel mit einem Shortcode. Gebt diesen Code
+auf [der Redeem-Seite](../../redeem/) ein, um die Zugangsdaten für eure
+Online-Entwicklungsumgebung zu erhalten. Die Zugangsdaten sehen so aus:
 
 ```plaintext
 Environment 1  (vcenv-local-1)
@@ -16,30 +19,34 @@ Environment 1  (vcenv-local-1)
   Container shell    : XXXXXXXXXX
 ```
 
-Rufe den Link bei "Code Server" in deinem Browser auf und gib das Passwort ein, um dich anzumelden. Du solltest nun die Online-Entwicklungsumgebung sehen.
+Ruft den Link bei „Code Server“ im Browser auf und gebt das Passwort ein.
 
 ![Passwort-Eingabe](../assets/online-development-environment-1.png)
 
 ![Entwicklungsumgebung; untrusted](../assets/online-development-environment-2.png)
 
-Als nächstes musst du dem offenen Ordner "vertrauen". Klicke dazu in der Leiste ganz oben auf "Manage" und dann auf "Trust". Danach kannst du die Entwicklungsumgebung nutzen.
+Als Nächstes müsst ihr dem offenen Ordner vertrauen. Klickt oben auf „Manage“
+und dann auf „Trust“.
 
 ![Workspace Trust window](../assets/online-development-environment-3.png)
 
 ![Entwicklungsumgebung; trusted](../assets/online-development-environment-4.png)
 
-Öffne nun das Terminal, indem du in der Leiste ganz oben rechts auf das horizontal gespaltete Rechteck klickst. Du solltest nun ein Terminal-Fenster sehen, in dem du Befehle eingeben kannst.
+Öffnet nun über das horizontal geteilte Rechteck oben rechts ein Terminal.
 
-Gib `npm run dev` ein, um den Entwicklungsserver zu starten. Du solltest nun eine Meldung sehen, dass der Server läuft.
+Gebt `npm run dev` ein, um den Entwicklungsserver zu starten.
 
 ![Terminal mit laufendem Entwicklungsserver](../assets/online-development-environment-5.png)
 
-Öffne den Link bei "Dev server" in den Anmeldedaten der Redeem-Seite in deinem Browser, um die Webseite zu sehen, die du gerade entwickelst. Du solltest nun die Startseite der Webseite sehen.
+Öffnet den Link bei „Dev server“ aus euren Zugangsdaten, um die Webseite zu
+sehen, an der ihr gerade arbeitet.
 
 ![Startseite der Webseite](../assets/online-development-environment-6.png)
 
-Nun startest du den Coding-Agent pi.dev. Klicke im Terminal auf das kleine Plus-Zeichen, um ein neues Terminal zu öffnen. Gib dort `pi` ein und drücke Enter. Drücke die Enter-Taste, um pi zu erlauben, auf den geöffneten Ordner zuzugreifen.
+Öffnet über das Plus-Zeichen ein zweites Terminal, gebt `pi` ein und bestätigt,
+dass pi.dev auf den geöffneten Projektordner zugreifen darf.
 
 ![Coding-Agent pi.dev](../assets/online-development-environment-7.png)
 
-Als nächstes wirst du lernen, wie du pi.dev benutzen kannst, um deine Webseite oder ein anderes Projekt zu entwickeln. Rufe dazu das Tutorial [Arbeiten mit pi.dev](../pi-dev/) auf.
+Wie ihr den Agent sinnvoll steuert, erfahrt ihr im Tutorial
+[Mit pi.dev arbeiten](../pi-dev/).

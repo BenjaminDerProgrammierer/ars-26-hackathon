@@ -35,7 +35,6 @@ const copy = {
       description:
         "This is a working CMS dataset with bilingual program descriptions, categories, ticket requirements, contacts, venues, and calendar slots. Normalize linked IDs to their trailing hashes, read event times from the calendar side, filter internal records, and validate coordinates before spatial use.",
       download: "Download the latest dataset",
-      guide: "Read the dataset guide",
     },
     status: {
       essential: {
@@ -85,7 +84,6 @@ const copy = {
       description:
         "Dies ist ein Arbeitsdatensatz aus dem CMS mit zweisprachigen Programmbeschreibungen, Kategorien, Ticketangaben, Kontakten, Orten und Kalenderterminen. Normalisiert verknüpfte IDs auf den abschließenden Hash, lest Veranstaltungszeiten von der Kalenderseite, filtert interne Einträge und prüft Koordinaten vor räumlichen Anwendungen.",
       download: "Aktuellen Datensatz herunterladen",
-      guide: "Datensatz-Anleitung lesen",
     },
     status: {
       essential: {
@@ -165,9 +163,6 @@ function slugFor(id: string): string {
               href="https://ars.electronica.art/negotiatinghumanity/hackathondata/"
             >
               {copy.festival.download} ↓
-            </a>
-            <a class="button button--outline" href={href(lang, "tutorials/festival-dataset")}>
-              {copy.festival.guide} →
             </a>
           </div>
         </div>

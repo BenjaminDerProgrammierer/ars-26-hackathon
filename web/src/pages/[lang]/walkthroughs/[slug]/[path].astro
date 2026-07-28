@@ -1,0 +1,85 @@
+---
+import { getCollection, render } from "astro:content";
+import ContentLanguageNotice from "../../../../components/ContentLanguageNotice.astro";
+import WalkthroughTabs, {
+  type WalkthroughPath,
+  walkthroughPaths,
+} from "../../../../components/WalkthroughTabs.astro";
+import { href, type Lang } from "../../../../i18n/ui";
+import ProseLayout from "../../../../layouts/ProseLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("walkthroughs", (entry) =>
+    entry.id.startsWith("de/"),
+  );
+  return entries.flatMap((entry) => {
+    const slug = entry.id.split("/")[1];
+    return ["en", "de"].flatMap((lang) =>
+      walkthroughPaths.map((path) => ({
+        params: { lang, slug, path: path.slug },
+        props: { entry },
+      })),
+    );
+  });
+}
+
+const { entry } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const slug = Astro.params.slug as string;
+const currentPath = Astro.params.path as WalkthroughPath;
+const { Content } = await render(entry);
+---
+
+<ProseLayout
+  lang={lang}
+  title={entry.data.title}
+  intro={entry.data.description}
+  bandColor="var(--color-program)"
+  textColor="var(--color-ink)"
+  contentLang="de"
+>
+  <ContentLanguageNotice lang={lang} />
+  <WalkthroughTabs lang={lang} slug={slug} currentPath={currentPath} />
+
+  {
+    currentPath === "vollstaendiger-code" && (
+      <p class="download-action">
+        <a class="button" href={entry.data.download} download>
+          Vollständigen Code herunterladen ↓
+        </a>
+      </p>
+    )
+  }
+
+  <div class="path-content" data-path={currentPath}>
+    <Content />
+  </div>
+
+  <p class="back-link">
+    <a href={`${href(lang, "tutorials")}#walkthroughs-title`}>
+      ← Alle Walkthroughs
+    </a>
+  </p>
+</ProseLayout>
+
+<style>
+  .download-action {
+    margin-bottom: var(--space-6);
+  }
+
+  .path-content[data-path="ideenhilfe"]
+    :global(.walkthrough-path:not(.walkthrough-path--ideenhilfe)),
+  .path-content[data-path="ideen-und-prompts"]
+    :global(.walkthrough-path:not(.walkthrough-path--ideen-und-prompts)),
+  .path-content[data-path="vollstaendiger-code"]
+    :global(.walkthrough-path:not(.walkthrough-path--vollstaendiger-code)) {
+    display: none;
+  }
+
+  .back-link {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-rule);
+    font-weight: 600;
+  }
+</style>

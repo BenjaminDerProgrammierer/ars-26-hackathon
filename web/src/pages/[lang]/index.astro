@@ -47,9 +47,9 @@ const copy = {
       link: "Explore the datasets",
     },
     tutorials: {
-      heading: "Learn the ropes first",
-      body: "Four short tutorials take you from festival data to a working prototype: understand the festival dataset, join it with city data, build with coding agents, and configure pi.dev with the provided or your own models.",
-      link: "Read the tutorials",
+      heading: "Tutorials and walkthroughs",
+      body: "The German learning section offers three short tutorials on setup, pi.dev, and prompting, plus two project walkthroughs with selectable levels of support.",
+      link: "Open the German resources",
     },
     agents: {
       heading: "Development & AI, your choice",
@@ -120,9 +120,9 @@ const copy = {
       link: "Zu den Datensätzen",
     },
     tutorials: {
-      heading: "Zuerst die Grundlagen",
-      body: "Vier kurze Tutorials führen von Festivaldaten zum funktionierenden Prototyp: den Festival-Datensatz verstehen, mit Stadtdaten verbinden, mit Coding Agents bauen und pi.dev mit bereitgestellten oder eigenen Modellen konfigurieren.",
-      link: "Zu den Tutorials",
+      heading: "Tutorials und Walkthroughs",
+      body: "Drei kurze Tutorials erklären Setup, pi.dev und gute Prompts. In zwei Projekt-Walkthroughs wählt ihr zwischen Ideenhilfe, Idee plus Prompts und vollständigem Beispielcode.",
+      link: "Zu den Tutorials & Walkthroughs",
     },
     agents: {
       heading: "Entwicklung & KI nach Wahl",
@@ -228,7 +228,9 @@ const copy = {
     </div>
     <h2>{copy.tutorials.heading}</h2>
     <p>{copy.tutorials.body}</p>
-    <p><a href={href(lang, "tutorials")}>{copy.tutorials.link}</a></p>
+    <p>
+      <a href={href(lang, "tutorials")}>{copy.tutorials.link}</a>
+    </p>
   </SplitSection>
 
   <SplitSection>

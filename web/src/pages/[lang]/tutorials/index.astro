@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import { href, type Lang, useTranslations } from "../../../i18n/ui";
+import ContentLanguageNotice from "../../../components/ContentLanguageNotice.astro";
+import { href, type Lang } from "../../../i18n/ui";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 
 export function getStaticPaths() {
@@ -8,45 +9,64 @@ export function getStaticPaths() {
 }
 
 const lang = Astro.params.lang as Lang;
-const t = useTranslations(lang);
-
 const tutorials = (
-  await getCollection("tutorials", (entry) => entry.id.startsWith(`${lang}/`))
+  await getCollection("tutorials", (entry) => entry.id.startsWith("de/"))
+).sort((a, b) => a.data.order - b.data.order);
+const walkthroughs = (
+  await getCollection("walkthroughs", (entry) => entry.id.startsWith("de/"))
 ).sort((a, b) => a.data.order - b.data.order);
 
-const copy = {
-  en: {
-    intro:
-      "Four short guides that take you from festival data to a working prototype. Read them before the kick-off — or let your coding agent read them for you.",
-  },
-  de: {
-    intro:
-      "Vier kurze Anleitungen von Festivaldaten zum funktionierenden Prototyp. Lest sie vor dem Kick-off — oder lasst sie euren Coding Agent lesen.",
-  },
-}[lang];
+const intro =
+  "Tutorials vermitteln die Grundlagen. In den Walkthroughs wählt ihr selbst, wie viel Unterstützung ihr für ein konkretes Projekt möchtet.";
 ---
 
-<BaseLayout lang={lang} title={t("nav.tutorials")} description={copy.intro}>
-  <section class="title-band">
+<BaseLayout
+  lang={lang}
+  title="Tutorials & Walkthroughs"
+  description={intro}
+>
+  <section class="title-band" lang="de">
     <div class="wrap">
-      <h1>{t("nav.tutorials")}</h1>
-      <p class="intro">{copy.intro}</p>
+      <h1>Tutorials & Walkthroughs</h1>
+      <p class="intro">{intro}</p>
     </div>
   </section>
 
-  <section>
+  {
+    lang === "en" && (
+      <div class="wrap">
+        <ContentLanguageNotice lang={lang} />
+      </div>
+    )
+  }
+
+  <section
+    class="resource-section"
+    aria-labelledby="tutorials-title"
+    lang="de"
+  >
     <div class="wrap">
-      <ol class="tutorial-list">
+      <p class="eyebrow">Grundlagen</p>
+      <h2 id="tutorials-title">Tutorials</h2>
+      <p class="section-intro">
+        Richtet eure Entwicklungsumgebung ein und lernt, wie ihr pi.dev und
+        gute Prompts für euer Projekt nutzt.
+      </p>
+      <ol class="resource-list">
         {
           tutorials.map((tutorial) => {
             const slug = tutorial.id.split("/")[1];
             return (
               <li>
-                <span class="number">{String(tutorial.data.order).padStart(2, "0")}</span>
+                <span class="number">
+                  {String(tutorial.data.order).padStart(2, "0")}
+                </span>
                 <div>
-                  <h2>
-                    <a href={href(lang, `tutorials/${slug}`)}>{tutorial.data.title}</a>
-                  </h2>
+                  <h3>
+                    <a href={href(lang, `tutorials/${slug}`)}>
+                      {tutorial.data.title}
+                    </a>
+                  </h3>
                   <p>{tutorial.data.description}</p>
                 </div>
               </li>
@@ -54,6 +74,49 @@ const copy = {
           })
         }
       </ol>
+    </div>
+  </section>
+
+  <section
+    class="resource-section walkthrough-section"
+    aria-labelledby="walkthroughs-title"
+    lang="de"
+  >
+    <div class="wrap">
+      <p class="eyebrow">Konkrete Projekte</p>
+      <h2 id="walkthroughs-title">Walkthroughs</h2>
+      <p class="section-intro">
+        Entscheidet bei jedem Projekt, ob ihr nur einen Ideenanstoß, zusätzlich
+        passende Prompts oder gleich den vollständigen Beispielcode möchtet.
+      </p>
+      <div class="walkthrough-grid">
+        {
+          walkthroughs.map((walkthrough) => {
+            const slug = walkthrough.id.split("/")[1];
+            const walkthroughUrl = href(lang, `walkthroughs/${slug}`);
+            return (
+              <article class="walkthrough-card">
+                <p class="number">
+                  {String(walkthrough.data.order).padStart(2, "0")}
+                </p>
+                <h3>
+                  <a href={walkthroughUrl}>{walkthrough.data.title}</a>
+                </h3>
+                <p>{walkthrough.data.description}</p>
+                <nav aria-label={`Pfad für ${walkthrough.data.title}`}>
+                  <a href={`${walkthroughUrl}ideenhilfe/`}>Ideenhilfe</a>
+                  <a href={`${walkthroughUrl}ideen-und-prompts/`}>
+                    Ideen + Prompts
+                  </a>
+                  <a href={`${walkthroughUrl}vollstaendiger-code/`}>
+                    Vollständiger Code
+                  </a>
+                </nav>
+              </article>
+            );
+          })
+        }
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -83,13 +146,41 @@ const copy = {
     max-width: var(--width-reading);
   }
 
-  .tutorial-list {
+  .resource-section {
+    padding-block: 0 var(--space-8);
+  }
+
+  .walkthrough-section {
+    background: var(--color-wash);
+    padding-block: var(--space-7);
+  }
+
+  .eyebrow {
+    margin-bottom: var(--space-2);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+    text-transform: uppercase;
+  }
+
+  .section-intro {
+    max-width: var(--width-reading);
+    margin-bottom: var(--space-6);
+  }
+
+  .resource-list {
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  .tutorial-list li {
+  .resource-list li {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: var(--space-5);
@@ -97,25 +188,68 @@ const copy = {
     border-top: 1px solid var(--color-rule);
   }
 
-  .tutorial-list li:last-child {
+  .resource-list li:last-child {
     border-bottom: 1px solid var(--color-rule);
   }
 
   .number {
-    font-size: var(--text-2xl);
+    margin: 0;
+    font-size: var(--text-xl);
     font-weight: 700;
     color: var(--color-program);
     line-height: 1;
   }
 
-  .tutorial-list h2 {
+  h3 {
     font-size: var(--text-xl);
     margin-bottom: var(--space-2);
   }
 
-  .tutorial-list p {
+  .resource-list p,
+  .walkthrough-card > p:last-of-type {
     margin: 0;
     color: var(--color-muted);
-    max-width: var(--width-reading);
+  }
+
+  .walkthrough-grid {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .walkthrough-card {
+    background: var(--color-paper);
+    border-top: 4px solid var(--color-program);
+    padding: var(--space-5);
+  }
+
+  .walkthrough-card .number {
+    margin-bottom: var(--space-4);
+  }
+
+  .walkthrough-card nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .walkthrough-card nav a {
+    display: inline-block;
+    border: 1px solid var(--color-ink);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .walkthrough-card nav a:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  @media (min-width: 48rem) {
+    .walkthrough-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>

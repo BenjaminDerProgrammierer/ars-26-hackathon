@@ -1,0 +1,75 @@
+---
+import { href, type Lang } from "../i18n/ui";
+
+export const walkthroughPaths = [
+  { slug: "ideenhilfe", label: "Ideenhilfe" },
+  { slug: "ideen-und-prompts", label: "Ideen + Prompts" },
+  { slug: "vollstaendiger-code", label: "Vollständiger Code" },
+] as const;
+
+export type WalkthroughPath = (typeof walkthroughPaths)[number]["slug"];
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  currentPath: WalkthroughPath;
+}
+
+const { lang, slug, currentPath } = Astro.props;
+---
+
+<nav class="tabs" aria-label="Walkthrough-Pfad">
+  <p>Wählt euren Weg</p>
+  <div>
+    {
+      walkthroughPaths.map((path) => (
+        <a
+          href={href(lang, `walkthroughs/${slug}/${path.slug}`)}
+          aria-current={path.slug === currentPath ? "page" : undefined}
+        >
+          {path.label}
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .tabs {
+    border-bottom: 1px solid var(--color-ink);
+    margin-bottom: var(--space-7);
+  }
+
+  .tabs p {
+    margin-bottom: var(--space-3);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .tabs div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-1);
+  }
+
+  .tabs a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-ink);
+    border-bottom: 0;
+    background: var(--color-wash);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .tabs a:hover {
+    background: var(--color-paper);
+  }
+
+  .tabs a[aria-current="page"] {
+    background: var(--color-program);
+  }
+</style>

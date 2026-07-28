@@ -11,6 +11,16 @@ const tutorials = defineCollection({
   }),
 });
 
+const walkthroughs = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/walkthroughs" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    order: z.number(),
+    download: z.string(),
+  }),
+});
+
 const datasets = defineCollection({
   loader: glob({
     pattern: ["*/README.md", "!archive/README.md"],
@@ -47,4 +57,10 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { tutorials, datasets, datasetDocs, pages };
+export const collections = {
+  tutorials,
+  walkthroughs,
+  datasets,
+  datasetDocs,
+  pages,
+};
