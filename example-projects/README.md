@@ -10,3 +10,5 @@ starting points for your own ideas.
 
 - [What's Close? // Linz](whats-near-me/) — a browser-only nearby-place
   explorer built with Vite and TypeScript.
+- [GPS Art Maker // Linz](gps-art-maker/) — upload a picture and turn its
+  silhouette into a walkable GPS-art route with a GPX export.
