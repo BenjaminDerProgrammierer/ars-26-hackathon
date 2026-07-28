@@ -4,9 +4,10 @@ import LanguageSwitch from "./LanguageSwitch.astro";
 
 interface Props {
   lang: Lang;
+  availableLangs?: Lang[];
 }
 
-const { lang } = Astro.props;
+const { lang, availableLangs } = Astro.props;
 const t = useTranslations(lang);
 ---
 
@@ -16,7 +17,7 @@ const t = useTranslations(lang);
       <strong>{t("site.affiliation")}</strong>
       <span class="theme">{t("site.theme")}</span>
     </a>
-    <LanguageSwitch lang={lang} />
+    <LanguageSwitch lang={lang} availableLangs={availableLangs} />
   </div>
 </header>
 

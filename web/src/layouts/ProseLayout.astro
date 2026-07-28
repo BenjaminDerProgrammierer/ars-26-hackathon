@@ -7,6 +7,8 @@ interface Props {
   title: string;
   intro?: string;
   description?: string;
+  availableLangs?: Lang[];
+  contentLang?: Lang;
   /** Role color for the title band; defaults to the identity orange. */
   bandColor?: string;
   /** Accessible foreground paired with the selected role color. */
@@ -18,14 +20,22 @@ const {
   title,
   intro,
   description,
+  availableLangs,
+  contentLang,
   bandColor = "var(--color-identity)",
   textColor = "var(--color-on-identity)",
 } = Astro.props;
 ---
 
-<BaseLayout lang={lang} title={title} description={description ?? intro}>
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description ?? intro}
+  availableLangs={availableLangs}
+>
   <section
     class="title-band"
+    lang={contentLang}
     style={`background: ${bandColor}; color: ${textColor}; --band-focus: ${textColor}`}
   >
     <div class="wrap">
@@ -33,7 +43,7 @@ const {
       {intro && <p class="intro">{intro}</p>}
     </div>
   </section>
-  <section>
+  <section lang={contentLang}>
     <div class="wrap wrap--reading prose">
       <slot />
     </div>

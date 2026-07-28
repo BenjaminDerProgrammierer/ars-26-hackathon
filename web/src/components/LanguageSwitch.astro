@@ -3,12 +3,13 @@ import { type Lang, languages, useTranslations } from "../i18n/ui";
 
 interface Props {
   lang: Lang;
+  availableLangs?: Lang[];
 }
 
-const { lang } = Astro.props;
+const { lang, availableLangs = Object.keys(languages) as Lang[] } = Astro.props;
 const t = useTranslations(lang);
 
-const targets = (Object.keys(languages) as Lang[]).map((code) => ({
+const targets = availableLangs.map((code) => ({
   code,
   label: languages[code],
   url: Astro.url.pathname.replace(/\/(en|de)(\/|$)/, `/${code}$2`),
