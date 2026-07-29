@@ -1,51 +1,70 @@
 # Data quality status and usage rules
 
-Measured against schema version 2.0, export generated 2026-07-20 at
-07:59:49Z. The previous ID, relation, visibility, and URL problems were fixed
-at the source. Do not keep the workarounds from the 2026-07-06 export in new
-applications.
+Measured against schema version 2.0, export generated
+`2026-07-23T13:22:00.446Z`. This export newly applies
+`export_filter: "public_for_hackathon = true"` to projects, contacts, and
+calendar rows while retaining all locations. The fields still conform to the
+schema, but several relation targets were removed by the filter without
+recomputing the remaining relations.
 
 ## 1. IDs and joins
 
-All 1,482 records have a unique, non-null `canonical_id` containing a bare
+All 491 exported records have a unique, non-null `canonical_id` containing a bare
 32-character hexadecimal value. Every relation-valued `Linked *` value uses
 that same key; `Linked Ticket` is free-text ticket information.
 
 | Database | Records | `notion` ids | `derived` ids |
 |---|---:|---:|---:|
-| projects | 706 | 706 | 0 |
-| contacts | 360 | 360 | 0 |
-| locations | 138 | 122 | 16 |
-| calendar | 278 | 52 | 226 |
+| projects | 316 | 316 | 0 |
+| contacts | 28 | 28 | 0 |
+| locations | 140 | 129 | 11 |
+| calendar | 7 | 1 | 6 |
 
 Join on `canonical_id`, never on the readable `id`. `id_source: derived`
 means the id is deterministic and remains stable while its source content
 (such as location hierarchy/name or slot attributes) does not change.
 
-## 2. Locations
+## 2. Referential integrity after filtering
 
-All 138 location ids are present and unique. Generic names such as `Level 1`
-and `Foyer` are disambiguated through the parent-child hierarchy; the 16 cases
-without a suitable Notion id have deterministic derived ids.
+Run `summary` before building joined views. Current resolution rates are:
 
-Two project-to-location references out of 412 do not currently resolve. Apps
-should tolerate a missing joined location without discarding the project.
+| Relation | Resolved | Total | Unresolved |
+|---|---:|---:|---:|
+| `calendar.Linked Projects` → projects | 0 | 5 | 5 |
+| `projects.calendar_ids` → calendar | 0 | 75 | 75 |
+| `projects.Linked Contacts` → contacts | 32 | 145 | 113 |
+| `contacts.Linked Projects` → projects | 32 | 42 | 10 |
+| `projects.Linked Parent` → projects | 193 | 322 | 129 |
+| `projects.Linked Child` → projects | 193 | 245 | 52 |
+| `locations.Linked Projects` → projects | 231 | 554 | 323 |
+| `projects.Linked Location` → locations | 231 | 231 | 0 |
+| `locations.Linked Parent` → locations | 96 | 96 | 0 |
+| `locations.Linked Child` → locations | 96 | 96 | 0 |
+| `calendar.Linked Location` → locations | 5 | 5 | 0 |
+
+Missing optional targets must not cause an app to discard the source record.
+Treat absent contacts, parent/child projects, and location back-reference
+targets as unavailable. Do not create placeholder content that could expose
+filtered records.
 
 ## 3. Calendar and reverse relation
 
-All 278 calendar ids are present and unique. The former duplicate value was a
-project id rather than a slot id. Each row now has:
+`calendar` remains the declared authoritative source for concrete times, but
+the current exported arrays violate that contract:
 
-- `project_ref`: scalar project `canonical_id`, or null;
-- `slot_status`: `assigned` or `unassigned`.
+- five assigned slots reference two projects omitted from `projects`;
+- 35 projects contain 75 `calendar_ids`, none present in `calendar`;
+- `verify` therefore reports 40 violations across these two invariants;
+- `event_rows()` returns zero rows because it correctly skips slots whose
+  projects are missing.
 
-There are 253 assigned and 25 unassigned slots. All 253 assigned project
-references resolve. `calendar` is authoritative for concrete times.
-`projects.calendar_ids` is derived from it; all 253 values are unique and
-resolve to calendar rows. Ignore the legacy `projects."Linked Calendar"`
-relation and treat `projects.Times` as display text only.
+Do not fall back to `projects."Linked Calendar"` or parse `projects.Times` as
+structured schedule data. For a timetable, present an unavailable/empty state
+until a repaired export is published. The July 20 snapshot can support
+historical diagnosis, but it includes hidden records and must not be used to
+reintroduce filtered content into a public demo.
 
-## 4. Visibility
+## 4. Visibility and metadata scope
 
 Use the explicit output fields instead of inferring visibility from names or
 the raw CMS status:
@@ -54,31 +73,29 @@ the raw CMS status:
 - render its URL only when `link_allowed` is true;
 - use `status_web` and `visibility_rule` to explain/debug the decision.
 
-Only `done` is currently eligible for visibility. Internal/test markers remain
-excluded even when their workflow status is `done`. An `offline` record may be
-shown but must not be linked. The July export contains placeholders for
-testing; the data provider expects the August export to contain only actual
-records.
+Only `done` is eligible for visibility. Internal/test markers remain excluded
+even when their workflow status is `done`. An `offline` record may be shown but
+must not be linked. All 316 projects, 28 contacts, and 7 calendar records in
+the current arrays are public. Locations are the exception to source
+filtering: all 140 are retained for hierarchy and map context, and only two
+carry `public_for_hackathon: true`.
 
-Visibility is record-specific: do not expose a hidden project merely because a
-linked slot is public. In this test export no joined event has both a public
-calendar slot and a public project, so `event_rows(public_only=True)` correctly
-returns no rows. This is expected to change with later data, not a reason to
-relax the slot/project filter. Locations are the exception: retain locations
-linked to public records regardless of their own visibility flag so venue
-hierarchies and map context remain complete.
+Some `_meta.quality` values were computed before export filtering. For example,
+it reports 552 source calendar slots, 64 without projects, and 399 derived
+calendar ids even though the exported calendar array contains seven records,
+of which six have derived ids. Treat these values as source-level diagnostics;
+use `summary` and the arrays themselves for exported counts.
 
 ## 5. URLs
 
-All 1,980 non-null URL values in this export include `http://` or `https://`,
-and `_meta.quality.unparsable_urls` is empty. Source status values such as
+`_meta.quality.unparsable_urls` is empty. Source status values such as
 `offline` are normalized to null rather than emitted into URL fields. Continue
 to respect `link_allowed` before rendering links.
 
 ## 6. Coordinates still require caution
 
-Coordinates are now JSON numbers, not comma-decimal strings. Use them directly
-as WGS84 latitude/longitude values and consult `coordinates_ok`.
+Coordinates are JSON numbers, not comma-decimal strings. Use them directly as
+WGS84 latitude/longitude values and consult `coordinates_ok`.
 
 Six locations are flagged with `coordinates_ok: false` and listed in
 `_meta.quality.suspicious_coordinates`. They contain approximately
@@ -92,12 +109,13 @@ it continues to the next joined location with a usable coordinate pair.
 
 `Start Time` and `End Time` contain only `HH:MM`; the date is embedded in the
 human-readable calendar `Time` string. Use the skill's
-`parse_event_datetime()` helper. One of the 253 rows currently returned by
-`event_rows()` lacks a parseable date.
+`parse_event_datetime()` helper. Date parsing is only possible after a slot is
+successfully joined to its project; the current export has no joined rows.
 
 ## 8. Length limits are recommendations
 
 Text length limits are editorial recommendations, not validation constraints.
-The exporter does not truncate values. The current export reports 96 overruns
-in `_meta.quality.length_warnings`; applications should allow wrapping or
+The exporter does not truncate values. The current metadata reports 133
+source-level overruns while including 50 warning examples in
+`_meta.quality.length_warnings`; applications should allow wrapping or
 truncate only in their own presentation layer.

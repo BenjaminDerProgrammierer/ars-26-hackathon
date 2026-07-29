@@ -1,9 +1,10 @@
 # Data model reference
 
 Field reference for the Ars Electronica Festival 2026 hackathon dataset,
-schema version 2.0 (export of 2026-07-20). The export contains strings,
-numbers, booleans, arrays of strings, and null values. Personal contact details
-and internal staff assignments are removed at the source.
+schema version 2.0 (latest checked export generated 2026-07-23). The export
+contains strings, numbers, booleans, arrays of strings, and null values.
+Personal contact details and internal staff assignments are removed at the
+source.
 
 ## Metadata and recommended usage
 
@@ -14,16 +15,19 @@ rules are:
    `canonical_id`. `Linked Ticket` is free text, not a relation.
 2. Read concrete event slots from `calendar`; use `projects.calendar_ids` for
    the calendar-derived reverse relation.
-3. For public demo apps, include projects and calendar slots only when
-   `public_for_hackathon: true`. Preserve their linked locations regardless of
-   a location's visibility flag so the complete venue hierarchy remains
-   available. Render a record's URL only when `link_allowed: true`.
+3. For public demo apps, include records only when
+   `public_for_hackathon: true`. The current export applies this filter at the
+   source to projects, contacts, and calendar rows; preserve linked locations
+   regardless of a location's visibility flag so the complete venue hierarchy
+   remains available. Render a record's URL only when `link_allowed: true`.
 4. Treat `status_web` and `visibility_rule` as explanations of that visibility
    decision, not as a replacement for the two booleans.
 
 `_meta.quality` reports derived IDs, unassigned calendar slots, suspicious
-coordinates, URL validation, and editorial length warnings. Values that exceed
-recommended lengths are reported but not truncated.
+coordinates, URL validation, and editorial length warnings. In the filtered
+July 23 export, some of its counters still describe the unfiltered source
+population, so use actual array lengths for exported record counts. Values
+that exceed recommended lengths are reported but not truncated.
 
 ## Common fields
 
@@ -40,10 +44,9 @@ Every record in all four databases has these normalized fields:
 | `public_for_hackathon` | boolean | Whether the record is suitable for public hackathon demo apps |
 | `link_allowed` | boolean | Whether the record's URL may be rendered as a link; `offline` content may be shown but not linked |
 
-The July export intentionally includes hidden placeholders for testing. Only
-`done` content is eligible for public visibility, with explicit internal/test
-markers still excluded. The announced August export is expected to contain
-only actual data.
+Only `done` content is eligible for public visibility, with explicit
+internal/test markers excluded. The July 23 export contains only public
+projects, contacts, and slots, while locations remain unfiltered by design.
 
 ## Relations
 
@@ -59,6 +62,7 @@ projects ──── Linked Contacts ──▶ contacts
 contacts ──── Linked Projects ──▶ projects
 
 locations ── Linked Parent/Child ─▶ locations
+          ── Linked Projects ─────▶ projects
 
 calendar ──── project_ref ──────▶ projects  (scalar, leading relation)
          ──── Linked Projects ──▶ projects  (array equivalent)
@@ -67,12 +71,14 @@ calendar ──── project_ref ──────▶ projects  (scalar, leadi
 
 `projects."Linked Calendar"` remains in the raw source fields but is not
 reliably resolvable. Use `projects.calendar_ids`. `projects.Times` is display
-text only.
+text only. The diagram describes intended targets, not a guarantee that every
+target survived export filtering; see `data-quality.md` for current resolution
+rates.
 
 ## Database: Projects
 
 The central database of projects, exhibitions, workshops, performances, and
-collections (706 records in this export).
+collections (316 records in the current filtered export).
 
 | Field | Type | Description |
 |---|---|---|
@@ -102,7 +108,8 @@ collections (706 records in this export).
 
 ## Database: Contacts
 
-Artists, speakers, groups, institutions, and project partners (360 records).
+Artists, speakers, groups, institutions, and project partners (28 records in
+the current filtered export).
 
 | Field | Type | Description |
 |---|---|---|
@@ -117,8 +124,9 @@ Artists, speakers, groups, institutions, and project partners (360 records).
 ## Database: Locations
 
 Venues organized as Building → Floor → Room, plus Outdoor and Online
-locations (138 records). All ids are present and unique: 122 came from Notion
-and 16 generic rooms/floors received stable, hierarchy-derived ids.
+locations (140 records). All ids are present and unique: 129 came from Notion
+and 11 generic rooms/floors received stable, hierarchy-derived ids. Locations
+are retained even when not public so that venue hierarchies remain complete.
 
 | Field | Type | Description |
 |---|---|---|
@@ -137,8 +145,10 @@ and 16 generic rooms/floors received stable, hierarchy-derived ids.
 
 ## Database: Calendar
 
-Individual time slots (278 records). Every slot has a unique id. Of these, 253
-are assigned to a project and 25 are explicitly unassigned.
+Individual time slots (7 records). Every slot has a unique id: one came from
+Notion and six were derived. Five are marked assigned and two are explicitly
+unassigned. All five assigned project targets are absent from the current
+filtered project array.
 
 | Field | Type | Description |
 |---|---|---|

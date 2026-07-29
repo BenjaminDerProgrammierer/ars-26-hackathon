@@ -5,39 +5,50 @@ description: Handle the Ars Electronica Festival 2026 hackathon dataset - downlo
 
 # Ars Electronica Festival 2026 – Hackathon Dataset Handling
 
-The dataset is one JSON file (~2 MB) exported from the festival CMS for the
-*Negotiating Humanity* festival. It holds four interlinked databases. In the
-2026-07-20 export these contain `projects` (706), `contacts` (360), `locations`
-(138), and `calendar` (278), plus a `_meta` block with usage rules, quality
-reports, `generated_at`, and record counts.
+The dataset is one JSON file exported from the festival CMS for the
+*Negotiating Humanity* festival. It holds four interlinked databases plus a
+`_meta` block with usage rules, quality reports, `generated_at`, record counts,
+and the active export filter.
+
+The latest export checked for this skill was generated
+`2026-07-23T13:22:00.446Z` with `schema_version: 2.0` and
+`export_filter: "public_for_hackathon = true"`. It contains `projects` (316),
+`contacts` (28), `locations` (140), and `calendar` (7). Its schema fields are
+unchanged from July 20, but referential integrity is currently broken; see
+`references/data-quality.md` before joining records.
 
 Key places:
 
 - **Download URL** (always the latest export; redirects to the JSON file):
   `https://ars.electronica.art/negotiatinghumanity/hackathondata/`
 - **Repo snapshot**: `ars-dataset/notion_export.json` — a local working copy;
-  it is **gitignored**, so a fresh clone doesn't have it (download it first).
-  Feedback sent to the data provider lives in `ars-dataset/discussions/`.
+  it is **gitignored**, may be older than the live export, and is absent from a
+  fresh clone. Feedback sent to the data provider lives in
+  `ars-dataset/discussions/`.
 - **This skill's tooling**: `scripts/ars_dataset.py` (stdlib-only CLI + importable
   module). Run it for all routine handling instead of writing ad-hoc code:
 
 ```bash
-python3 scripts/ars_dataset.py download -o notion_export.json  # fetch latest
-python3 scripts/ars_dataset.py summary [FILE_OR_URL]           # counts + health metrics
-python3 scripts/ars_dataset.py verify  [FILE_OR_URL]           # validate against references/schema.json
-python3 scripts/ars_dataset.py diff OLD.json NEW.json          # what changed between exports
+TOOL=.agents/skills/ars-dataset/scripts/ars_dataset.py
+python3 "$TOOL" download -o /tmp/ars-export.json       # fetch latest
+python3 "$TOOL" summary [FILE_OR_URL]                   # counts + health metrics
+python3 "$TOOL" verify  [FILE_OR_URL]                   # schema + core invariants
+python3 "$TOOL" diff OLD.json NEW.json                  # metadata/field/record drift
 ```
 
 ## Task: update the repo snapshot to the latest export
 
-1. Download to a temp file (`download -o /tmp/new_export.json`).
+1. Download to a temp file. Never assume the gitignored snapshot is current.
 2. `verify` the new file — schema violations mean the source changed; don't
-   silently overwrite the snapshot.
+   silently overwrite the snapshot. Referential-integrity violations can also
+   occur without field/schema drift, as in the current July 23 export.
 3. `diff` the current snapshot against the new file and report to the user
-   what changed: `generated_at`, record counts, added/removed fields,
-   added/removed records.
-4. Replace `ars-dataset/notion_export.json` only after reporting; if fields
-   were added/removed or enums changed, also update this skill's
+   what changed: `generated_at`, `schema_version`, `export_filter`, record
+   counts, added/removed fields, and added/removed records.
+4. Replace `ars-dataset/notion_export.json` only after reporting and only when
+   validation passes, unless the user explicitly wants to retain a known-bad
+   upstream snapshot for investigation. If fields were added/removed or enums
+   changed, also update this skill's
    `references/data-model.md` and `references/schema.json` so documentation
    stays truthful.
 
@@ -46,16 +57,20 @@ python3 scripts/ars_dataset.py diff OLD.json NEW.json          # what changed be
 `verify` checks every record against `references/schema.json` (unknown
 fields, missing required fields, wrong types, unknown enum values) and prints
 aggregated violations. It also checks canonical-id uniqueness, the
-authoritative calendar/project relation, and declared database counts. The
-current export is expected to be clean; new
-violations after a fresh download indicate the source format changed —
-summarize them for the user and propose documentation updates rather than
-"fixing" the data locally.
+authoritative calendar/project relation, visibility invariants, and declared
+database counts.
+
+The July 23 export is expected to produce 40 core relation violations:
+35 projects have `calendar_ids` inconsistent with the seven exported slots,
+and five assigned slots reference projects omitted by the public-only filter.
+This is a data-integrity failure, not schema drift. `summary` also exposes
+unresolved contact, hierarchy, and location back-references. Report these
+upstream issues rather than "fixing" or inventing relation targets locally.
 
 `summary` additionally reports known data-health metrics (records without
-ids, duplicate ids, link-resolution rates). Compare against the baselines in
-`references/data-quality.md` to see whether known issues were fixed at the
-source or new ones appeared.
+ids, duplicate ids, all documented link-resolution rates, joined event rows,
+and visibility counts). Compare against `references/data-quality.md` to see
+whether known issues were fixed at the source or new ones appeared.
 
 ## Task: understand the data
 
@@ -77,7 +92,10 @@ The essentials, because naive code gets them wrong:
   `calendar."Linked Projects"` or the scalar `calendar.project_ref`.
   `projects.calendar_ids` is the complete, calendar-derived reverse relation.
   `projects."Linked Calendar"` remains unreliable and `projects.Times` is
-  display-only.
+  display-only. In the current filtered export these authoritative relations
+  are broken: `event_rows()` returns zero rows. Do not fabricate missing
+  projects, use legacy relations, or relax visibility rules to make a schedule
+  appear.
 - **No field carries a machine-readable event date.** `Start Time`/`End Time`
   are bare `HH:MM`; the full date exists only inside the calendar `Time`
   display string (`"9. September 2026 15:15 (MESZ) → 16:15"`). Use
@@ -86,14 +104,18 @@ The essentials, because naive code gets them wrong:
 - **Use the explicit visibility fields.** `public_for_hackathon` is the filter
   for demo apps, while `link_allowed` controls whether URLs may be rendered.
   `status_web` is normalized and `visibility_rule` explains the decision.
-  `offline` means display is allowed but linking is not. The July export still
-  includes hidden placeholders for testing; the August export is expected to
-  contain only the actual data. Keep locations linked to public records even
-  when a location's own visibility flag is false; `_meta.usage.locations_note`
-  requires the complete venue hierarchy for maps.
-- Location and calendar ids are present and unique. Six location coordinates
-  are still flagged as suspicious; consult `coordinates_ok` and
-  `_meta.quality`. URLs are normalized to include a protocol.
+  `offline` means display is allowed but linking is not. The current export is
+  already filtered to public projects, contacts, and calendar rows; locations
+  remain unfiltered so the venue hierarchy stays complete. Keep locations
+  linked to public records even when the location's own visibility flag is
+  false.
+- All exported ids are present and unique. Six location coordinates are still
+  flagged as suspicious; consult `coordinates_ok` and `_meta.quality`. URLs
+  are normalized to include a protocol.
+- Some `_meta.quality` counters describe the pre-filter source population
+  rather than only the exported arrays. Prefer counts and link-resolution
+  metrics computed from the arrays by `summary`; use metadata quality entries
+  as source-level diagnostics.
 - Editorial length limits are recommendations. Values are not truncated;
   overruns are reported in `_meta.quality.length_warnings`.
 
@@ -104,6 +126,7 @@ This skill's module is importable for downstream work
 these functions already encode the join and cleansing rules above. For
 time/place analyses, `event_rows()` rows come with ready-to-use `start_dt`/
 `end_dt` (tz-aware datetimes) and `lat`/`lon` (parsed floats from the first
-location with a complete, non-flagged coordinate pair). Read
-`references/data-quality.md` first; it lists every known pitfall with the
-recommended workaround.
+location with a complete, non-flagged coordinate pair). It intentionally skips
+slots whose project target is absent, so zero rows is the correct result for
+the current live export. Read `references/data-quality.md` first; it lists
+every known pitfall and safe fallback.

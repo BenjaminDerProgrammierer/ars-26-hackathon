@@ -535,6 +535,37 @@ class VerifyTests(unittest.TestCase):
 
 
 class DiffTests(unittest.TestCase):
+    def test_metadata_drift_is_reported(self):
+        old = {
+            "_meta": {
+                "generated_at": "2026-07-20T07:59:49.183Z",
+                "schema_version": "2.0",
+                "export_filter": "all records",
+            },
+            **{db: [] for db in ars_dataset.DATABASES},
+        }
+        new = {
+            "_meta": {
+                "generated_at": "2026-07-23T13:22:00.446Z",
+                "schema_version": "2.1",
+                "export_filter": "public_for_hackathon = true",
+            },
+            **{db: [] for db in ars_dataset.DATABASES},
+        }
+
+        differences = ars_dataset.diff(old, new)
+
+        self.assertIn(
+            "generated_at: 2026-07-20T07:59:49.183Z -> "
+            "2026-07-23T13:22:00.446Z",
+            differences,
+        )
+        self.assertIn(
+            "export_filter: all records -> public_for_hackathon = true",
+            differences,
+        )
+        self.assertIn("schema_version: 2.0 -> 2.1", differences)
+
     def test_schema_v1_ids_match_schema_v2_canonical_ids(self):
         canonical_id = "0123456789abcdef0123456789abcdef"
         old = {
@@ -557,6 +588,32 @@ class DiffTests(unittest.TestCase):
 
         self.assertNotIn("projects: 1 record id(s) added", differences)
         self.assertNotIn("projects: 1 record id(s) removed", differences)
+
+
+class SummaryTests(unittest.TestCase):
+    def test_summary_includes_export_metadata_and_all_supported_relations(self):
+        data = valid_export()
+        data["_meta"].update({
+            "schema_version": "2.0",
+            "export_filter": "public_for_hackathon = true",
+        })
+
+        output = ars_dataset.summary(data)
+
+        self.assertIn("schema_version: 2.0", output)
+        self.assertIn(
+            "export_filter: public_for_hackathon = true",
+            output,
+        )
+        for relation in (
+                "projects.'Linked Parent' -> projects",
+                "projects.'Linked Child' -> projects",
+                "locations.'Linked Projects' -> projects",
+                "locations.'Linked Parent' -> locations",
+                "locations.'Linked Child' -> locations",
+                "calendar.'Linked Location' -> locations"):
+            with self.subTest(relation=relation):
+                self.assertIn(relation, output)
 
 
 if __name__ == "__main__":
