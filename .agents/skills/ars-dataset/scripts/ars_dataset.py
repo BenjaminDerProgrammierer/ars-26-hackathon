@@ -488,10 +488,13 @@ def diff(old, new):
         return match.group(0) if match else None
 
     out = []
-    og = (old.get("_meta") or {}).get("generated_at")
-    ng = (new.get("_meta") or {}).get("generated_at")
-    if og != ng:
-        out.append(f"generated_at: {og} -> {ng}")
+    old_meta = old.get("_meta") or {}
+    new_meta = new.get("_meta") or {}
+    for field in ("generated_at", "schema_version", "export_filter"):
+        old_value = old_meta.get(field)
+        new_value = new_meta.get(field)
+        if old_value != new_value:
+            out.append(f"{field}: {old_value} -> {new_value}")
     for db in DATABASES:
         o_rows, n_rows = old.get(db, []), new.get(db, [])
         if len(o_rows) != len(n_rows):
@@ -517,7 +520,12 @@ def diff(old, new):
 def summary(data):
     """Counts and data-health metrics as human-readable lines."""
     idx = build_indexes(data)
-    lines = [f"generated_at: {(data.get('_meta') or {}).get('generated_at')}"]
+    metadata = data.get("_meta") or {}
+    lines = [
+        f"generated_at: {metadata.get('generated_at')}",
+        f"schema_version: {metadata.get('schema_version')}",
+        f"export_filter: {metadata.get('export_filter')}",
+    ]
     for db in DATABASES:
         rows = data.get(db, [])
         keyless = sum(1 for r in rows if r.get("_key") is None)
@@ -541,6 +549,18 @@ def summary(data):
                  f"{rate([(r, 'Linked Location') for r in data.get('projects', [])], 'locations')}")
     lines.append(f"  contacts.'Linked Projects' -> projects : "
                  f"{rate([(r, 'Linked Projects') for r in data.get('contacts', [])], 'projects')}")
+    lines.append(f"  projects.'Linked Parent' -> projects   : "
+                 f"{rate([(r, 'Linked Parent') for r in data.get('projects', [])], 'projects')}")
+    lines.append(f"  projects.'Linked Child' -> projects    : "
+                 f"{rate([(r, 'Linked Child') for r in data.get('projects', [])], 'projects')}")
+    lines.append(f"  locations.'Linked Projects' -> projects: "
+                 f"{rate([(r, 'Linked Projects') for r in data.get('locations', [])], 'projects')}")
+    lines.append(f"  locations.'Linked Parent' -> locations : "
+                 f"{rate([(r, 'Linked Parent') for r in data.get('locations', [])], 'locations')}")
+    lines.append(f"  locations.'Linked Child' -> locations  : "
+                 f"{rate([(r, 'Linked Child') for r in data.get('locations', [])], 'locations')}")
+    lines.append(f"  calendar.'Linked Location' -> locations: "
+                 f"{rate([(r, 'Linked Location') for r in data.get('calendar', [])], 'locations')}")
     assigned = sum(1 for s in data.get("calendar", [])
                    if s.get("slot_status") == "assigned")
     unassigned = sum(1 for s in data.get("calendar", [])
