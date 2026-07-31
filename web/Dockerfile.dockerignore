@@ -1,4 +1,6 @@
 **
+!example-projects/
+!example-projects/**
 !opendata-linz/
 !opendata-linz/**
 !web/
@@ -11,3 +13,6 @@ web/.git
 web/dist
 web/node_modules
 web/npm-debug.log*
+example-projects/**/__pycache__
+example-projects/**/dist
+example-projects/**/node_modules

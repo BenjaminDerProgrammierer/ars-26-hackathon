@@ -1,16 +1,16 @@
 # Final Linz Open Data verdicts
 
 The current consolidated assessment is the
-[2026-07-16 hackathon usability report](2026-07-16-hackathon-usability.md).
+[2026-07-16 hackathon usability report](archive/2026-07-16-hackathon-usability.md).
 
 These are the authoritative dataset decisions for the Ars Electronica Festival
-2026 hackathon. Each folder preserves Rainer's source verdict and adds the final
-decision after the full 820-record catalog review, live endpoint checks, festival
-export analysis, GitHub defect handoff, and a 2026-07-16 publisher-directory
-delta crawl.
+2026 hackathon. Each published folder preserves Rainer's source verdict and adds
+the final decision after the full 820-record catalog review, live endpoint
+checks, festival export analysis, GitHub defect handoff, and a 2026-07-16
+publisher-directory delta crawl.
 
-Each dataset page now provides compact frontmatter for status, optional sorting
-priority, format, license, and data vintage, followed by a short factual
+Each published dataset page provides compact frontmatter for status, optional
+sorting priority, format, license, and data vintage, followed by a short factual
 description, practical usage notes, and source links. Detailed review evidence
 remains in the research archive and consolidated report. Current catalog
 evidence was reviewed through 2026-07-16; Orthofotos 2023 and Stadtplan Linz
@@ -72,7 +72,6 @@ remain optional, pending, or outside the festival portfolio.
 | [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
 | [Stadtplan Linz 2025](stadtplan-linz-2025/) | **OPTIONAL** | Current municipal cartographic raster; crop, reproject, and optimize one variant before browser use. |
 | [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use the 2025 refresh and preconvert selected festival-area tiles; repair stale `/2022/` links in its index. |
-| [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Convert/reproject and label 2022 freshness. |
 | [Public toilets](wc-anlagen/) | **USE** | Prepared 68-location CSV with WGS84 coordinates and normalized accessibility fields; service details remain dated. |
 | [Drinking fountains](trinkbrunnen/) | **USE** | Prepared 132-record CSV with 84 WGS84 locations; current operation and drinkability still require verification. |
 | [Air and weather](luftguete-messwerte/) | **OPTIONAL** | Five live air/weather stations; three unavailable light feeds and one unavailable Chemiepark feed; monitor and cache. |
@@ -84,19 +83,16 @@ remain optional, pending, or outside the festival portfolio.
 | [Hecken die Schmecken](hecken-die-schmecken/) | **OPTIONAL** | Small playful garnish with no coordinates and 2022 data. |
 | [Dog zones](hundezonen/) | **OPTIONAL** | Public downloads are repaired; convert the dated EPSG:31255 polygons and avoid current-rule claims. |
 | [Baulandreserven 2022](baulandreserven-2022/) | **OPTIONAL** | Corrected complete 2022 layer for niche, clearly dated land-use context. |
-| [Election data](wahldaten/) | **OPTIONAL** | Strong democracy-map material, but year-specific precinct joins and neutral interpretation require preparation. |
-| [Accommodation establishments](beherbergungsbetriebe/) | **DO NOT USE** | Aggregated tourism totals, not hotel locations. |
-| [Parking-ticket machines](parkscheinautomaten/) | **DO NOT USE** | CRS is repaired, but the static layer still has low festival value. |
-| [Digital city map TMS/WMTS](stadtplan-tms-wmts/) | **DO NOT USE** | Non-standard stale tiles with no joinable data. |
-| [Recycling points](altstoffsammelstellen/) | **DO NOT USE** | CSVs require Linz AG login; catalog retirement is pending. |
+
+Reasons for removing several datasets from the published catalog are recorded
+in the [archive](archive/removed-datasets.md); removed entries are not linked as
+current dataset pages.
 
 ## Pending decisions and data requests
 
 | Candidate | Current status | Required decision or request |
 |---|---|---|
 | 2025 neighborhood statistics pack | **PREPARATION CANDIDATE** | Bundle population, one-year age counts, and 2014-system district geometry with encoding and blank-row cleanup. |
-| [Council transcripts](gemeinderatsprotokolle/) | **REASSESS** | Previously excluded despite an A-tier catalog review. |
-| [Pool occupancy](baederauslastung/) | **REQUEST DATA** | No open dataset was found. Ask LINZ AG for an anonymous feed or snapshot before considering a scraper. |
 | [Orthophoto image-recognition pack](orthofotos/) | **ORGANIZER DECISION PENDING** | Decide whether to prepare festival-area web tiles; raw 2019 imagery alone is about 11.8 GB. |
 | Institutional image archives | **DISCOVERY REQUEST** | Ask the Tabakfabrik, museums, and other institutions whether they can provide licensed, curated image material for AI-recognition experiments. |
 
@@ -112,8 +108,8 @@ become default festival datasets. Their ideas remain useful for future tracks:
 |---|---|
 | Solar/green-roof potential plus 3D buildings | The visually strong 3D component remains a prepared showcase track; roof-potential data still needs a dedicated source audit and festival-area preparation. |
 | Neighborhood change atlas | District geometry, population, age structure, and construction series are analytically strong, but boundary changes and a weak direct festival join make this a separate civic-data track. |
-| Searchable civic memory | Preserved as [council transcripts](gemeinderatsprotokolle/) with a **REASSESS** status pending a hands-on corpus profile. |
-| Democracy map | Preserved as optional [election data](wahldaten/), with year-specific precinct joins and neutral interpretation made explicit. |
+| Searchable civic memory | The council-transcript idea remains in the research archive, but its dataset page was removed from the published catalog. |
+| Democracy map | The election-data idea remains in the research archive; year-specific precinct joins and neutral interpretation would be required before publication. |
 | City change detector | Preserved through optional [orthophotos](orthofotos/); organizer-selected web tiles are required because the raw imagery is too large for a default bundle. |
 | City finance and resilience trends | Valuable standalone civic topics, but schema normalization, aggregated records, and weak festival joins put them outside this curated portfolio. |
 
@@ -132,7 +128,7 @@ Open LINZ AG requests should cover timetable/GTFS or NeTEx data, realtime or
 service information, pool occupancy, and replacement access for recycling-point
 data. Scraping is a fallback only after an open feed request and a terms review.
 
-See the [current consolidated usability report](2026-07-16-hackathon-usability.md)
+See the [current consolidated usability report](archive/2026-07-16-hackathon-usability.md)
 for all current decisions. The
 [original cross-dataset analysis](archive/2026-07-13-linz-open-data-hackathon-usability.md)
 and [2026-07-16 catalog delta](archive/2026-07-16-catalog-delta-usability.md)

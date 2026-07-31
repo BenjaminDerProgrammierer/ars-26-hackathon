@@ -4,7 +4,9 @@ The bilingual public website for the hackathon, built with Astro.
 
 ## Development
 
-Requires Node.js and npm to be installed.
+Requires Node.js 22.12 or newer, npm, and the `zip` command. The development and
+production-build scripts copy the prepared Linz datasets into `public/datasets/`
+and rebuild the downloadable example-project archives before Astro starts.
 
 ```sh
 npm install
@@ -12,6 +14,13 @@ npm run dev
 ```
 
 The local site runs at <http://localhost:4321>.
+
+Run the same static checks and tests used by CI with:
+
+```sh
+npm run check
+npm test
+```
 
 Redeem-code lookups use your local Azure CLI credential. Configure `web/.env`
 (it is ignored by Git):
