@@ -16,6 +16,8 @@ remains in the research archive and consolidated report. Current catalog
 evidence was reviewed through 2026-07-16; Orthofotos 2023 and Stadtplan Linz
 2025 were added and checked on 2026-07-17. Street names, drinking fountains,
 and public toilets received prepared, validated CSV snapshots on 2026-07-23.
+The air-and-weather API status and its Land OÖ provider attribution were
+clarified on 2026-07-29.
 The affected verdicts link to the publisher fixes and live endpoint checks
 recorded in the relevant GitHub issues. The
 verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data
@@ -73,7 +75,7 @@ remain optional, pending, or outside the festival portfolio.
 | [Accessible parking](behindertenstellplaetze/) | **USE WITH PREPARATION** | Convert/reproject and label 2022 freshness. |
 | [Public toilets](wc-anlagen/) | **USE** | Prepared 68-location CSV with WGS84 coordinates and normalized accessibility fields; service details remain dated. |
 | [Drinking fountains](trinkbrunnen/) | **USE** | Prepared 132-record CSV with 84 WGS84 locations; current operation and drinkability still require verification. |
-| [Air and weather](luftguete-messwerte/) | **USE WITH PREPARATION** | Five working live stations; monitor and cache. |
+| [Air and weather](luftguete-messwerte/) | **OPTIONAL** | Five live air/weather stations; three unavailable light feeds and one unavailable Chemiepark feed; monitor and cache. |
 | [Defibrillators](defibrillatoren/) | **OPTIONAL** | Prototype-only safety layer; 2022 data is not operational guidance. |
 | [Public Wi-Fi](hotspots/) | **OPTIONAL** | Useful venue layer, but usage and locations are from 2022. |
 | [Orthophotos](orthofotos/) | **OPTIONAL** | Heavy experimental visual source, now including the 2023 edition, requiring selection and web tiling. |
