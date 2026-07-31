@@ -3,6 +3,24 @@ import test from "node:test";
 import type { BlobLeaseClient } from "@azure/storage-blob";
 import { RenewableBlobLease } from "../src/lib/admin-operation-storage.js";
 
+function waitForAbort(signal: AbortSignal, timeoutMs = 500): Promise<void> {
+  if (signal.aborted) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(
+      () => reject(new Error(`Lease did not abort within ${timeoutMs}ms`)),
+      timeoutMs,
+    );
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timeout);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+}
+
 test("a hung renewal cannot keep a locally expired lease active", async () => {
   let renewalStarted: (() => void) | undefined;
   const started = new Promise<void>((resolve) => {
@@ -19,8 +37,9 @@ test("a hung renewal cannot keep a locally expired lease active", async () => {
   } as unknown as BlobLeaseClient;
   const lease = new RenewableBlobLease(client, { durationMs: 40, renewalMs: 5 });
 
+  const aborted = waitForAbort(lease.signal);
   await started;
-  await new Promise<void>((resolve) => lease.signal.addEventListener("abort", () => resolve()));
+  await aborted;
 
   assert.equal(lease.signal.aborted, true);
   assert.throws(() => lease.assertActive(), /expired before renewal was confirmed/);
