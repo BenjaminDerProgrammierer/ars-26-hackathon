@@ -124,7 +124,7 @@ The bootstrap template is copied unchanged from
 ## Scripts
 
 - `pnpm dev` starts the application in watch mode with tsx.
-- `pnpm start` starts the application once with tsx.
+- `pnpm build` compiles the application to `dist/`.
+- `pnpm start` starts the compiled application from `dist/`.
 - `pnpm test` runs the server-side test suite.
 - `pnpm typecheck` type-checks the application.
-- `pnpm build` compiles the application to `dist/`.
