@@ -6,8 +6,10 @@ import "./style.css";
 import {
   festivalProjects,
   festivalSnapshotDate,
+  loadFountains,
   loadTrees,
   type FestivalProject,
+  type Fountain,
   type Tree,
 } from "./data";
 
@@ -69,7 +71,8 @@ app.innerHTML = `
         <h2 id="planner-title">What happens<br>between?</h2>
         <p>
           Pick two public festival projects and enter the times from your current
-          program. We’ll keep enough time to walk and suggest a city tree on the way.
+          program. We’ll keep enough time to walk, then suggest a tree encounter or
+          a tree-rich route via drinking water.
         </p>
       </div>
 
@@ -98,14 +101,32 @@ app.innerHTML = `
         </article>
       </div>
 
+      <fieldset class="route-mode">
+        <legend>Choose your in-between</legend>
+        <label>
+          <input type="radio" name="route-mode" value="tree" checked>
+          <span>
+            <strong>Meet a Linz tree</strong>
+            <small>A short detour to one living landmark</small>
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="route-mode" value="shade">
+          <span>
+            <strong>The Shadiest Festival Route</strong>
+            <small>Maximize trees and pass a drinking-water point</small>
+          </span>
+        </label>
+      </fieldset>
+
       <div class="calculation" id="calculation" aria-live="polite">
-        <p>Loading the Linz tree inventory…</p>
+        <p>Loading the Linz tree and drinking-water inventories…</p>
       </div>
     </section>
 
     <section class="discovery" aria-labelledby="discovery-title">
       <div class="discovery-title">
-        <p class="eyebrow">A DETOUR THAT FITS</p>
+        <p class="eyebrow" id="discovery-eyebrow">A DETOUR THAT FITS</p>
         <h2 id="discovery-title">Meet a<br>Linz tree.</h2>
       </div>
       <div class="route-map" id="route-map" aria-label="Street map of the selected route"></div>
@@ -118,9 +139,10 @@ app.innerHTML = `
         <h2>A possibility,<br>not a promise.</h2>
         <p>
           Walking times use straight-line distance with a 25% allowance—not street
-          routing. The tree inventory records trees maintained by the City of Linz;
-          it does not guarantee shade, access, or current conditions. Check your
-          festival program and surroundings before setting off.
+          routing. Shade-route rankings count registered trees near estimated route
+          segments. The city inventories do not guarantee shade, drinking-water
+          availability, access, or current conditions. Check your festival program
+          and surroundings before setting off.
         </p>
       </div>
     </section>
@@ -128,7 +150,7 @@ app.innerHTML = `
 
   <footer>
     <strong>MIND THE GAP</strong>
-    <p>Festival snapshot: ${formatSnapshotDate(festivalSnapshotDate)} · Tree inventory: 1 July 2026</p>
+    <p>Festival snapshot: ${formatSnapshotDate(festivalSnapshotDate)} · Tree inventory: 1 July 2026 · Fountain source: 4 July 2023</p>
     <span>Data: Ars Electronica & Stadt Linz</span>
   </footer>
 `;
@@ -144,16 +166,24 @@ const toMeta = requiredElement<HTMLDivElement>("#to-meta");
 const calculation = requiredElement<HTMLDivElement>("#calculation");
 const suggestions = requiredElement<HTMLDivElement>("#suggestions");
 const routeMap = requiredElement<HTMLDivElement>("#route-map");
+const discoveryEyebrow = requiredElement<HTMLParagraphElement>("#discovery-eyebrow");
+const discoveryTitle = requiredElement<HTMLHeadingElement>("#discovery-title");
+const routeModeInputs = [
+  ...document.querySelectorAll<HTMLInputElement>('input[name="route-mode"]'),
+];
 
 let trees: Tree[] = [];
+let fountains: Fountain[] = [];
 let selectedTreeId = "";
+let selectedFountainId = "";
 let fromProjectIndex = firstDefault;
 let toProjectIndex = secondDefault;
+let routeMode: "tree" | "shade" = "tree";
 
 try {
-  trees = await loadTrees();
+  [trees, fountains] = await Promise.all([loadTrees(), loadFountains()]);
 } catch (error) {
-  calculation.innerHTML = `<p class="error">${escapeHtml(error instanceof Error ? error.message : "Tree data unavailable")}</p>`;
+  calculation.innerHTML = `<p class="error">${escapeHtml(error instanceof Error ? error.message : "City data unavailable")}</p>`;
 }
 
 function requiredElement<T extends Element>(selector: string): T {
@@ -271,6 +301,7 @@ function setupProjectSearch(
     setSelectedIndex(index);
     input.value = selected.title;
     selectedTreeId = "";
+    selectedFountainId = "";
     close();
     render();
   };
@@ -365,9 +396,11 @@ function setupProjectSearch(
   });
 }
 
+type LocatedPoint = Pick<FestivalProject | Tree | Fountain, "lat" | "lon">;
+
 function distance(
-  first: Pick<FestivalProject | Tree, "lat" | "lon">,
-  second: Pick<FestivalProject | Tree, "lat" | "lon">,
+  first: LocatedPoint,
+  second: LocatedPoint,
 ): number {
   const radius = 6_371_000;
   const radians = (degrees: number) => (degrees * Math.PI) / 180;
@@ -413,6 +446,15 @@ type Candidate = {
   routeMeters: number;
 };
 
+type ShadeCandidate = {
+  fountain: Fountain;
+  walkMinutes: number;
+  pauseMinutes: number;
+  routeMeters: number;
+  treeCount: number;
+  crownScore: number;
+};
+
 function findCandidates(
   from: FestivalProject,
   to: FestivalProject,
@@ -433,12 +475,60 @@ function findCandidates(
     .slice(0, 5);
 }
 
-function directionsUrl(from: FestivalProject, tree: Tree, to: FestivalProject): string {
-  const route = `${from.lat},${from.lon};${tree.lat},${tree.lon};${to.lat},${to.lon}`;
+function distanceToSegment(point: LocatedPoint, start: LocatedPoint, end: LocatedPoint): number {
+  const latitudeScale = 111_320;
+  const longitudeScale = latitudeScale * Math.cos((point.lat * Math.PI) / 180);
+  const x = (point.lon - start.lon) * longitudeScale;
+  const y = (point.lat - start.lat) * latitudeScale;
+  const endX = (end.lon - start.lon) * longitudeScale;
+  const endY = (end.lat - start.lat) * latitudeScale;
+  const lengthSquared = endX ** 2 + endY ** 2;
+  const projection =
+    lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, (x * endX + y * endY) / lengthSquared));
+  return Math.hypot(x - projection * endX, y - projection * endY);
+}
+
+function findShadeCandidates(
+  from: FestivalProject,
+  to: FestivalProject,
+  gapMinutes: number,
+): ShadeCandidate[] {
+  return fountains
+    .map((fountain) => {
+      const routeMeters = distance(from, fountain) + distance(fountain, to);
+      const walkMinutes = walkingMinutes(routeMeters);
+      const nearbyTrees = trees.filter(
+        (tree) =>
+          Math.min(
+            distanceToSegment(tree, from, fountain),
+            distanceToSegment(tree, fountain, to),
+          ) <= 30,
+      );
+      return {
+        fountain,
+        routeMeters,
+        walkMinutes,
+        pauseMinutes: gapMinutes - walkMinutes,
+        treeCount: nearbyTrees.length,
+        crownScore: nearbyTrees.reduce((total, tree) => total + (tree.crown ?? 0), 0),
+      };
+    })
+    .filter((candidate) => candidate.pauseMinutes >= 10)
+    .sort(
+      (first, second) =>
+        second.treeCount - first.treeCount ||
+        second.crownScore - first.crownScore ||
+        first.routeMeters - second.routeMeters,
+    )
+    .slice(0, 5);
+}
+
+function directionsUrl(from: FestivalProject, stop: Tree | Fountain, to: FestivalProject): string {
+  const route = `${from.lat},${from.lon};${stop.lat},${stop.lon};${to.lat},${to.lon}`;
   return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=${encodeURIComponent(route)}`;
 }
 
-type MapPoint = Pick<FestivalProject | Tree, "lat" | "lon">;
+type MapPoint = LocatedPoint;
 
 type WalkingRoute = {
   points: MapPoint[];
@@ -557,11 +647,11 @@ async function fetchWalkingRoute(
 function renderStreetMap(
   from: FestivalProject,
   to: FestivalProject,
-  tree: Tree | undefined,
+  stop: Tree | Fountain | undefined,
   route: WalkingRoute | undefined,
   status: "loading" | "ready" | "unavailable",
 ): void {
-  const markers = tree ? [from, tree, to] : [from, to];
+  const markers = stop ? [from, stop, to] : [from, to];
   const mapPoints = route ? [...markers, ...route.points] : markers;
   const view = mapView(mapPoints);
   const plot = (point: MapPoint) => {
@@ -573,8 +663,9 @@ function renderStreetMap(
   };
   const plottedMarkers = markers.map(plot);
   const path = route?.points.map(plot).map((point) => `${point.x},${point.y}`).join(" ");
-  const description = tree
-    ? "OpenStreetMap walking route from the first event, via the suggested tree, to the second event"
+  const fountainStop = stop && "kind" in stop;
+  const description = stop
+    ? `OpenStreetMap walking route from the first event, via the suggested ${fountainStop ? "drinking-water point" : "tree"}, to the second event`
     : "Street map between the selected events";
   const caption =
     status === "ready" && route
@@ -594,8 +685,8 @@ function renderStreetMap(
             : ""
         }
         ${
-          tree
-            ? `<circle class="tree-point" cx="${plottedMarkers[1]?.x}" cy="${plottedMarkers[1]?.y}" r="18"/><text x="${plottedMarkers[1]?.x}" y="${(plottedMarkers[1]?.y ?? 0) + 5}" text-anchor="middle">✦</text>`
+          stop
+            ? `<circle class="${fountainStop ? "water-point" : "tree-point"}" cx="${plottedMarkers[1]?.x}" cy="${plottedMarkers[1]?.y}" r="18"/><text x="${plottedMarkers[1]?.x}" y="${(plottedMarkers[1]?.y ?? 0) + 5}" text-anchor="middle">${fountainStop ? "●" : "✦"}</text>`
             : ""
         }
         <circle class="event-point" cx="${plottedMarkers[0]?.x}" cy="${plottedMarkers[0]?.y}" r="15"/>
@@ -615,100 +706,81 @@ function renderStreetMap(
   routeMap.setAttribute("aria-busy", String(status === "loading"));
 }
 
-function updateRoutedSuggestion(tree: Tree, route: WalkingRoute, gapMinutes: number): void {
-  const button = [...suggestions.querySelectorAll<HTMLButtonElement>("[data-tree-id]")].find(
-    (candidate) => candidate.dataset.treeId === tree.id,
+function updateRoutedSuggestion(
+  stop: Tree | Fountain,
+  route: WalkingRoute,
+  gapMinutes: number,
+): void {
+  const button = suggestions.querySelector<HTMLButtonElement>(
+    `[data-stop-id="${CSS.escape(stop.id)}"]`,
   );
   const routedMinutes = Math.max(1, Math.round(route.durationSeconds / 60));
   const timing = button?.querySelector<HTMLElement>(".suggestion-time");
   if (timing) {
     timing.innerHTML = `${routedMinutes} min routed walk<br><b>${Math.max(0, gapMinutes - routedMinutes)} min to pause</b>`;
   }
-  const detail = suggestions.querySelector<HTMLElement>(".selected-detail p");
-  if (detail) {
-    detail.textContent = [
-      tree.height ? `${tree.height} m recorded height` : "",
-      tree.crown ? `${tree.crown} m crown diameter` : "",
-      `${formatDistance(route.distanceMeters)} routed distance`,
-    ]
-      .filter(Boolean)
-      .join(" · ");
-  }
+  const distanceDetail = suggestions.querySelector<HTMLElement>(".route-distance");
+  if (distanceDetail) distanceDetail.textContent = `${formatDistance(route.distanceMeters)} routed`;
 }
 
 function renderMap(
   from: FestivalProject,
   to: FestivalProject,
-  tree?: Tree,
+  stop?: Tree | Fountain,
   gapMinutes = 0,
 ): void {
-  const waypoints = tree ? [from, tree, to] : [from, to];
+  const waypoints = stop ? [from, stop, to] : [from, to];
   const key = routeKey(waypoints);
   const cached = walkingRouteCache.get(key);
   const requestId = ++walkingRouteRequestId;
   walkingRouteController?.abort();
 
   if (cached) {
-    renderStreetMap(from, to, tree, cached, "ready");
-    if (tree) updateRoutedSuggestion(tree, cached, gapMinutes);
+    renderStreetMap(from, to, stop, cached, "ready");
+    if (stop) updateRoutedSuggestion(stop, cached, gapMinutes);
     return;
   }
 
-  renderStreetMap(from, to, tree, undefined, "loading");
+  renderStreetMap(from, to, stop, undefined, "loading");
   walkingRouteController = new AbortController();
   void fetchWalkingRoute(waypoints, walkingRouteController.signal)
     .then((route) => {
       walkingRouteCache.set(key, route);
       if (requestId === walkingRouteRequestId) {
-        renderStreetMap(from, to, tree, route, "ready");
-        if (tree) updateRoutedSuggestion(tree, route, gapMinutes);
+        renderStreetMap(from, to, stop, route, "ready");
+        if (stop) updateRoutedSuggestion(stop, route, gapMinutes);
       }
     })
     .catch((error: unknown) => {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (requestId === walkingRouteRequestId) {
-        renderStreetMap(from, to, tree, undefined, "unavailable");
+        renderStreetMap(from, to, stop, undefined, "unavailable");
       }
     });
 }
 
-function render(): void {
-  const from = project(fromProjectIndex);
-  const to = project(toProjectIndex);
-  const gapMinutes = timeDifferenceMinutes(fromTime.value, toTime.value);
-  const directMeters = distance(from, to);
-  const directMinutes = walkingMinutes(directMeters);
+function renderEmpty(from: FestivalProject, to: FestivalProject, gapMinutes: number): void {
+  suggestions.innerHTML = `
+    <div class="empty-state">
+      <strong>No responsible detour fits.</strong>
+      <p>Keep this interval for the direct walk, or give yourself more time between events.</p>
+    </div>
+  `;
+  renderMap(from, to, undefined, gapMinutes);
+}
+
+function renderTreeSuggestions(
+  from: FestivalProject,
+  to: FestivalProject,
+  gapMinutes: number,
+): void {
   const candidates = findCandidates(from, to, gapMinutes);
   const selected =
     candidates.find((candidate) => candidate.tree.id === selectedTreeId) ?? candidates[0];
   selectedTreeId = selected?.tree.id ?? "";
 
-  fromMeta.innerHTML = eventMeta(from);
-  toMeta.innerHTML = eventMeta(to);
-
-  if (gapMinutes <= 0) {
-    calculation.innerHTML = `
-      <div class="calculation-value">NO GAP</div>
-      <p>The second event must start after the first one ends.</p>
-    `;
-  } else {
-    calculation.innerHTML = `
-      <div class="calculation-value">${gapMinutes}<small>MIN</small></div>
-      <p>
-        ${formatDistance(directMeters)} between venues · about ${directMinutes} min direct walking
-        ${gapMinutes < directMinutes ? " · <strong>These events are probably too close together.</strong>" : ""}
-      </p>
-    `;
-  }
-
   if (candidates.length === 0) {
-    suggestions.innerHTML = `
-      <div class="empty-state">
-        <strong>No responsible detour fits.</strong>
-        <p>Keep this interval for the direct walk, or give yourself more time between events.</p>
-      </div>
-    `;
-    renderMap(from, to, undefined, gapMinutes);
+    renderEmpty(from, to, gapMinutes);
     return;
   }
 
@@ -718,6 +790,7 @@ function render(): void {
         <button
           class="suggestion ${candidate.tree.id === selected?.tree.id ? "is-selected" : ""}"
           type="button"
+          data-stop-id="${escapeHtml(candidate.tree.id)}"
           data-tree-id="${escapeHtml(candidate.tree.id)}"
           aria-pressed="${candidate.tree.id === selected?.tree.id}"
         >
@@ -736,7 +809,6 @@ function render(): void {
     const facts = [
       selected.tree.height ? `${selected.tree.height} m recorded height` : "",
       selected.tree.crown ? `${selected.tree.crown} m crown diameter` : "",
-      `${formatDistance(selected.routeMeters)} via the tree`,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -744,7 +816,7 @@ function render(): void {
       "beforeend",
       `
         <div class="selected-detail">
-          <p>${escapeHtml(facts)}</p>
+          <p>${escapeHtml(facts)} · <span class="route-distance">${formatDistance(selected.routeMeters)} estimated</span></p>
           <a href="${directionsUrl(from, selected.tree, to)}" target="_blank" rel="noreferrer">
             Check the walking route ↗
           </a>
@@ -762,9 +834,120 @@ function render(): void {
   });
 }
 
+function renderShadeSuggestions(
+  from: FestivalProject,
+  to: FestivalProject,
+  gapMinutes: number,
+): void {
+  const candidates = findShadeCandidates(from, to, gapMinutes);
+  const selected =
+    candidates.find((candidate) => candidate.fountain.id === selectedFountainId) ??
+    candidates[0];
+  selectedFountainId = selected?.fountain.id ?? "";
+
+  if (candidates.length === 0) {
+    renderEmpty(from, to, gapMinutes);
+    return;
+  }
+
+  suggestions.innerHTML = candidates
+    .map(
+      (candidate, index) => `
+        <button
+          class="suggestion ${candidate.fountain.id === selected?.fountain.id ? "is-selected" : ""}"
+          type="button"
+          data-stop-id="${escapeHtml(candidate.fountain.id)}"
+          data-fountain-id="${escapeHtml(candidate.fountain.id)}"
+          aria-pressed="${candidate.fountain.id === selected?.fountain.id}"
+        >
+          <span class="suggestion-index">${String(index + 1).padStart(2, "0")}</span>
+          <span class="suggestion-copy">
+            <strong>${escapeHtml(candidate.fountain.name)}</strong>
+            <small>${candidate.treeCount} registered trees near route · ${escapeHtml(candidate.fountain.kind)}</small>
+          </span>
+          <span class="suggestion-time">${candidate.walkMinutes} min walk<br><b>${candidate.pauseMinutes} min to pause</b></span>
+        </button>
+      `,
+    )
+    .join("");
+
+  if (selected) {
+    const facts = [
+      `${selected.treeCount} registered trees within 30 m of the estimated route`,
+      selected.fountain.hours ? `Recorded hours: ${selected.fountain.hours}` : "",
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    suggestions.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="selected-detail">
+          <p>${escapeHtml(facts)} · <span class="route-distance">${formatDistance(selected.routeMeters)} estimated</span></p>
+          <a href="${directionsUrl(from, selected.fountain, to)}" target="_blank" rel="noreferrer">
+            Check the shady route ↗
+          </a>
+        </div>
+      `,
+    );
+    renderMap(from, to, selected.fountain, gapMinutes);
+  }
+
+  suggestions.querySelectorAll<HTMLButtonElement>("[data-fountain-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedFountainId = button.dataset.fountainId ?? "";
+      render();
+    });
+  });
+}
+
+function render(): void {
+  const from = project(fromProjectIndex);
+  const to = project(toProjectIndex);
+  const gapMinutes = timeDifferenceMinutes(fromTime.value, toTime.value);
+  const directMeters = distance(from, to);
+  const directMinutes = walkingMinutes(directMeters);
+
+  fromMeta.innerHTML = eventMeta(from);
+  toMeta.innerHTML = eventMeta(to);
+  discoveryEyebrow.textContent =
+    routeMode === "shade" ? "TREES, WATER, AND TIME" : "A DETOUR THAT FITS";
+  discoveryTitle.innerHTML =
+    routeMode === "shade" ? "Take the<br>shadiest route." : "Meet a<br>Linz tree.";
+
+  if (gapMinutes <= 0) {
+    calculation.innerHTML = `
+      <div class="calculation-value">NO GAP</div>
+      <p>The second event must start after the first one ends.</p>
+    `;
+  } else {
+    calculation.innerHTML = `
+      <div class="calculation-value">${gapMinutes}<small>MIN</small></div>
+      <p>
+        ${formatDistance(directMeters)} between venues · about ${directMinutes} min direct walking
+        ${gapMinutes < directMinutes ? " · <strong>These events are probably too close together.</strong>" : ""}
+      </p>
+    `;
+  }
+
+  if (routeMode === "shade") {
+    renderShadeSuggestions(from, to, gapMinutes);
+  } else {
+    renderTreeSuggestions(from, to, gapMinutes);
+  }
+}
+
 [fromTime, toTime].forEach((element) => {
   element.addEventListener("change", () => {
     selectedTreeId = "";
+    selectedFountainId = "";
+    render();
+  });
+});
+
+routeModeInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    if (!input.checked) return;
+    routeMode = input.value === "shade" ? "shade" : "tree";
     render();
   });
 });
