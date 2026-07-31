@@ -340,6 +340,54 @@ h2 {
   border-bottom: 1px solid var(--black);
 }
 
+.route-mode {
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--black);
+}
+
+.route-mode legend {
+  padding: 0 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-mode label {
+  min-height: 96px;
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.route-mode label + label {
+  border-left: 1px solid var(--black);
+}
+
+.route-mode label:has(input:checked) {
+  background: var(--black);
+  color: #fff;
+}
+
+.route-mode input {
+  margin-top: 4px;
+  accent-color: var(--orange);
+}
+
+.route-mode span {
+  display: grid;
+  gap: 5px;
+}
+
+.route-mode small {
+  line-height: 1.35;
+}
+
 .calculation-value {
   min-width: 180px;
   font-size: clamp(3rem, 7vw, 6.5rem);
@@ -439,6 +487,12 @@ h2 {
 
 .tree-point {
   fill: var(--green);
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.water-point {
+  fill: #0067c5;
   stroke: #fff;
   stroke-width: 3;
 }
@@ -623,6 +677,15 @@ footer span {
 
   .event-pair {
     grid-template-columns: 1fr;
+  }
+
+  .route-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .route-mode label + label {
+    border-top: 1px solid var(--black);
+    border-left: 0;
   }
 
   .gap-marker {
