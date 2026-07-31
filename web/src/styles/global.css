@@ -187,6 +187,10 @@ a {
 
 /* Long-form markdown content */
 
+.prose img {
+  height: auto;
+}
+
 .prose h2 {
   margin-top: var(--space-7);
   font-size: var(--text-xl);

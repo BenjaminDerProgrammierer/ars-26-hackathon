@@ -1,7 +1,7 @@
 ---
 title: "Was ist in meiner Nähe?"
 description: "Entwickelt einen mobilen Wegweiser zu Trinkbrunnen, WCs, WLAN-Hotspots und Bäumen in Linz."
-order: 1
+order: 2
 download: "/downloads/whats-near-me.zip"
 ---
 

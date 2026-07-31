@@ -11,9 +11,8 @@ City of Linz.
 | Path | Purpose |
 | --- | --- |
 | [`web/`](web/) | Bilingual Astro website with participant guides and dataset pages. Dataset pages are generated directly from the reviewed Markdown in `opendata-linz/`. |
-| [`admin-tool/`](admin-tool/) | Internal TypeScript/Express dashboard for OpenRouter participant keys and Azure Table Storage redeem codes. The dashboard is intentionally unauthenticated and must not be exposed publicly. |
-| [`ai-proxy/`](ai-proxy/) | Prototype account portal and OpenAI-compatible Mistral proxy with per-contestant usage budgets. |
-| [`dev-venv-generator/`](dev-venv-generator/) | Creates disposable, browser-based student development environments on Azure or locally with Docker. |
+| [`admin-tool/`](admin-tool/) | Internal TypeScript/Express dashboard for OpenRouter participant keys, Azure Table Storage redeem codes, and browser-based student development environments. The dashboard is intentionally unauthenticated and must not be exposed publicly. |
+| [`example-projects/`](example-projects/) | Browser-based example applications built with the festival and City of Linz datasets. |
 | [`infra/`](infra/) | Bicep infrastructure for the Azure `AccessCodes` table, container web app, managed identity, monitoring, and alerts. |
 | [`ars-dataset/`](ars-dataset/) | Gitignored working snapshot of the Festival 2026 CMS export plus provider-feedback notes. |
 | [`opendata-linz/`](opendata-linz/) | Reviewed City of Linz open-data catalog, per-dataset verdicts, source links, and research archive. |
@@ -25,7 +24,7 @@ The projects are independent; install and run only the component you need.
 
 ### Website
 
-Requires Node.js 22.12 or newer.
+Requires Node.js 22.12 or newer, npm, and the `zip` command.
 
 ```sh
 cd web
@@ -55,10 +54,11 @@ configuration, tests, and operational constraints.
 
 ### Student development environments
 
-Use `dev-venv-generator/deploy.sh` for Azure VMs or
-`dev-venv-generator/deploy-locally.sh` for Docker-based environments. Both
-variants provision code-server and the workshop toolchain. See the
-[deployment guide](dev-venv-generator/README.md) before creating environments.
+Deploy the shared network from `infra/main.bicep`, then create and manage Azure
+VMs from the admin tool's **Development Environment Manager**. It provisions
+code-server and the workshop toolchain from the template in
+`admin-tool/cloud-init/`. See the [admin-tool documentation](admin-tool/README.md)
+for permissions, limits, and operational details.
 
 ## Data
 
