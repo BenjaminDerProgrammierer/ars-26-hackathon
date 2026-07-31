@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
-@description('Name of the development-environment virtual machine.')
+@description('Name of the development-environment virtual machine. Limited to 48 characters so the virtual-machine- prefixed nested deployment name stays within Azure\'s 64-character limit.')
+@maxLength(48)
 param name string
 
 @description('Azure region for the virtual machine and its network resources.')

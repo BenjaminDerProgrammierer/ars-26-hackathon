@@ -94,6 +94,9 @@ module webApp 'br/public:avm/res/web/site:0.24.0' = {
         workspaceResourceId: logAnalyticsWorkspace.id
         logCategoriesAndGroups: [
           {
+            category: 'AppServiceHTTPLogs'
+          }
+          {
             category: 'AppServiceConsoleLogs'
           }
           {
