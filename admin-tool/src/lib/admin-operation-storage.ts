@@ -29,6 +29,7 @@ export type AdminOperationEntity = {
 };
 
 export interface OperationLease {
+  readonly signal: AbortSignal;
   assertActive(): void;
   release(): Promise<void>;
 }
@@ -95,44 +96,104 @@ function leaseContainerName(): string {
   return process.env.AZURE_ADMIN_LEASE_CONTAINER_NAME?.trim() || DEFAULT_LEASE_CONTAINER_NAME;
 }
 
-class RenewableBlobLease implements OperationLease {
+type RenewableBlobLeaseOptions = {
+  durationMs?: number;
+  renewalMs?: number;
+};
+
+export class RenewableBlobLease implements OperationLease {
+  private readonly abortController = new AbortController();
+  private readonly durationMs: number;
   private renewalTimer: NodeJS.Timeout | undefined;
+  private expirationTimer: NodeJS.Timeout | undefined;
   private renewalInProgress = false;
   private lostError: Error | undefined;
+  private released = false;
+  private expiresAt: number;
 
-  constructor(private readonly client: BlobLeaseClient) {
-    this.renewalTimer = setInterval(() => void this.renew(), LEASE_RENEWAL_MS);
+  constructor(
+    private readonly client: BlobLeaseClient,
+    options: RenewableBlobLeaseOptions = {},
+  ) {
+    this.durationMs = options.durationMs ?? LEASE_DURATION_SECONDS * 1000;
+    this.expiresAt = Date.now() + this.durationMs;
+    this.renewalTimer = setInterval(() => void this.renew(), options.renewalMs ?? LEASE_RENEWAL_MS);
     this.renewalTimer.unref();
+    this.scheduleExpiration();
+  }
+
+  get signal(): AbortSignal {
+    return this.abortController.signal;
+  }
+
+  private stopTimers(): void {
+    if (this.renewalTimer) clearInterval(this.renewalTimer);
+    if (this.expirationTimer) clearTimeout(this.expirationTimer);
+    this.renewalTimer = undefined;
+    this.expirationTimer = undefined;
+  }
+
+  private loseLease(message: string, cause?: unknown): Error {
+    if (!this.lostError) {
+      this.lostError = new Error(message, cause === undefined ? undefined : { cause });
+      this.stopTimers();
+      this.abortController.abort(this.lostError);
+    }
+    return this.lostError;
+  }
+
+  private scheduleExpiration(): void {
+    if (this.expirationTimer) clearTimeout(this.expirationTimer);
+    this.expirationTimer = setTimeout(
+      () => {
+        this.loseLease("The distributed operation lease expired before renewal was confirmed");
+      },
+      Math.max(0, this.expiresAt - Date.now()),
+    );
+    this.expirationTimer.unref();
   }
 
   private async renew(): Promise<void> {
-    if (this.renewalInProgress || this.lostError) return;
+    if (this.renewalInProgress || this.lostError || this.released) return;
     this.renewalInProgress = true;
     try {
-      await this.client.renewLease();
+      await this.client.renewLease({ abortSignal: this.signal });
+      if (this.lostError || this.released || Date.now() >= this.expiresAt) {
+        this.loseLease("The distributed operation lease expired before renewal was confirmed");
+        return;
+      }
+      this.expiresAt = Date.now() + this.durationMs;
+      this.scheduleExpiration();
     } catch (error: unknown) {
-      this.lostError = new Error(
+      if (this.released) return;
+      this.loseLease(
         `The distributed operation lease was lost: ${error instanceof Error ? error.message : String(error)}`,
-        { cause: error },
+        error,
       );
-      if (this.renewalTimer) clearInterval(this.renewalTimer);
     } finally {
       this.renewalInProgress = false;
     }
   }
 
   assertActive(): void {
+    if (!this.lostError && Date.now() >= this.expiresAt) {
+      this.loseLease("The distributed operation lease expired before renewal was confirmed");
+    }
     if (this.lostError) throw this.lostError;
+    if (this.released) throw new Error("The distributed operation lease was already released");
   }
 
   async release(): Promise<void> {
-    if (this.renewalTimer) clearInterval(this.renewalTimer);
-    this.renewalTimer = undefined;
+    if (this.released) return;
+    this.released = true;
+    this.stopTimers();
     if (this.lostError) return;
     try {
       await this.client.releaseLease();
     } catch (error: unknown) {
       if (statusCode(error) !== 409 && statusCode(error) !== 412) throw error;
+    } finally {
+      this.abortController.abort(new Error("The distributed operation lease was released"));
     }
   }
 }

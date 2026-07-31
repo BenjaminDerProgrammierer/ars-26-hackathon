@@ -506,7 +506,7 @@
         </div>
         <p class="dialog-copy">Only checked properties will be changed.</p>
         <div class="bulk-change-row">
-          <input id="change-limit" type="checkbox" />
+          <input id="change-limit" type="checkbox" aria-label="Apply spending limit change" />
           <label for="bulk-limit">Spending limit</label>
           <input id="bulk-limit" type="number" min="0" step="0.01" placeholder="Unlimited" />
         </div>
@@ -628,7 +628,7 @@
         </div>
         <p class="dialog-copy">Change the expiration for every selected key.</p>
         <div class="bulk-change-row">
-          <input id="redeem-change-expires" type="checkbox" />
+          <input id="redeem-change-expires" type="checkbox" aria-label="Apply expiration change" />
           <label for="redeem-bulk-expires">Expires at</label>
           <div class="datetime-with-timezone">
             <input id="redeem-bulk-expires" type="datetime-local" lang="en-GB" />

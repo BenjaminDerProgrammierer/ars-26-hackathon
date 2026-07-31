@@ -8,6 +8,7 @@ import {
   startBulkOperation,
 } from "../lib/bulk-operations.js";
 import {
+  assertRedeemCodesUnassigned,
   clearCompletedDevEnvironmentOperations,
   EnvironmentOperationConflictError,
   getDevEnvironmentContext,
@@ -19,6 +20,7 @@ import {
   validateBulkAction,
   validateEnvironmentNames,
   validateStartDeploymentInput,
+  withDevEnvironmentAssociationLease,
 } from "../lib/dev-environments.js";
 import {
   type CreateKeyInput,
@@ -138,7 +140,7 @@ function parseUpdate(bodyValue: unknown): UpdateKeyInput {
   return changes;
 }
 
-function parseHashes(value: unknown): string[] {
+export function parseHashes(value: unknown): string[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw new HttpError("At least one key hash is required");
   }
@@ -148,7 +150,7 @@ function parseHashes(value: unknown): string[] {
     if (typeof hash !== "string" || !/^[a-f0-9]{64}$/i.test(hash)) {
       throw new HttpError("Every key hash must be a 64-character hexadecimal string");
     }
-    return hash;
+    return hash.toLowerCase();
   });
   return [...new Set(hashes)];
 }
@@ -201,7 +203,7 @@ function getHash(request: Request): string {
   if (typeof hash !== "string" || !/^[a-f0-9]{64}$/i.test(hash)) {
     throw new HttpError("Invalid API key hash");
   }
-  return hash;
+  return hash.toLowerCase();
 }
 
 function errorMessage(error: unknown): string {
@@ -264,7 +266,7 @@ async function startKeyUpdateOperation(hashes: string[], changes: UpdateKeyInput
         hashes,
         async (hash) => {
           const updated = await updateApiKey(hash, changes);
-          for (const redeemKey of redeemKeys.get(hash.toLocaleLowerCase()) ?? []) {
+          for (const redeemKey of redeemKeys.get(hash.toLowerCase()) ?? []) {
             await updateRedeemAccessKey(redeemKey.code, {
               ...(Object.hasOwn(changes, "name") ? { label: `AI API key "${updated.name}"` } : {}),
               ...(Object.hasOwn(changes, "disabled") ? { enabled: !updated.disabled } : {}),
@@ -289,7 +291,7 @@ async function startKeyDeleteOperation(hashes: string[]) {
         hashes,
         async (hash) => {
           await deleteApiKeyIfExists(hash);
-          for (const redeemKey of redeemKeys.get(hash.toLocaleLowerCase()) ?? []) {
+          for (const redeemKey of redeemKeys.get(hash.toLowerCase()) ?? []) {
             await deleteRedeemAccessKey(redeemKey.code);
           }
           return hash;
@@ -407,45 +409,56 @@ router.post("/dev-environments/redeem", async (request, response) => {
     throw new HttpError(errorMessage(error));
   }
   const expiresAt = parseExpiration(body.expiresAt);
-  const environments = await getDevEnvironments(names);
-  const created = [];
-  const failed: Array<{ name: string; error: string }> = [];
-  for (const environment of environments) {
-    if (environment.redeemCode) {
-      failed.push({ name: environment.name, error: "A redeem key already exists" });
-      continue;
-    }
-    if (environment.provisioningState !== "Succeeded") {
-      failed.push({
-        name: environment.name,
-        error: "The environment must finish provisioning before a redeem key can be created",
-      });
-      continue;
-    }
-    try {
-      const redeemKey = await createRedeemAccessKey({
-        label: `Development environment ${environment.name}`,
-        accessText: environment.loginText,
-        ...(expiresAt ? { expiresAt } : {}),
-      });
-      try {
-        await setEnvironmentRedeemCode(environment.name, redeemKey.code, environment.etag);
-      } catch (error: unknown) {
-        try {
-          await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag);
-        } catch (cleanupError: unknown) {
-          throw new Error(
-            `${errorMessage(error)}. The unassociated redeem key ${redeemKey.code} could not be removed: ${errorMessage(cleanupError)}`,
-            { cause: error },
-          );
-        }
-        throw error;
+  const { created, failed } = await withDevEnvironmentAssociationLease(async (lease) => {
+    const environments = await getDevEnvironments(names, lease.signal);
+    const created = [];
+    const failed: Array<{ name: string; error: string }> = [];
+    for (const environment of environments) {
+      if (environment.redeemCode) {
+        failed.push({ name: environment.name, error: "A redeem key already exists" });
+        continue;
       }
-      created.push({ name: environment.name, redeemKey });
-    } catch (error: unknown) {
-      failed.push({ name: environment.name, error: errorMessage(error) });
+      if (environment.provisioningState !== "Succeeded") {
+        failed.push({
+          name: environment.name,
+          error: "The environment must finish provisioning before a redeem key can be created",
+        });
+        continue;
+      }
+      try {
+        const redeemKey = await createRedeemAccessKey(
+          {
+            label: `Development environment ${environment.name}`,
+            accessText: environment.loginText,
+            ...(expiresAt ? { expiresAt } : {}),
+          },
+          lease.signal,
+        );
+        try {
+          await setEnvironmentRedeemCode(
+            environment.name,
+            redeemKey.code,
+            environment.etag,
+            lease.signal,
+          );
+        } catch (error: unknown) {
+          try {
+            await deleteRedeemAccessKey(redeemKey.code, redeemKey.etag, lease.signal);
+          } catch (cleanupError: unknown) {
+            throw new Error(
+              `${errorMessage(error)}. The unassociated redeem key ${redeemKey.code} could not be removed: ${errorMessage(cleanupError)}`,
+              { cause: error },
+            );
+          }
+          throw error;
+        }
+        created.push({ name: environment.name, redeemKey });
+      } catch (error: unknown) {
+        failed.push({ name: environment.name, error: errorMessage(error) });
+      }
     }
-  }
+    return { created, failed };
+  });
   response.status(failed.length > 0 ? 207 : 201).json({ data: created, failed });
 });
 
@@ -470,7 +483,7 @@ router.post("/redeem-access/keys/bulk", async (request, response) => {
     return {
       label: parseRequiredText(item.label, "Label", 120),
       accessText: parseRequiredText(item.accessText, "Access information", 30_000),
-      ...(typeof item.apiKeyHash === "string" ? { apiKeyHash: item.apiKeyHash } : {}),
+      ...(typeof item.apiKeyHash === "string" ? { apiKeyHash: item.apiKeyHash.toLowerCase() } : {}),
       ...(expiresAt ? { expiresAt } : {}),
     };
   });
@@ -535,14 +548,17 @@ router.delete("/redeem-access/keys/bulk", async (request, response) => {
   const deleted: string[] = [];
   const failed: Array<{ code: string; error: string }> = [];
 
-  for (const code of codes) {
-    try {
-      await deleteRedeemAccessKey(code);
-      deleted.push(code);
-    } catch (error: unknown) {
-      failed.push({ code, error: errorMessage(error) });
+  await withDevEnvironmentAssociationLease(async (lease) => {
+    await assertRedeemCodesUnassigned(codes, lease.signal);
+    for (const code of codes) {
+      try {
+        await deleteRedeemAccessKey(code, undefined, lease.signal);
+        deleted.push(code);
+      } catch (error: unknown) {
+        failed.push({ code, error: errorMessage(error) });
+      }
     }
-  }
+  });
 
   response.status(failed.length > 0 ? 207 : 200).json({ data: deleted, failed });
 });
@@ -558,7 +574,10 @@ router.patch("/redeem-access/keys/:code", async (request, response) => {
 
 router.delete("/redeem-access/keys/:code", async (request, response) => {
   const etag = typeof request.query.etag === "string" ? request.query.etag : undefined;
-  await deleteRedeemAccessKey(request.params.code ?? "", etag);
+  await withDevEnvironmentAssociationLease(async (lease) => {
+    await assertRedeemCodesUnassigned([request.params.code ?? ""], lease.signal);
+    await deleteRedeemAccessKey(request.params.code ?? "", etag, lease.signal);
+  });
   response.status(204).end();
 });
 

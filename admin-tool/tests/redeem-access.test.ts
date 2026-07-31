@@ -14,7 +14,7 @@ test("normalizes formatted redeem codes", () => {
 });
 
 test("rejects short, ambiguous, and punctuated redeem codes", () => {
-  for (const code of ["SHORT", "ABCD-EFGH-1010", "ABCD/EFGH/2345"]) {
+  for (const code of ["SHORT", "ABCD-EFGH-1010", "ABCD/EFGH/2345", "ABCD-EFGH-23ß5"]) {
     assert.throws(() => normalizeRedeemCode(code), RedeemAccessError);
   }
 });

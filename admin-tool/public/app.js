@@ -107,6 +107,17 @@ function showToast(message, isError = false) {
   }, 5000);
 }
 
+async function copyText(value, successMessage) {
+  try {
+    await navigator.clipboard.writeText(value);
+    showToast(successMessage);
+    return true;
+  } catch {
+    showToast("Could not copy to the clipboard. Check browser permissions and try again.", true);
+    return false;
+  }
+}
+
 function resolveConfirmation(confirmed) {
   if (!confirmResolver) return;
   const resolve = confirmResolver;
@@ -572,6 +583,7 @@ function renderEnvironmentSelection() {
     selectedVisible.length > 0 && selectedVisible.length < visible.length;
   const selected = state.environments.filter(({ name }) => state.environmentSelected.has(name));
   $("#environment-bulk-redeem").disabled =
+    state.environmentOperation?.status === "running" ||
     selected.every(({ redeemCode }) => redeemCode) ||
     selected.some(({ name }) => state.environmentRedeemPending.has(name));
 }
@@ -668,8 +680,21 @@ function renderEnvironmentOperation() {
   $("#redeem-created-environments-button").dataset.names = createdWithoutRedeem.join(",");
   renderEnvironments();
   if (operation.status === "running") {
-    environmentPollTimer = setTimeout(() => loadEnvironmentStatus(), 1_500);
+    scheduleEnvironmentPoll();
   }
+}
+
+function scheduleEnvironmentPoll() {
+  clearTimeout(environmentPollTimer);
+  if (state.environmentOperation?.status !== "running") return;
+  environmentPollTimer = setTimeout(async () => {
+    try {
+      await loadEnvironmentStatus();
+    } catch {
+      setConnection("Temporary Azure status error; retrying", "error");
+      scheduleEnvironmentPoll();
+    }
+  }, 1_500);
 }
 
 async function loadEnvironmentStatus(refreshStates = false) {
@@ -903,7 +928,8 @@ $("#environment-body").addEventListener("change", (event) => {
   if (!checkbox) return;
   const name = checkbox.closest("tr").dataset.name;
   checkbox.checked ? state.environmentSelected.add(name) : state.environmentSelected.delete(name);
-  renderEnvironments();
+  checkbox.closest("tr").classList.toggle("selected", checkbox.checked);
+  renderEnvironmentSelection();
 });
 
 $("#environment-select-all").addEventListener("change", (event) => {
@@ -912,12 +938,21 @@ $("#environment-select-all").addEventListener("change", (event) => {
       ? state.environmentSelected.add(environment.name)
       : state.environmentSelected.delete(environment.name);
   }
-  renderEnvironments();
+  document.querySelectorAll("#environment-body tr").forEach((row) => {
+    const selected = state.environmentSelected.has(row.dataset.name);
+    row.classList.toggle("selected", selected);
+    row.querySelector(".environment-checkbox").checked = selected;
+  });
+  renderEnvironmentSelection();
 });
 
 $("#environment-clear-selection").addEventListener("click", () => {
   state.environmentSelected.clear();
-  renderEnvironments();
+  document.querySelectorAll("#environment-body tr").forEach((row) => {
+    row.classList.remove("selected");
+    row.querySelector(".environment-checkbox").checked = false;
+  });
+  renderEnvironmentSelection();
 });
 
 $("#environment-bulk-start").addEventListener("click", () => startEnvironmentBulkAction("start"));
@@ -936,11 +971,9 @@ $("#environment-body").addEventListener("click", async (event) => {
   const environment = state.environments.find(({ name }) => name === row.dataset.name);
   if (!environment) return;
   if (event.target.closest(".copy-environment-password")) {
-    await navigator.clipboard.writeText(environment.codeServerPassword);
-    showToast("Environment password copied");
+    await copyText(environment.codeServerPassword, "Environment password copied");
   } else if (event.target.closest(".copy-environment-redeem")) {
-    await navigator.clipboard.writeText(environment.redeemCode);
-    showToast("Redeem key copied");
+    await copyText(environment.redeemCode, "Redeem key copied");
   } else if (event.target.closest(".add-environment-redeem")) {
     await createEnvironmentRedeemKeys([environment.name]);
   } else if (event.target.closest(".start-environment")) {
@@ -996,8 +1029,7 @@ document.addEventListener("click", async (event) => {
 
   const copyButton = event.target.closest("[data-copy-secret]");
   if (copyButton) {
-    navigator.clipboard.writeText(state.secrets[Number(copyButton.dataset.copySecret)].key);
-    showToast("API key copied");
+    await copyText(state.secrets[Number(copyButton.dataset.copySecret)].key, "API key copied");
   }
 });
 
@@ -1036,19 +1068,29 @@ $("#keys-body").addEventListener("change", (event) => {
   if (!checkbox) return;
   const hash = checkbox.closest("tr").dataset.hash;
   checkbox.checked ? state.selected.add(hash) : state.selected.delete(hash);
-  renderKeys();
+  checkbox.closest("tr").classList.toggle("selected", checkbox.checked);
+  renderSelection();
 });
 
 $("#select-all").addEventListener("change", (event) => {
   for (const key of filteredKeys()) {
     event.target.checked ? state.selected.add(key.hash) : state.selected.delete(key.hash);
   }
-  renderKeys();
+  document.querySelectorAll("#keys-body tr").forEach((row) => {
+    const selected = state.selected.has(row.dataset.hash);
+    row.classList.toggle("selected", selected);
+    row.querySelector(".key-checkbox").checked = selected;
+  });
+  renderSelection();
 });
 
 $("#clear-selection-button").addEventListener("click", () => {
   state.selected.clear();
-  renderKeys();
+  document.querySelectorAll("#keys-body tr").forEach((row) => {
+    row.classList.remove("selected");
+    row.querySelector(".key-checkbox").checked = false;
+  });
+  renderSelection();
 });
 
 $("#keys-body").addEventListener("click", async (event) => {
@@ -1218,11 +1260,11 @@ $("#bulk-delete-button").addEventListener("click", async () => {
   }
 });
 
-$("#copy-all-button").addEventListener("click", () => {
-  navigator.clipboard.writeText(
+$("#copy-all-button").addEventListener("click", async () => {
+  await copyText(
     state.secrets.map((item) => `${item.name}\t${item.key}`).join("\n"),
+    "All API keys copied",
   );
-  showToast("All API keys copied");
 });
 
 function csvCell(value) {
@@ -1321,7 +1363,8 @@ $("#redeem-keys-body").addEventListener("change", (event) => {
   if (!checkbox) return;
   const code = checkbox.closest("tr").dataset.code;
   checkbox.checked ? state.redeemSelected.add(code) : state.redeemSelected.delete(code);
-  renderRedeemKeys();
+  checkbox.closest("tr").classList.toggle("selected", checkbox.checked);
+  renderRedeemSelection();
 });
 
 $("#redeem-select-all").addEventListener("change", (event) => {
@@ -1330,12 +1373,21 @@ $("#redeem-select-all").addEventListener("change", (event) => {
       ? state.redeemSelected.add(key.code)
       : state.redeemSelected.delete(key.code);
   }
-  renderRedeemKeys();
+  document.querySelectorAll("#redeem-keys-body tr").forEach((row) => {
+    const selected = state.redeemSelected.has(row.dataset.code);
+    row.classList.toggle("selected", selected);
+    row.querySelector(".redeem-key-checkbox").checked = selected;
+  });
+  renderRedeemSelection();
 });
 
 $("#redeem-clear-selection-button").addEventListener("click", () => {
   state.redeemSelected.clear();
-  renderRedeemKeys();
+  document.querySelectorAll("#redeem-keys-body tr").forEach((row) => {
+    row.classList.remove("selected");
+    row.querySelector(".redeem-key-checkbox").checked = false;
+  });
+  renderRedeemSelection();
 });
 
 $("#redeem-bulk-edit-button").addEventListener("click", () => {
@@ -1481,8 +1533,7 @@ $("#redeem-keys-body").addEventListener("click", async (event) => {
   if (!key) return;
 
   if (event.target.closest(".copy-redeem")) {
-    navigator.clipboard.writeText(key.code);
-    showToast("Redeem code copied");
+    await copyText(key.code, "Redeem code copied");
     return;
   }
 

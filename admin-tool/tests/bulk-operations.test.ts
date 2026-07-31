@@ -48,12 +48,15 @@ class MemoryOperationStorage implements AdminOperationStorage {
     if (this.leases.has(name)) return null;
     this.leases.add(name);
     let active = true;
+    const abortController = new AbortController();
     return {
+      signal: abortController.signal,
       assertActive() {
         if (!active) throw new Error("lease lost");
       },
       release: async () => {
         active = false;
+        abortController.abort();
         this.leases.delete(name);
       },
     };
@@ -152,6 +155,36 @@ test("records an operation-level failure", async () => {
     assert.equal(logged.length, 1);
     assert.equal(logged[0]?.[0], `Bulk operation "Creating a key" (${operation.id}) failed:`);
     assert.match(String(logged[0]?.[1]), /key creation failed/);
+  } finally {
+    console.error = originalConsoleError;
+  }
+});
+
+test("persists terminal state after an intermediate table write fails", async () => {
+  const replace = storage.replace.bind(storage);
+  let failedOnce = false;
+  storage.replace = async (entity) => {
+    if (!failedOnce && entity.status === "running") {
+      failedOnce = true;
+      throw new Error("temporary table failure");
+    }
+    await replace(entity);
+  };
+  const originalConsoleError = console.error;
+  console.error = () => undefined;
+
+  try {
+    const operation = await startBulkOperation({
+      kind: "update",
+      label: "Recovering operation",
+      total: 1,
+      run: async (reportProgress) => reportProgress(true),
+    });
+
+    const completed = await waitForTerminal(operation.id);
+    assert.equal(failedOnce, true);
+    assert.equal(completed.status, "completed");
+    assert.equal(completed.processed, 1);
   } finally {
     console.error = originalConsoleError;
   }

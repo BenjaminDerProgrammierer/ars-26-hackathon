@@ -81,7 +81,13 @@ function getTableClient(): TableClient {
 }
 
 export function normalizeRedeemCode(value: string): string {
-  const normalized = value.toUpperCase().replace(/[\s-]/g, "");
+  if (!/^[A-Za-z2-9\t\n\f\r -]+$/.test(value)) {
+    throw new RedeemAccessError(
+      "Access code must contain 10 to 64 letters or digits (excluding 0 and 1)",
+      400,
+    );
+  }
+  const normalized = value.toUpperCase().replace(/[\t\n\f\r -]/g, "");
   if (!/^[A-Z2-9]{10,64}$/.test(normalized)) {
     throw new RedeemAccessError(
       "Access code must contain 10 to 64 letters or digits (excluding 0 and 1)",
@@ -132,10 +138,15 @@ function storageStatus(error: unknown): number | undefined {
   return typeof error.statusCode === "number" ? error.statusCode : undefined;
 }
 
-async function getEntity(codeValue: string): Promise<TableEntityResult<AccessKeyProperties>> {
+async function getEntity(
+  codeValue: string,
+  signal?: AbortSignal,
+): Promise<TableEntityResult<AccessKeyProperties>> {
   const code = normalizeRedeemCode(codeValue);
   try {
-    return await getTableClient().getEntity<AccessKeyProperties>(code.slice(0, 2), code);
+    return await getTableClient().getEntity<AccessKeyProperties>(code.slice(0, 2), code, {
+      abortSignal: signal,
+    });
   } catch (error: unknown) {
     if (storageStatus(error) === 404) {
       throw new RedeemAccessError("Redeem access key not found", 404);
@@ -270,12 +281,12 @@ export async function listRedeemAccessKeys(): Promise<RedeemAccessKey[]> {
 export async function listRedeemAccessKeysForApiKeys(
   hashes: string[],
 ): Promise<Map<string, RedeemAccessKey[]>> {
-  const normalizedHashes = new Set(hashes.map((hash) => hash.toLocaleLowerCase()));
+  const normalizedHashes = new Set(hashes.map((hash) => hash.toLowerCase()));
   const records = new Map<string, RedeemAccessKey[]>();
 
   for await (const entity of getTableClient().listEntities<AccessKeyProperties>()) {
     const hash =
-      entity.apiKeyHash?.toLocaleLowerCase() ||
+      entity.apiKeyHash?.toLowerCase() ||
       createHash("sha256").update(entity.accessText).digest("hex");
     if (!normalizedHashes.has(hash)) continue;
     const matches = records.get(hash) ?? [];
@@ -288,6 +299,7 @@ export async function listRedeemAccessKeysForApiKeys(
 
 export async function createRedeemAccessKey(
   input: CreateRedeemAccessKeyInput,
+  signal?: AbortSignal,
 ): Promise<RedeemAccessKey> {
   const code = normalizeRedeemCode(input.code?.trim() || generateRedeemCode());
   const now = new Date();
@@ -296,7 +308,7 @@ export async function createRedeemAccessKey(
     rowKey: code,
     label: input.label,
     accessText: input.accessText,
-    ...(input.apiKeyHash ? { apiKeyHash: input.apiKeyHash.toLocaleLowerCase() } : {}),
+    ...(input.apiKeyHash ? { apiKeyHash: input.apiKeyHash.toLowerCase() } : {}),
     enabled: true,
     createdAt: now,
     updatedAt: now,
@@ -304,7 +316,7 @@ export async function createRedeemAccessKey(
   };
 
   try {
-    await getTableClient().createEntity(entity);
+    await getTableClient().createEntity(entity, { abortSignal: signal });
   } catch (error: unknown) {
     if (storageStatus(error) === 409) {
       throw new RedeemAccessError("That redeem access code already exists", 409);
@@ -312,7 +324,7 @@ export async function createRedeemAccessKey(
     throw error;
   }
 
-  return toRedeemAccessKey(await getEntity(code));
+  return toRedeemAccessKey(await getEntity(code, signal));
 }
 
 export async function updateRedeemAccessKey(
@@ -350,12 +362,17 @@ export async function updateRedeemAccessKey(
   return toRedeemAccessKey(await getEntity(code));
 }
 
-export async function deleteRedeemAccessKey(codeValue: string, etag?: string): Promise<void> {
-  const current = await getEntity(codeValue);
+export async function deleteRedeemAccessKey(
+  codeValue: string,
+  etag?: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  const current = await getEntity(codeValue, signal);
   const code = normalizeRedeemCode(codeValue);
   try {
     await getTableClient().deleteEntity(code.slice(0, 2), code, {
       etag: etag || current.etag,
+      abortSignal: signal,
     });
   } catch (error: unknown) {
     if (storageStatus(error) === 412) {

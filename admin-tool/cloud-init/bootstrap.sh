@@ -158,7 +158,7 @@ chown -R "$student_user:$student_user" "$home_dir/.pi" "$home_dir/.bashrc"
 
 echo "--- pi extensions + workshop website + skills (as $student_user) ---"
 sudo -u "$student_user" -H bash <<'USEREOF'
-set -uo pipefail
+set -euo pipefail
 export NVM_DIR="$HOME/.nvm"
 . "$NVM_DIR/nvm.sh" >/dev/null 2>&1
 nvm use default >/dev/null 2>&1 || true

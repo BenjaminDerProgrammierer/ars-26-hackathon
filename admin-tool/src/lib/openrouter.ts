@@ -185,10 +185,10 @@ export async function getCreditBalance(): Promise<CreditBalance> {
   };
 }
 
-export async function getApiKey(hash: string): Promise<ApiKey> {
+export async function getApiKey(hash: string, signal?: AbortSignal): Promise<ApiKey> {
   const openRouter = getClient();
   const { workspace } = await getHackathonContext();
-  const response = await openRouter.apiKeys.get({ hash });
+  const response = await openRouter.apiKeys.get({ hash }, { signal });
 
   if (response.data.workspaceId !== workspace.id) {
     throw new Error("The requested API key is not in the Hackathon workspace");
@@ -211,6 +211,7 @@ async function rollbackCreatedKeys(
 export async function createApiKeys(
   inputs: CreateKeyInput[],
   onCreated?: () => void,
+  signal?: AbortSignal,
 ): Promise<{
   created: CreateKeysResponse[];
 }> {
@@ -221,14 +222,17 @@ export async function createApiKeys(
   try {
     for (const input of inputs) {
       created.push(
-        await openRouter.apiKeys.create({
-          requestBody: {
-            ...input,
-            includeByokInLimit: false,
-            limitReset: null,
-            workspaceId: workspace.id,
+        await openRouter.apiKeys.create(
+          {
+            requestBody: {
+              ...input,
+              includeByokInLimit: false,
+              limitReset: null,
+              workspaceId: workspace.id,
+            },
           },
-        }),
+          { signal },
+        ),
       );
       onCreated?.();
     }
@@ -264,15 +268,15 @@ export async function updateApiKey(hash: string, changes: UpdateKeyInput): Promi
   return response.data;
 }
 
-export async function deleteApiKey(hash: string): Promise<void> {
+export async function deleteApiKey(hash: string, signal?: AbortSignal): Promise<void> {
   const openRouter = getClient();
-  await getApiKey(hash);
-  await openRouter.apiKeys.delete({ hash });
+  await getApiKey(hash, signal);
+  await openRouter.apiKeys.delete({ hash }, { signal });
 }
 
-export async function deleteApiKeyIfExists(hash: string): Promise<void> {
+export async function deleteApiKeyIfExists(hash: string, signal?: AbortSignal): Promise<void> {
   try {
-    await deleteApiKey(hash);
+    await deleteApiKey(hash, signal);
   } catch (error: unknown) {
     if (statusCode(error) !== 404) throw error;
   }

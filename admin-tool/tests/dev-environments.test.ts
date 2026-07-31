@@ -4,10 +4,12 @@ import { TableClient, TableServiceClient } from "@azure/data-tables";
 import {
   type AdminOperationEntity,
   type AdminOperationStorage,
+  type OperationLease,
   RecoveringWriteQueue,
   setAdminOperationStorageForTests,
 } from "../src/lib/admin-operation-storage.js";
 import {
+  assertRedeemCodesUnassigned,
   clearCompletedDevEnvironmentOperations,
   developmentEnvironmentDeploymentArguments,
   developmentEnvironmentDeploymentParameters,
@@ -17,6 +19,7 @@ import {
   validateBulkAction,
   validateEnvironmentNames,
   validateStartDeploymentInput,
+  withDevEnvironmentAssociationLease,
 } from "../src/lib/dev-environments.js";
 
 function operationEntity(id: string, status: string): AdminOperationEntity {
@@ -156,6 +159,66 @@ test("validates environment bulk actions", () => {
   ]);
   assert.equal(validateBulkAction("stop"), "stop");
   assert.throws(() => validateBulkAction("restart"), /start, stop, or delete/);
+});
+
+test("limits environment names to the 48-character infrastructure boundary", () => {
+  const maximumName = `vcenv-${"a".repeat(42)}`;
+  assert.equal(maximumName.length, 48);
+  assert.deepEqual(validateEnvironmentNames([maximumName]), [maximumName]);
+  assert.throws(() => validateEnvironmentNames([`${maximumName}a`]), /Invalid/);
+});
+
+test("uses the environment operation lease for association changes", async () => {
+  const abortController = new AbortController();
+  let released = false;
+  const lease: OperationLease = {
+    signal: abortController.signal,
+    assertActive() {
+      if (released) throw new Error("released");
+    },
+    async release() {
+      released = true;
+      abortController.abort();
+    },
+  };
+  const storage = {
+    acquireLease: async (name: string) => {
+      assert.equal(name, "dev-environments");
+      return lease;
+    },
+  } as AdminOperationStorage;
+  setAdminOperationStorageForTests(storage);
+
+  try {
+    assert.equal(await withDevEnvironmentAssociationLease(async () => "done"), "done");
+    assert.equal(released, true);
+  } finally {
+    setAdminOperationStorageForTests();
+  }
+});
+
+test("prevents direct deletion of an environment's redeem key", async (context) => {
+  const previousAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  context.after(() => {
+    if (previousAccountName === undefined) delete process.env.AZURE_STORAGE_ACCOUNT_NAME;
+    else process.env.AZURE_STORAGE_ACCOUNT_NAME = previousAccountName;
+  });
+  process.env.AZURE_STORAGE_ACCOUNT_NAME = "testaccount";
+  context.mock.method(TableServiceClient.prototype, "createTable", async () => undefined);
+  context.mock.method(TableClient.prototype, "listEntities", () => ({
+    async *[Symbol.asyncIterator]() {
+      yield {
+        partitionKey: "LOGIN",
+        rowKey: "vcenv-example-1",
+        redeemCode: "ABCD-EFGH-2345",
+      };
+    },
+  }));
+
+  await assert.rejects(
+    assertRedeemCodesUnassigned(["abcd efgh 2345"]),
+    /belongs to development environment vcenv-example-1/,
+  );
 });
 
 test("uses optimistic concurrency when associating an environment redeem key", async (context) => {

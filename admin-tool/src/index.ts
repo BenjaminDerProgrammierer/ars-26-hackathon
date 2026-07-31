@@ -21,7 +21,7 @@ app.disable("x-powered-by");
 app.use(express.json({ limit: "256kb" }));
 app.use("/api", apiRouter);
 app.get("/vendor/lucide.js", (_request, response) => {
-  response.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+  response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
   response.sendFile(LUCIDE_SCRIPT);
 });
 app.use(express.static(PUBLIC_DIRECTORY));
@@ -40,7 +40,11 @@ const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => 
       : 500;
   const message = error instanceof Error ? error.message : String(error);
 
-  console.error(`[${statusCode}] ${message}`);
+  if (error instanceof Error) {
+    console.error(`[${statusCode}] Request failed`, error);
+  } else {
+    console.error(`[${statusCode}] ${message}`);
+  }
   response.status(statusCode).json({ error: message });
 };
 app.use(errorHandler);

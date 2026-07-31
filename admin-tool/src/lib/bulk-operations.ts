@@ -3,6 +3,7 @@ import {
   type AdminOperationEntity,
   getAdminOperationStorage,
   type OperationLease,
+  RecoveringWriteQueue,
 } from "./admin-operation-storage.js";
 
 export type BulkOperationKind = "create" | "update" | "enable" | "disable" | "delete";
@@ -214,10 +215,15 @@ async function runOperation(
   run: (reportProgress: ProgressReporter) => Promise<unknown>,
 ): Promise<void> {
   const storage = getAdminOperationStorage();
-  let writes = Promise.resolve();
+  const writes = new RecoveringWriteQueue((error) => {
+    console.error(
+      `Failed to persist an intermediate bulk operation update for "${operation.label}" (${operation.id}):`,
+      error,
+    );
+  });
   const persist = () => {
     const entity = serialize(operation);
-    writes = writes.then(() => storage.replace(entity));
+    writes.enqueue(() => storage.replace(entity));
   };
   try {
     operation.status = "running";
@@ -241,7 +247,12 @@ async function runOperation(
   } finally {
     operation.finishedAt = new Date().toISOString();
     try {
-      await writes;
+      await writes.drain().catch((error: unknown) => {
+        console.error(
+          `Failed to persist the queued bulk operation update for "${operation.label}" (${operation.id}):`,
+          error,
+        );
+      });
       await storage.replace(serialize(operation));
     } finally {
       await lease.release();
