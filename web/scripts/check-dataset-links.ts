@@ -1,11 +1,13 @@
+export {};
+
 const origin = process.argv[2] ?? "http://localhost:4321";
 const startPaths = ["/en/datasets/", "/de/datasets/"];
 const htmlQueue = [...startPaths];
-const checkedPages = new Set();
-const links = new Set();
-const failures = [];
+const checkedPages = new Set<string>();
+const links = new Set<string>();
+const failures: string[] = [];
 
-function extractLinks(html, pageUrl) {
+function extractLinks(html: string, pageUrl: URL) {
   for (const match of html.matchAll(/href="([^"]+)"/g)) {
     const href = match[1].replaceAll("&amp;", "&");
     if (
@@ -28,7 +30,7 @@ function extractLinks(html, pageUrl) {
   }
 }
 
-async function request(url, method = "HEAD") {
+async function request(url: URL, method = "HEAD") {
   const response = await fetch(url, {
     method,
     redirect: "follow",
@@ -42,6 +44,10 @@ async function request(url, method = "HEAD") {
 
 while (htmlQueue.length > 0) {
   const next = htmlQueue.shift();
+  if (!next) {
+    continue;
+  }
+
   const url = new URL(next, origin);
   url.hash = "";
   if (checkedPages.has(url.href)) {
@@ -57,7 +63,7 @@ while (htmlQueue.length > 0) {
     }
     extractLinks(await response.text(), url);
   } catch (error) {
-    failures.push(`ERROR ${url.href}: ${error.message}`);
+    failures.push(`ERROR ${url.href}: ${String(error)}`);
   }
 }
 
@@ -73,7 +79,7 @@ for (const link of [...links].sort()) {
       failures.push(`${response.status} ${url.href}`);
     }
   } catch (error) {
-    failures.push(`ERROR ${url.href}: ${error.message}`);
+    failures.push(`ERROR ${url.href}: ${String(error)}`);
   }
 }
 

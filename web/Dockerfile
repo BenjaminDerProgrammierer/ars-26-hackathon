@@ -8,10 +8,12 @@ RUN npm ci --omit=dev
 FROM base AS build
 ARG SITE_URL=https://arselectronicahackathon-web.azurewebsites.net
 ENV SITE_URL=$SITE_URL
+RUN apk add --no-cache zip
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ .
 COPY opendata-linz/ ../opendata-linz/
+COPY example-projects/ ../example-projects/
 RUN npm run build
 
 FROM base AS runtime
