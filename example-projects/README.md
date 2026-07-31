@@ -8,6 +8,9 @@ starting points for your own ideas.
 
 ## Projects
 
+- [Festival Day Weaver // Linz](festival-day-weaver/) — assemble a feasible
+  festival itinerary with transfer estimates, departure prompts, public
+  transport queries, drinking-water stops, and toilets.
 - [Who Comes to Linz?](who-comes-to-linz/) — compare countries represented by
   public festival contacts with the origins recorded in Linz's 2024 guest
   statistics.
