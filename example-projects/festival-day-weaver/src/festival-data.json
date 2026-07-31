@@ -1,0 +1,3095 @@
+{
+  "generated_from": "2026-07-20T07:59:49.183Z",
+  "schema_version": "2.0",
+  "projects": [
+    {
+      "id": "39138ddb450c81fc8f17eec2fcaf754f",
+      "title": "(A)I love you, we’re the same",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AIloveyouwerethesame-39138ddb450c81fc8f17eec2fcaf754f/"
+    },
+    {
+      "id": "37b38ddb450c814b8176c869324beb6e",
+      "title": "0.5–100 Hz",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/0.5100Hz-37b38ddb450c814b8176c869324beb6e/"
+    },
+    {
+      "id": "37c38ddb450c80faa9ecfb92da6d07d8",
+      "title": "13 Aufstrich, bitte!",
+      "category": "Open Lab",
+      "venue": "Ars Electronica Center, Level -1",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309619,
+      "lon": 14.284447,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/13Aufstrichbitte-37c38ddb450c80faa9ecfb92da6d07d8/"
+    },
+    {
+      "id": "37b38ddb450c81cbb1f1f969a4086715",
+      "title": "1KM",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/1KM-37b38ddb450c81cbb1f1f969a4086715/"
+    },
+    {
+      "id": "37b38ddb450c8173b51acd3cca71a56e",
+      "title": "38.5346∘N, 23.4932∘E 38.5346∘N,23.4932∘E",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/38.5346N23.4932E38.5346N23.4932E-37b38ddb450c8173b51acd3cca71a56e/"
+    },
+    {
+      "id": "37b38ddb450c81bc83aaec20fda7568f",
+      "title": "A Bubble",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ABubble-37b38ddb450c81bc83aaec20fda7568f/"
+    },
+    {
+      "id": "37a38ddb450c8160bb02d72bfde6b997",
+      "title": "A Bus Freezing to Death",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ABusFreezingtoDeath-37a38ddb450c8160bb02d72bfde6b997/"
+    },
+    {
+      "id": "38f38ddb450c81ac9b50d75577230360",
+      "title": "A Quarter Century of Processing",
+      "category": "Performance",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AQuarterCenturyofProcessing-38f38ddb450c81ac9b50d75577230360/"
+    },
+    {
+      "id": "38238ddb450c815fa272d74c73cd62e0",
+      "title": "A Sky of Infinite Wishes",
+      "category": "Screening",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ASkyofInfiniteWishes-38238ddb450c815fa272d74c73cd62e0/"
+    },
+    {
+      "id": "37238ddb450c816c9aded89c05053b3a",
+      "title": "A View From My Breasts",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AViewFromMyBreasts-37238ddb450c816c9aded89c05053b3a/"
+    },
+    {
+      "id": "37b38ddb450c8175afd9d2629bd6119a",
+      "title": "A-fetus",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/A-fetus-37b38ddb450c8175afd9d2629bd6119a/"
+    },
+    {
+      "id": "37138ddb450c815c807fd6a472776efd",
+      "title": "Above The Waves",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AboveTheWaves-37138ddb450c815c807fd6a472776efd/"
+    },
+    {
+      "id": "37b38ddb450c81e4b22dc26e13fdf425",
+      "title": "Action & Effect",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ActionEffect-37b38ddb450c81e4b22dc26e13fdf425/"
+    },
+    {
+      "id": "37a38ddb450c81ca919ada6ae453385a",
+      "title": "Acts of Becoming",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ActsofBecoming-37a38ddb450c81ca919ada6ae453385a/"
+    },
+    {
+      "id": "37a38ddb450c81fa9269d292f6113fd2",
+      "title": "Advanced Technology",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AdvancedTechnology-37a38ddb450c81fa9269d292f6113fd2/"
+    },
+    {
+      "id": "37b38ddb450c817197e3dbce6d7143ce",
+      "title": "AGCT",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AGCT-37b38ddb450c817197e3dbce6d7143ce/"
+    },
+    {
+      "id": "37a38ddb450c81c0ac6cc9384dd61083",
+      "title": "AGE OF MONSTERS",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AGEOFMONSTERS-37a38ddb450c81c0ac6cc9384dd61083/"
+    },
+    {
+      "id": "37b38ddb450c81669b58fc617691c5d7",
+      "title": "AI as Artist",
+      "category": "Exhibition",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AIasArtist-37b38ddb450c81669b58fc617691c5d7/"
+    },
+    {
+      "id": "37a38ddb450c812ca3cdf6d19918742e",
+      "title": "Algorithm of Solar Terms",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AlgorithmofSolarTerms-37a38ddb450c812ca3cdf6d19918742e/"
+    },
+    {
+      "id": "38138ddb450c81f0a56eee7a03e357c0",
+      "title": "Alignment",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Alignment-38138ddb450c81f0a56eee7a03e357c0/"
+    },
+    {
+      "id": "37b38ddb450c81499808fbe6b791bd1c",
+      "title": "Alternative Frequencies",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AlternativeFrequencies-37b38ddb450c81499808fbe6b791bd1c/"
+    },
+    {
+      "id": "37b38ddb450c81f09a51dbb6f4ca3a33",
+      "title": "Amphibious Humanity",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AmphibiousHumanity-37b38ddb450c81f09a51dbb6f4ca3a33/"
+    },
+    {
+      "id": "37238ddb450c81759550f9b4199cfd3e",
+      "title": "Anthrocenidion",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Anthrocenidion-37238ddb450c81759550f9b4199cfd3e/"
+    },
+    {
+      "id": "37b38ddb450c81dab7b2ea3c69732dd7",
+      "title": "Aquaoism",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Aquaoism-37b38ddb450c81dab7b2ea3c69732dd7/"
+    },
+    {
+      "id": "37238ddb450c81d5a6f8e25e97466c15",
+      "title": "Are We Getting Closer?",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AreWeGettingCloser-37238ddb450c81d5a6f8e25e97466c15/"
+    },
+    {
+      "id": "37938ddb450c81ad9359d7e19cdd9ea1",
+      "title": "Artificial You",
+      "category": "Exhibition",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ArtificialYou-37938ddb450c81ad9359d7e19cdd9ea1/"
+    },
+    {
+      "id": "38a38ddb450c8133b6daef7a40155be8",
+      "title": "As Gems in Metal: Face 002",
+      "category": "Project",
+      "venue": "Damen & Herrenstraße DH5",
+      "address": "Herrenstraße 5, 4020 Linz",
+      "lat": 48.303145,
+      "lon": 14.2838603,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AsGemsinMetalFace002-38a38ddb450c8133b6daef7a40155be8/"
+    },
+    {
+      "id": "38138ddb450c819a8340d714bf0ca049",
+      "title": "ASH BOAT",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ASHBOAT-38138ddb450c819a8340d714bf0ca049/"
+    },
+    {
+      "id": "38138ddb450c81119303f1046691c315",
+      "title": "Assembled Faces",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AssembledFaces-38138ddb450c81119303f1046691c315/"
+    },
+    {
+      "id": "39538ddb450c81ecad69ff3d8d67cdda",
+      "title": "ASTER+S > ART ^ GENETICS: MEET THE SCIENTIST",
+      "category": "Meet the Artist",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ASTERSARTGENETICSMEETTHESCIENTIST-39538ddb450c81ecad69ff3d8d67cdda/"
+    },
+    {
+      "id": "39c38ddb450c8007a6d2e256faa2edc9",
+      "title": "ATTheENDLinz—Linzer Klangwolke 26",
+      "category": "Concert",
+      "venue": "Donaupark",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.309627,
+      "lon": 14.290949,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ATTheENDLinzLinzerKlangwolke26-39c38ddb450c8007a6d2e256faa2edc9/"
+    },
+    {
+      "id": "38438ddb450c80bf90daebfed8347fba",
+      "title": "Award Ceremony u19—create your world",
+      "category": "Award Ceremony",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 0, Lecture Hall 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/AwardCeremonyu19createyourworld-38438ddb450c80bf90daebfed8347fba/"
+    },
+    {
+      "id": "37b38ddb450c81b09d26d7a02a1296a0",
+      "title": "B-612",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/B-612-37b38ddb450c81b09d26d7a02a1296a0/"
+    },
+    {
+      "id": "37b38ddb450c81c6b55ee3b6c2a24a55",
+      "title": "Baram",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Baram-37b38ddb450c81c6b55ee3b6c2a24a55/"
+    },
+    {
+      "id": "37a38ddb450c811cb0aaf5c233309585",
+      "title": "BeMySatl",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/BeMySatl-37a38ddb450c811cb0aaf5c233309585/"
+    },
+    {
+      "id": "37b38ddb450c8110a522dd415d3d3087",
+      "title": "between-margaridas",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/between-margaridas-37b38ddb450c8110a522dd415d3d3087/"
+    },
+    {
+      "id": "37b38ddb450c817d9f89dbcd95d1114c",
+      "title": "Biomimetic + P.U.L.S.A.R",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/BiomimeticP.U.L.S.A.R-37b38ddb450c817d9f89dbcd95d1114c/"
+    },
+    {
+      "id": "38a38ddb450c81508151e7935b5bd811",
+      "title": "black_box_detox",
+      "category": "Exhibition",
+      "venue": "Damen & Herrenstraße DH5",
+      "address": "Herrenstraße 5, 4020 Linz",
+      "lat": 48.303145,
+      "lon": 14.2838603,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/black_box_detox-38a38ddb450c81508151e7935b5bd811/"
+    },
+    {
+      "id": "37b38ddb450c81acbb8ace0ff930003e",
+      "title": "Blind for tomorrow",
+      "category": "Performance",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Blindfortomorrow-37b38ddb450c81acbb8ace0ff930003e/"
+    },
+    {
+      "id": "37b38ddb450c8164a014ca78625bb154",
+      "title": "Bloom",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Bloom-37b38ddb450c8164a014ca78625bb154/"
+    },
+    {
+      "id": "38238ddb450c803eb5eacb22c57ab9fd",
+      "title": "Brunch at the Tangible Music Lab, Tabakfabrik Linz",
+      "category": "Networking Event",
+      "venue": "Tabakfabrik",
+      "address": "Peter-Behrens-Platz 7-8, 4020 Linz",
+      "lat": 48.312392,
+      "lon": 14.299103,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/BrunchattheTangibleMusicLabTabakfabrikLinz-38238ddb450c803eb5eacb22c57ab9fd/"
+    },
+    {
+      "id": "37c38ddb450c8162a761e634a807c618",
+      "title": "C/Si: The Humanity Track",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CSiTheHumanityTrack-37c38ddb450c8162a761e634a807c618/"
+    },
+    {
+      "id": "37a38ddb450c811ebcfcf902f338980d",
+      "title": "Calculating Your Redundancy...",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CalculatingYourRedundancy...-37a38ddb450c811ebcfcf902f338980d/"
+    },
+    {
+      "id": "37a38ddb450c814abab3e9a35afa66f1",
+      "title": "CAOS",
+      "category": "Exhibition",
+      "venue": "Ars Electronica Center",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309619,
+      "lon": 14.284447,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CAOS-37a38ddb450c814abab3e9a35afa66f1/"
+    },
+    {
+      "id": "37b38ddb450c819a8fd0dea66075bf3b",
+      "title": "Capital Dream",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CapitalDream-37b38ddb450c819a8fd0dea66075bf3b/"
+    },
+    {
+      "id": "37b38ddb450c8103ac2ce2ef785984e8",
+      "title": "care & action: arts of change – change of arts",
+      "category": "Exhibition",
+      "venue": "Main Square Linz",
+      "address": "Hauptplatz 1, 4020 Linz",
+      "lat": 48.3059909,
+      "lon": 14.2865946,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/careactionartsofchangechangeofarts-37b38ddb450c8103ac2ce2ef785984e8/"
+    },
+    {
+      "id": "37a38ddb450c812e97b4dd416a77e283",
+      "title": "Centurion",
+      "category": "Project",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Centurion-37a38ddb450c812e97b4dd416a77e283/"
+    },
+    {
+      "id": "37b38ddb450c8142a463c02c1e7803c4",
+      "title": "Chromesthesia",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Chromesthesia-37b38ddb450c8142a463c02c1e7803c4/"
+    },
+    {
+      "id": "37b38ddb450c8145ab9bdc8927af0df8",
+      "title": "Co-Breathing",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Co-Breathing-37b38ddb450c8145ab9bdc8927af0df8/"
+    },
+    {
+      "id": "37b38ddb450c816194f5fdb7c9ad89a7",
+      "title": "Computational Dramaturgy",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ComputationalDramaturgy-37b38ddb450c816194f5fdb7c9ad89a7/"
+    },
+    {
+      "id": "37038ddb450c8190a4c3f7ba7236f7cc",
+      "title": "Computational Evolution",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ComputationalEvolution-37038ddb450c8190a4c3f7ba7236f7cc/"
+    },
+    {
+      "id": "37938ddb450c8151a0d0e17f2c4adb86",
+      "title": "Conditional Entry",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ConditionalEntry-37938ddb450c8151a0d0e17f2c4adb86/"
+    },
+    {
+      "id": "37b38ddb450c81dca50dcbec62ce9664",
+      "title": "Corporeal Resonance",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CorporealResonance-37b38ddb450c81dca50dcbec62ce9664/"
+    },
+    {
+      "id": "37638ddb450c8122b76df752189b54a4",
+      "title": "Critical Debugging Practices",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CriticalDebuggingPractices-37638ddb450c8122b76df752189b54a4/"
+    },
+    {
+      "id": "37c38ddb450c817c9510ddae4fee0a97",
+      "title": "Cupid Proxy",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CupidProxy-37c38ddb450c817c9510ddae4fee0a97/"
+    },
+    {
+      "id": "37a38ddb450c8114baafd887c320fba7",
+      "title": "CyberCindy & Nickii AI 2.0",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/CyberCindyNickiiAI2.0-37a38ddb450c8114baafd887c320fba7/"
+    },
+    {
+      "id": "37638ddb450c815c83a1c38ba0d000f5",
+      "title": "Debugging Realities",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/DebuggingRealities-37638ddb450c815c83a1c38ba0d000f5/"
+    },
+    {
+      "id": "37c38ddb450c80d18af8dcf8fcab9bc3",
+      "title": "Design and Technology",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/DesignandTechnology-37c38ddb450c80d18af8dcf8fcab9bc3/"
+    },
+    {
+      "id": "37b38ddb450c8147a843cf90cfcc4cc6",
+      "title": "Disappearance of Rituals",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/DisappearanceofRituals-37b38ddb450c8147a843cf90cfcc4cc6/"
+    },
+    {
+      "id": "37a38ddb450c810d9a9de311347fe612",
+      "title": "DOXA",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/DOXA-37a38ddb450c810d9a9de311347fe612/"
+    },
+    {
+      "id": "37838ddb450c8102b84ae7316552a6ee",
+      "title": "Echoes of the Bay",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EchoesoftheBay-37838ddb450c8102b84ae7316552a6ee/"
+    },
+    {
+      "id": "37a38ddb450c81f395b0e304b26d57bd",
+      "title": "EGO",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EGO-37a38ddb450c81f395b0e304b26d57bd/"
+    },
+    {
+      "id": "37b38ddb450c8192965afef027c8d89b",
+      "title": "Embodied AI",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EmbodiedAI-37b38ddb450c8192965afef027c8d89b/"
+    },
+    {
+      "id": "38a38ddb450c813a93e0cf639ecebc97",
+      "title": "Enlightening Stories",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Library Building (BIB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302880416557,
+      "lon": 14.303225232775,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EnlighteningStories-38a38ddb450c813a93e0cf639ecebc97/"
+    },
+    {
+      "id": "37b38ddb450c8198bf39d864b8ce2396",
+      "title": "Ephemeral Sounds of the Gulf",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EphemeralSoundsoftheGulf-37b38ddb450c8198bf39d864b8ce2396/"
+    },
+    {
+      "id": "37a38ddb450c81889fffee840f2e17ec",
+      "title": "every new technique is a service environment that junks the earlier ones",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/everynewtechniqueisaserviceenvironmentthatjunkstheearlierones-37a38ddb450c81889fffee840f2e17ec/"
+    },
+    {
+      "id": "37b38ddb450c81ae83aee2daf8c64532",
+      "title": "Evidentiary Syntheses",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/EvidentiarySyntheses-37b38ddb450c81ae83aee2daf8c64532/"
+    },
+    {
+      "id": "37b38ddb450c8137a5f2d724654bfec3",
+      "title": "Ex-Vivo",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Ex-Vivo-37b38ddb450c8137a5f2d724654bfec3/"
+    },
+    {
+      "id": "37b38ddb450c81e2bccef4252e9a6571",
+      "title": "False Negatives",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FalseNegatives-37b38ddb450c81e2bccef4252e9a6571/"
+    },
+    {
+      "id": "37938ddb450c81f1a44fca338fcb14e0",
+      "title": "FEED ME",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FEEDME-37938ddb450c81f1a44fca338fcb14e0/"
+    },
+    {
+      "id": "37c38ddb450c80e3b98acac46fb4e09c",
+      "title": "Fine Arts",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FineArts-37c38ddb450c80e3b98acac46fb4e09c/"
+    },
+    {
+      "id": "37b38ddb450c81869cbdf07f1245b795",
+      "title": "Fluttering Colours",
+      "category": "Performance",
+      "venue": "Main Square Linz",
+      "address": "Hauptplatz 1, 4020 Linz",
+      "lat": 48.3059909,
+      "lon": 14.2865946,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FlutteringColours-37b38ddb450c81869cbdf07f1245b795/"
+    },
+    {
+      "id": "38138ddb450c81c7802cd29703e2a4f2",
+      "title": "Folded Memories: Heritage in Circulation",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FoldedMemoriesHeritageinCirculation-38138ddb450c81c7802cd29703e2a4f2/"
+    },
+    {
+      "id": "37b38ddb450c8138b803cd2af0bc6012",
+      "title": "Fried or Fossil?",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/FriedorFossil-37b38ddb450c8138b803cd2af0bc6012/"
+    },
+    {
+      "id": "37a38ddb450c81368f97f63f47f2ba60",
+      "title": "Game of Voyeurism",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/GameofVoyeurism-37a38ddb450c81368f97f63f47f2ba60/"
+    },
+    {
+      "id": "38d38ddb450c818bb3c0c48bf7cca804",
+      "title": "Gefesselte Sinne",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Library Building (BIB), Level 0",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302880416557,
+      "lon": 14.303225232775,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/GefesselteSinne-38d38ddb450c818bb3c0c48bf7cca804/"
+    },
+    {
+      "id": "38738ddb450c81aebb31d403869a0289",
+      "title": "Glitchaelia",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Glitchaelia-38738ddb450c81aebb31d403869a0289/"
+    },
+    {
+      "id": "39838ddb450c8112a555d466c60b6f28",
+      "title": "Glumpert",
+      "category": "Project",
+      "venue": "OK Linz",
+      "address": "OK Platz 1, 4020 Linz",
+      "lat": 48.302864,
+      "lon": 14.290611,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Glumpert-39838ddb450c8112a555d466c60b6f28/"
+    },
+    {
+      "id": "37a38ddb450c81aca91aec87b6089124",
+      "title": "Gradi",
+      "category": "Project",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Gradi-37a38ddb450c81aca91aec87b6089124/"
+    },
+    {
+      "id": "37b38ddb450c812694b7ecc1f29f19ce",
+      "title": "Hands turned into fingertips, fingertips spiraled into the chaos",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Handsturnedintofingertipsfingertipsspiraledintothechaos-37b38ddb450c812694b7ecc1f29f19ce/"
+    },
+    {
+      "id": "37b38ddb450c81fcbd40ee0ad1af83df",
+      "title": "Homo Eucalyptus",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/HomoEucalyptus-37b38ddb450c81fcbd40ee0ad1af83df/"
+    },
+    {
+      "id": "37d38ddb450c818fb3d5fbde83f5a1ff",
+      "title": "House of Negotiated Selves",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/HouseofNegotiatedSelves-37d38ddb450c818fb3d5fbde83f5a1ff/"
+    },
+    {
+      "id": "37b38ddb450c81e29ee2d7944034f77c",
+      "title": "Human Variables",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/HumanVariables-37b38ddb450c81e29ee2d7944034f77c/"
+    },
+    {
+      "id": "37b38ddb450c81058d02e2ce0a99acf3",
+      "title": "HumanMapping",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/HumanMapping-37b38ddb450c81058d02e2ce0a99acf3/"
+    },
+    {
+      "id": "37a38ddb450c811c9d3ccbf8e0a51e2b",
+      "title": "Immersive Beats",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ImmersiveBeats-37a38ddb450c811c9d3ccbf8e0a51e2b/"
+    },
+    {
+      "id": "37b38ddb450c81829670c51bade3f612",
+      "title": "In Your Skin",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/InYourSkin-37b38ddb450c81829670c51bade3f612/"
+    },
+    {
+      "id": "37a38ddb450c81c3a2b8eb28220c924b",
+      "title": "Incompleteness as Reorientation",
+      "category": "Exhibition",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/IncompletenessasReorientation-37a38ddb450c81c3a2b8eb28220c924b/"
+    },
+    {
+      "id": "37a38ddb450c81f19555d7f1921e58b1",
+      "title": "Ink Soundscape",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/InkSoundscape-37a38ddb450c81f19555d7f1921e58b1/"
+    },
+    {
+      "id": "38438ddb450c81c2afdaddd9e3b72fa7",
+      "title": "Interactive Brosch – Red Dinosaurs",
+      "category": "Experience",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/InteractiveBroschRedDinosaurs-38438ddb450c81c2afdaddd9e3b72fa7/"
+    },
+    {
+      "id": "39238ddb450c816c9190d21f16df80aa",
+      "title": "It-didn’t-rain-that-day_TREE OF THOUGHT",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/It-didnt-rain-that-day_TREEOFTHOUGHT-39238ddb450c816c9190d21f16df80aa/"
+    },
+    {
+      "id": "37a38ddb450c81919998ceac1370092d",
+      "title": "I’m always here for you",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Imalwayshereforyou-37a38ddb450c81919998ceac1370092d/"
+    },
+    {
+      "id": "37138ddb450c81029923c7da2ee2644f",
+      "title": "I’m eating guava on self-improvement road",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Imeatingguavaonself-improvementroad-37138ddb450c81029923c7da2ee2644f/"
+    },
+    {
+      "id": "38238ddb450c81dbb456d059bd1c1dba",
+      "title": "KARMA",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/KARMA-38238ddb450c81dbb456d059bd1c1dba/"
+    },
+    {
+      "id": "37b38ddb450c814e88f6c1dffb653c17",
+      "title": "Knotworking",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building), Courtyard",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Knotworking-37b38ddb450c814e88f6c1dffb653c17/"
+    },
+    {
+      "id": "37c38ddb450c8191b44dc8ce5bf0e5da",
+      "title": "KOCHLUST",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/KOCHLUST-37c38ddb450c8191b44dc8ce5bf0e5da/"
+    },
+    {
+      "id": "37a38ddb450c81f38e3ee820ce679951",
+      "title": "kulturvierung",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/kulturvierung-37a38ddb450c81f38e3ee820ce679951/"
+    },
+    {
+      "id": "37638ddb450c8123b59fd502af294cfd",
+      "title": "let me hold you in my algorithms",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/letmeholdyouinmyalgorithms-37638ddb450c8123b59fd502af294cfd/"
+    },
+    {
+      "id": "37238ddb450c8131abc1e31ec9f3a9f7",
+      "title": "Let Me Tell You a Story",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/LetMeTellYouaStory-37238ddb450c8131abc1e31ec9f3a9f7/"
+    },
+    {
+      "id": "38238ddb450c805ea363dc10366d58f8",
+      "title": "Light & Sound Installation: Klang-/Licht STROM",
+      "category": "Project",
+      "venue": "Anton Bruckner University, Room 301",
+      "address": "Alice-Harnoncourt-Platz 1, 4040 Linz",
+      "lat": 48.311211,
+      "lon": 14.269636,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/LightSoundInstallationKlang-LichtSTROM-38238ddb450c805ea363dc10366d58f8/"
+    },
+    {
+      "id": "37b38ddb450c8160807ef718a4aced28",
+      "title": "Listening to Life and Change",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ListeningtoLifeandChange-37b38ddb450c8160807ef718a4aced28/"
+    },
+    {
+      "id": "38138ddb450c8127a2d1cc638e948f14",
+      "title": "Living Strata",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/LivingStrata-38138ddb450c8127a2d1cc638e948f14/"
+    },
+    {
+      "id": "37b38ddb450c814c9e04ca5268db3b95",
+      "title": "MAMLAS-1",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MAMLAS-1-37b38ddb450c814c9e04ca5268db3b95/"
+    },
+    {
+      "id": "37b38ddb450c818f8962e4d7a0896539",
+      "title": "Manifestation",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Manifestation-37b38ddb450c818f8962e4d7a0896539/"
+    },
+    {
+      "id": "38c38ddb450c81949c1ecdc95cace360",
+      "title": "Marmelade",
+      "category": "Project",
+      "venue": "Sisters of St. Elizabeth, Festsaal",
+      "address": "Fadingerstraße 1, 4020 Linz",
+      "lat": 48.30487,
+      "lon": 14.2908157,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Marmelade-38c38ddb450c81949c1ecdc95cace360/"
+    },
+    {
+      "id": "38238ddb450c80528618dd4d375c272d",
+      "title": "MEDIUM SONORUM – Closing Concert",
+      "category": "Concert",
+      "venue": "Anton Bruckner University, Sonic Lab",
+      "address": "Alice-Harnoncourt-Platz 1, 4040 Linz",
+      "lat": 48.311211,
+      "lon": 14.269636,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MEDIUMSONORUMClosingConcert-38238ddb450c80528618dd4d375c272d/"
+    },
+    {
+      "id": "38d38ddb450c81b1b50cff759475496a",
+      "title": "MERGING VISIONS",
+      "category": "Screening",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MERGINGVISIONS-38d38ddb450c81b1b50cff759475496a/"
+    },
+    {
+      "id": "39238ddb450c81a496e2f6d6c00fea99",
+      "title": "Metabolic Girl",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MetabolicGirl-39238ddb450c81a496e2f6d6c00fea99/"
+    },
+    {
+      "id": "37638ddb450c816b9b4cfb623a90b5e2",
+      "title": "MINE/MINE",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MINEMINE-37638ddb450c816b9b4cfb623a90b5e2/"
+    },
+    {
+      "id": "37b38ddb450c815a9cc0ebed8dfd2628",
+      "title": "Minute Paintings / Pictures of an Exhibition",
+      "category": "Event",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MinutePaintingsPicturesofanExhibition-37b38ddb450c815a9cc0ebed8dfd2628/"
+    },
+    {
+      "id": "37b38ddb450c819cac0cc3059e30bbf4",
+      "title": "Mnemonic Epitaph",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MnemonicEpitaph-37b38ddb450c819cac0cc3059e30bbf4/"
+    },
+    {
+      "id": "37a38ddb450c8192ad82f8a9fdcb7fc4",
+      "title": "Molecular Incantations||Sonic Telepathy (MIST)",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/MolecularIncantationsSonicTelepathyMIST-37a38ddb450c8192ad82f8a9fdcb7fc4/"
+    },
+    {
+      "id": "37b38ddb450c81ba9f1debfec6c05d84",
+      "title": "Musikmaschine",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 0",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Musikmaschine-37b38ddb450c81ba9f1debfec6c05d84/"
+    },
+    {
+      "id": "37c38ddb450c81be9ce8f66dd69e8359",
+      "title": "Musikmaschine",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 0",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Musikmaschine-37c38ddb450c81be9ce8f66dd69e8359/"
+    },
+    {
+      "id": "37b38ddb450c81e7b77eed14187e07b0",
+      "title": "Musikmaschine in concert",
+      "category": "Concert",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 0",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Musikmaschineinconcert-37b38ddb450c81e7b77eed14187e07b0/"
+    },
+    {
+      "id": "37b38ddb450c81efbe1cd9236f668184",
+      "title": "Negative Spaces",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/NegativeSpaces-37b38ddb450c81efbe1cd9236f668184/"
+    },
+    {
+      "id": "37c38ddb450c81e1a7b4cd9821be771f",
+      "title": "Negotiated Realities",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/NegotiatedRealities-37c38ddb450c81e1a7b4cd9821be771f/"
+    },
+    {
+      "id": "37b38ddb450c8129a510cbe1dc769f2e",
+      "title": "Network Excavation",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/NetworkExcavation-37b38ddb450c8129a510cbe1dc769f2e/"
+    },
+    {
+      "id": "37c38ddb450c81a18f77f7566c524632",
+      "title": "Neural Negotiating",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/NeuralNegotiating-37c38ddb450c81a18f77f7566c524632/"
+    },
+    {
+      "id": "39938ddb450c81fc8930d09b0a2ec08e",
+      "title": "Noise of War",
+      "category": "Project",
+      "venue": "Sisters of St. Elizabeth, Elisabethinen Church",
+      "address": "Fadingerstraße 1, 4020 Linz",
+      "lat": 48.30487,
+      "lon": 14.2908157,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/NoiseofWar-39938ddb450c81fc8930d09b0a2ec08e/"
+    },
+    {
+      "id": "37b38ddb450c81eea623c03b91aa95df",
+      "title": "On the Manner",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OntheManner-37b38ddb450c81eea623c03b91aa95df/"
+    },
+    {
+      "id": "38e38ddb450c8121bdead6947c2afd1a",
+      "title": "Onassis ONX Showcase",
+      "category": "Screening",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OnassisONXShowcase-38e38ddb450c8121bdead6947c2afd1a/"
+    },
+    {
+      "id": "37b38ddb450c8101be35f266e80dbb37",
+      "title": "One More Time",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OneMoreTime-37b38ddb450c8101be35f266e80dbb37/"
+    },
+    {
+      "id": "38438ddb450c81929738f94f9b92fcac",
+      "title": "Open Writing Lab",
+      "category": "Open Lab",
+      "venue": "JKU MED Campus, Library Building (BIB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302880416557,
+      "lon": 14.303225232775,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OpenWritingLab-38438ddb450c81929738f94f9b92fcac/"
+    },
+    {
+      "id": "37638ddb450c817b8317fb26ea5aacc2",
+      "title": "Opus Magnum – Supo Mungam",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OpusMagnumSupoMungam-37638ddb450c817b8317fb26ea5aacc2/"
+    },
+    {
+      "id": "37a38ddb450c818db5eddc2a104799f6",
+      "title": "Over Connected",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/OverConnected-37a38ddb450c818db5eddc2a104799f6/"
+    },
+    {
+      "id": "38e38ddb450c813fb61cf19ba69e41af",
+      "title": "P.A.I.N. (Personal And Interconnected with Nature)",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB)",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/P.A.I.N.PersonalAndInterconnectedwithNature-38e38ddb450c813fb61cf19ba69e41af/"
+    },
+    {
+      "id": "37b38ddb450c81de9c5fc6ae4307afb8",
+      "title": "Pathology Inducing Machine",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PathologyInducingMachine-37b38ddb450c81de9c5fc6ae4307afb8/"
+    },
+    {
+      "id": "37a38ddb450c8171bebcf9b2d33d10ce",
+      "title": "Pedaling Falsity: The Plights of Womanhood",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PedalingFalsityThePlightsofWomanhood-37a38ddb450c8171bebcf9b2d33d10ce/"
+    },
+    {
+      "id": "37b38ddb450c811c9438da387d7e308a",
+      "title": "Perception of Spheres",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PerceptionofSpheres-37b38ddb450c811c9438da387d7e308a/"
+    },
+    {
+      "id": "37b38ddb450c819fbcb6e93a67d8f807",
+      "title": "Permeable",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Permeable-37b38ddb450c819fbcb6e93a67d8f807/"
+    },
+    {
+      "id": "38f38ddb450c81f7850ff2844e7bccd6",
+      "title": "Perpetual Records",
+      "category": "Screening",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PerpetualRecords-38f38ddb450c81f7850ff2844e7bccd6/"
+    },
+    {
+      "id": "37c38ddb450c8056ae52d5548a90b57e",
+      "title": "PhD-program",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PhD-program-37c38ddb450c8056ae52d5548a90b57e/"
+    },
+    {
+      "id": "37b38ddb450c81959102ddca3a867421",
+      "title": "Pipes in Progress",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PipesinProgress-37b38ddb450c81959102ddca3a867421/"
+    },
+    {
+      "id": "37a38ddb450c81be9a12f8321a71f694",
+      "title": "Plant Blindness",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PlantBlindness-37a38ddb450c81be9a12f8321a71f694/"
+    },
+    {
+      "id": "38238ddb450c8180a12dd211a3eac187",
+      "title": "Playable Artefacts",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PlayableArtefacts-38238ddb450c8180a12dd211a3eac187/"
+    },
+    {
+      "id": "39838ddb450c81e19f0fefcc170f709b",
+      "title": "Pleas of Resistance",
+      "category": "Project",
+      "venue": "OK Linz",
+      "address": "OK Platz 1, 4020 Linz",
+      "lat": 48.302864,
+      "lon": 14.290611,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PleasofResistance-39838ddb450c81e19f0fefcc170f709b/"
+    },
+    {
+      "id": "37b38ddb450c811dbe2cf59198d2fbd1",
+      "title": "Post Compost – Forest Reset",
+      "category": "Project",
+      "venue": "Main Square Linz",
+      "address": "Hauptplatz 1, 4020 Linz",
+      "lat": 48.3059909,
+      "lon": 14.2865946,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PostCompostForestReset-37b38ddb450c811dbe2cf59198d2fbd1/"
+    },
+    {
+      "id": "37c38ddb450c8071a7d2c07f4d6f0067",
+      "title": "Postdigital Lutherie",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/PostdigitalLutherie-37c38ddb450c8071a7d2c07f4d6f0067/"
+    },
+    {
+      "id": "38138ddb450c8182b1bfffa11ce35911",
+      "title": "Quantum Compass",
+      "category": "Exhibition",
+      "venue": "Ars Electronica Center",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309619,
+      "lon": 14.284447,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/QuantumCompass-38138ddb450c8182b1bfffa11ce35911/"
+    },
+    {
+      "id": "38638ddb450c819c8ba7cfc7e53aff87",
+      "title": "Radical Futures",
+      "category": "Exhibition",
+      "venue": "Francisco Carolinum, Level 2",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RadicalFutures-38638ddb450c819c8ba7cfc7e53aff87/"
+    },
+    {
+      "id": "37b38ddb450c8105ba03f1b3ff04ebae",
+      "title": "Reality Flux: Sensing the Unseen",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RealityFluxSensingtheUnseen-37b38ddb450c8105ba03f1b3ff04ebae/"
+    },
+    {
+      "id": "37b38ddb450c8116b812f10df294c863",
+      "title": "Reflections: Outer Space / Inner Space",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ReflectionsOuterSpaceInnerSpace-37b38ddb450c8116b812f10df294c863/"
+    },
+    {
+      "id": "37b38ddb450c8195b659c02ab684394c",
+      "title": "Relational Interactions",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RelationalInteractions-37b38ddb450c8195b659c02ab684394c/"
+    },
+    {
+      "id": "37b38ddb450c81769949c0fb90482cbc",
+      "title": "Remember I Was Carbohydrate",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RememberIWasCarbohydrate-37b38ddb450c81769949c0fb90482cbc/"
+    },
+    {
+      "id": "37b38ddb450c8129a4c4fbb9b125432a",
+      "title": "Remote Twins",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RemoteTwins-37b38ddb450c8129a4c4fbb9b125432a/"
+    },
+    {
+      "id": "37b38ddb450c8129b0f8f02c7aedd52f",
+      "title": "Resonant Distances",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ResonantDistances-37b38ddb450c8129b0f8f02c7aedd52f/"
+    },
+    {
+      "id": "37638ddb450c814794a2e80ae48ba4ff",
+      "title": "Restra*ned Des*re",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RestranedDesre-37638ddb450c814794a2e80ae48ba4ff/"
+    },
+    {
+      "id": "38238ddb450c81dd9d16d84a9378e84a",
+      "title": "Rethinking Digital Imagery",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/RethinkingDigitalImagery-38238ddb450c81dd9d16d84a9378e84a/"
+    },
+    {
+      "id": "38a38ddb450c816191fee0a75c9e36c3",
+      "title": "Rewire",
+      "category": "Project",
+      "venue": "Damen & Herrenstraße DH5",
+      "address": "Herrenstraße 5, 4020 Linz",
+      "lat": 48.303145,
+      "lon": 14.2838603,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Rewire-38a38ddb450c816191fee0a75c9e36c3/"
+    },
+    {
+      "id": "37a38ddb450c817ead2dc73084d9e6f8",
+      "title": "Scroll and Stroll",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/ScrollandStroll-37a38ddb450c817ead2dc73084d9e6f8/"
+    },
+    {
+      "id": "37c38ddb450c80a4a943d1f4a8e743c8",
+      "title": "Sculptural Conceptions / Ceramics",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SculpturalConceptionsCeramics-37c38ddb450c80a4a943d1f4a8e743c8/"
+    },
+    {
+      "id": "39138ddb450c81df82a5c08c29a51858",
+      "title": "small goals, BIG PAINS",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/smallgoalsBIGPAINS-39138ddb450c81df82a5c08c29a51858/"
+    },
+    {
+      "id": "38238ddb450c80f8881dccf6abfc5734",
+      "title": "Sonic Saturday: Audible Futures, Silent Decisions",
+      "category": "Collection",
+      "venue": "Anton Bruckner University",
+      "address": "Alice-Harnoncourt-Platz 1, 4040 Linz",
+      "lat": 48.311211,
+      "lon": 14.269636,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SonicSaturdayAudibleFuturesSilentDecisions-38238ddb450c80f8881dccf6abfc5734/"
+    },
+    {
+      "id": "37c38ddb450c80579aa8e87a169d58bc",
+      "title": "Space and Design Strategies",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SpaceandDesignStrategies-37c38ddb450c80579aa8e87a169d58bc/"
+    },
+    {
+      "id": "37b38ddb450c81afa580f01ab46c0642",
+      "title": "Speculative Bodies",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SpeculativeBodies-37b38ddb450c81afa580f01ab46c0642/"
+    },
+    {
+      "id": "39638ddb450c81c4b190efa0ff7c73a0",
+      "title": "Spot On",
+      "category": "Project",
+      "venue": "Catholic Private University Linz, Foyer",
+      "address": "Bethlehemstraße 20, 4020 Linz",
+      "lat": 48.303836,
+      "lon": 14.291437,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SpotOn-39638ddb450c81c4b190efa0ff7c73a0/"
+    },
+    {
+      "id": "37b38ddb450c81fa8235d0c98a5d64e5",
+      "title": "STATEMENT",
+      "category": "Project",
+      "venue": "Main Square Linz",
+      "address": "Hauptplatz 1, 4020 Linz",
+      "lat": 48.3059909,
+      "lon": 14.2865946,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/STATEMENT-37b38ddb450c81fa8235d0c98a5d64e5/"
+    },
+    {
+      "id": "37138ddb450c81d19656d8d281daf9a6",
+      "title": "Stone Dream v2.0",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/StoneDreamv2.0-37138ddb450c81d19656d8d281daf9a6/"
+    },
+    {
+      "id": "38438ddb450c81afb3dccf425c941afc",
+      "title": "Symposium: Tech-Bro-Topia. A Dystopian Shift of Politics, Economics and Culture?",
+      "category": "Lecture & Talk",
+      "venue": "Ursulinenhof Linz",
+      "address": "Landstraße 31, 4020 Linz",
+      "lat": 48.302496,
+      "lon": 14.290166,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/SymposiumTech-Bro-Topia.ADystopianShiftofPoliticsEconomicsandCulture-38438ddb450c81afb3dccf425c941afc/"
+    },
+    {
+      "id": "37a38ddb450c8137a904d5f1e1525d67",
+      "title": "Tarotally",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Tarotally-37a38ddb450c8137a904d5f1e1525d67/"
+    },
+    {
+      "id": "37c38ddb450c8029ac75daeea7bf9172",
+      "title": "Textile Art and Design",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 6 (East Building)",
+      "address": "Hauptplatz 6, 4020 Linz",
+      "lat": 48.306709,
+      "lon": 14.286392,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TextileArtandDesign-37c38ddb450c8029ac75daeea7bf9172/"
+    },
+    {
+      "id": "37c38ddb450c81e8b52bfe08abf3915f",
+      "title": "The Bias of Creation: Embodied Aesthetic Negotiation",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheBiasofCreationEmbodiedAestheticNegotiation-37c38ddb450c81e8b52bfe08abf3915f/"
+    },
+    {
+      "id": "38a38ddb450c8144b1d9f1c12730a207",
+      "title": "The Critic",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheCritic-38a38ddb450c8144b1d9f1c12730a207/"
+    },
+    {
+      "id": "37b38ddb450c817386dcc356adc84dd1",
+      "title": "The Debate of Two Children",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheDebateofTwoChildren-37b38ddb450c817386dcc356adc84dd1/"
+    },
+    {
+      "id": "37a38ddb450c81bd8639e1e950e34bc6",
+      "title": "The Elusive River",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheElusiveRiver-37a38ddb450c81bd8639e1e950e34bc6/"
+    },
+    {
+      "id": "37a38ddb450c814382bdcae8a3b55769",
+      "title": "The Generative Omnipresent",
+      "category": "Exhibition",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheGenerativeOmnipresent-37a38ddb450c814382bdcae8a3b55769/"
+    },
+    {
+      "id": "37b38ddb450c81e19bfde1f04a8dbfa1",
+      "title": "THE LAST ASHES",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/THELASTASHES-37b38ddb450c81e19bfde1f04a8dbfa1/"
+    },
+    {
+      "id": "39238ddb450c814ea5f9f798db70295c",
+      "title": "The Last Judgement Triptych by Hieronymus Bosch",
+      "category": "Experience",
+      "venue": "Ars Electronica Center, Level 0, Deep Space 8K",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309752,
+      "lon": 14.284503,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheLastJudgementTriptychbyHieronymusBosch-39238ddb450c814ea5f9f798db70295c/"
+    },
+    {
+      "id": "38838ddb450c8118a666fd0af73e5e86",
+      "title": "The Lightness of Submission",
+      "category": "Project",
+      "venue": "Ars Electronica Center, Level -3",
+      "address": "Ars-Electronica-Straße 1, 4040 Linz",
+      "lat": 48.309619,
+      "lon": 14.284447,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheLightnessofSubmission-38838ddb450c8118a666fd0af73e5e86/"
+    },
+    {
+      "id": "37c38ddb450c81f19914e2dfd013b4ca",
+      "title": "The Neo-Urban Reef",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheNeo-UrbanReef-37c38ddb450c81f19914e2dfd013b4ca/"
+    },
+    {
+      "id": "37c38ddb450c81dabda3da4c38ee734f",
+      "title": "The Sora-Urushi Project",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheSora-UrushiProject-37c38ddb450c81dabda3da4c38ee734f/"
+    },
+    {
+      "id": "37b38ddb450c81f3b0f0e03383de65db",
+      "title": "The System Looks Back",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheSystemLooksBack-37b38ddb450c81f3b0f0e03383de65db/"
+    },
+    {
+      "id": "37a38ddb450c81a3b91ef26277ec3ef6",
+      "title": "The Verification",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TheVerification-37a38ddb450c81a3b91ef26277ec3ef6/"
+    },
+    {
+      "id": "37a38ddb450c81a7aea6fb9b3314fbf6",
+      "title": "Threshold",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Threshold-37a38ddb450c81a7aea6fb9b3314fbf6/"
+    },
+    {
+      "id": "37c38ddb450c803496bcd6ac83b868f8",
+      "title": "Time-based and Interactive Media Arts",
+      "category": "Collection",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Time-basedandInteractiveMediaArts-37c38ddb450c803496bcd6ac83b868f8/"
+    },
+    {
+      "id": "37b38ddb450c815e9577e7891871bd60",
+      "title": "Turbid Encounters",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TurbidEncounters-37b38ddb450c815e9577e7891871bd60/"
+    },
+    {
+      "id": "37a38ddb450c81e8bfe1d199ba7aa53e",
+      "title": "Turn！Turn！Turn！",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TurnTurnTurn-37a38ddb450c81e8bfe1d199ba7aa53e/"
+    },
+    {
+      "id": "37b38ddb450c81e8ae56e524ee4cc3ae",
+      "title": "Tà Líng",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/TLng-37b38ddb450c81e8ae56e524ee4cc3ae/"
+    },
+    {
+      "id": "38438ddb450c815a91aac30837379922",
+      "title": "u19—create your world Exhibition",
+      "category": "Exhibition",
+      "venue": "JKU MED Campus, Library Building (BIB), Level 0",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302880416557,
+      "lon": 14.303225232775,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/u19createyourworldExhibition-38438ddb450c815a91aac30837379922/"
+    },
+    {
+      "id": "39138ddb450c8136a8d4c9698211ea02",
+      "title": "untitled, unformed",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/untitledunformed-39138ddb450c8136a8d4c9698211ea02/"
+    },
+    {
+      "id": "37b38ddb450c815ab3edcd34f054105c",
+      "title": "V.U.S.",
+      "category": "Project",
+      "venue": "JKU MED Campus, Laboratory Building (LAB), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.302490446702,
+      "lon": 14.303220915266,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/V.U.S.-37b38ddb450c815ab3edcd34f054105c/"
+    },
+    {
+      "id": "37b38ddb450c817aaec2e6e39d40e58b",
+      "title": "Vacant Spaces, Still Life",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/VacantSpacesStillLife-37b38ddb450c817aaec2e6e39d40e58b/"
+    },
+    {
+      "id": "38138ddb450c818b9092ff5a1b9c96eb",
+      "title": "Watching in Vain",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/WatchinginVain-38138ddb450c818b9092ff5a1b9c96eb/"
+    },
+    {
+      "id": "37a38ddb450c811c9a4ec0092087506c",
+      "title": "Which words have shaped you the most?",
+      "category": "Project",
+      "venue": "JKU MED Campus, Classroom Building (LEH), Level 1",
+      "address": "Krankenhausstraße 5, 4020 Linz",
+      "lat": 48.30272258622,
+      "lon": 14.303869795648,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/Whichwordshaveshapedyouthemost-37a38ddb450c811c9a4ec0092087506c/"
+    },
+    {
+      "id": "37c38ddb450c8128baa4f207244a0ea8",
+      "title": "Who is jumping, Jack?",
+      "category": "Project",
+      "venue": "Francisco Carolinum",
+      "address": "Museumstraße 14, 4020 Linz",
+      "lat": 48.306032,
+      "lon": 14.293706,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/WhoisjumpingJack-37c38ddb450c8128baa4f207244a0ea8/"
+    },
+    {
+      "id": "37b38ddb450c81f69ca5ff4b1ff04d0b",
+      "title": "Wide World & Small World",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/WideWorldSmallWorld-37b38ddb450c81f69ca5ff4b1ff04d0b/"
+    },
+    {
+      "id": "37b38ddb450c811faed7fe533e081a48",
+      "title": "www.buy-a-toad.com",
+      "category": "Project",
+      "venue": "University of Arts Linz, Hauptplatz 8 (West Building)",
+      "address": "Hauptplatz 8, 4020 Linz",
+      "lat": 48.306552,
+      "lon": 14.285684,
+      "link": "https://ars.electronica.art/negotiatinghumanity/en/view/www.buy-a-toad.com-37b38ddb450c811faed7fe533e081a48/"
+    }
+  ],
+  "events": [],
+  "services": [
+    {
+      "id": "brunnen_bop01",
+      "kind": "water",
+      "name": "Südbahnhof gegenüber RZK Gebäude",
+      "detail": "listed as operational · 5:30 bis 18:00",
+      "lat": 48.2999536,
+      "lon": 14.30081891
+    },
+    {
+      "id": "brunnen_bop02",
+      "kind": "water",
+      "name": "Südbahnhof neben Lustenauerstr. 39",
+      "detail": "listed as operational · 5:30 bis 18:00",
+      "lat": 48.30141253,
+      "lon": 14.30003642
+    },
+    {
+      "id": "brunnen_bop03",
+      "kind": "water",
+      "name": "Promenade vor Eingang Cafe Traxlmayr",
+      "detail": "listed as operational · 9:00 bis 20:00",
+      "lat": 48.30427377,
+      "lon": 14.28723158
+    },
+    {
+      "id": "brunnen_bop04",
+      "kind": "water",
+      "name": "Minoritenplatz bei Klosterstr. 18",
+      "detail": "listed as operational · Dauerbetrieb",
+      "lat": 48.30444715,
+      "lon": 14.28534138
+    },
+    {
+      "id": "brunnen_bop07",
+      "kind": "water",
+      "name": "Gegenüber Lessingstr. 25",
+      "detail": "listed as operational · 9:00 bis 18:00",
+      "lat": 48.30238019,
+      "lon": 14.27918001
+    },
+    {
+      "id": "brunnen_bop09",
+      "kind": "water",
+      "name": "Park Im Haidgattern",
+      "detail": "listed as operational · 9:00 bis 19:00",
+      "lat": 48.25142478,
+      "lon": 14.28697187
+    },
+    {
+      "id": "brunnen_bop12",
+      "kind": "water",
+      "name": "Spittelwiese",
+      "detail": "listed as operational · 9:00 bis 21:00",
+      "lat": 48.30264166,
+      "lon": 14.28808824
+    },
+    {
+      "id": "brunnen_tb01",
+      "kind": "water",
+      "name": "Spielplatz Klausenbachstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33620609,
+      "lon": 14.29654673
+    },
+    {
+      "id": "brunnen_tb02",
+      "kind": "water",
+      "name": "Spielplatz Harbachpark bei Leonfeldnerstr. 99d",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33037681,
+      "lon": 14.28554531
+    },
+    {
+      "id": "brunnen_tb03",
+      "kind": "water",
+      "name": "Spielplatz Baumgärtlstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.32983076,
+      "lon": 14.30934306
+    },
+    {
+      "id": "brunnen_tb04",
+      "kind": "water",
+      "name": "Spielplatz Keplerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.32810163,
+      "lon": 14.28404776
+    },
+    {
+      "id": "brunnen_tb05",
+      "kind": "water",
+      "name": "Spielplatz Ing. Sternstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29792471,
+      "lon": 14.31509749
+    },
+    {
+      "id": "brunnen_tb06",
+      "kind": "water",
+      "name": "Spielplatz Cremeristr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29709646,
+      "lon": 14.31390978
+    },
+    {
+      "id": "brunnen_tb07",
+      "kind": "water",
+      "name": "Eurpaspielplatz neben Europaschule",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30950219,
+      "lon": 14.29803642
+    },
+    {
+      "id": "brunnen_tb08",
+      "kind": "water",
+      "name": "Spielplatz Pollheimerstr",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27750398,
+      "lon": 14.27987196
+    },
+    {
+      "id": "brunnen_tb09",
+      "kind": "water",
+      "name": "Spielplatz Panuliwiese",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.2827201,
+      "lon": 14.30402593
+    },
+    {
+      "id": "brunnen_tb10",
+      "kind": "water",
+      "name": "Spielplatz Glimpfingerstr. 94",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.2717584,
+      "lon": 14.29798404
+    },
+    {
+      "id": "brunnen_tb11",
+      "kind": "water",
+      "name": "Spielplatz Minnesängerplatz 14",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.28902651,
+      "lon": 14.27668788
+    },
+    {
+      "id": "brunnen_tb13",
+      "kind": "water",
+      "name": "Spielplatz Limonigasse bei Strm. West",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29841931,
+      "lon": 14.2815744
+    },
+    {
+      "id": "brunnen_tb14",
+      "kind": "water",
+      "name": "Spielplatz Laskahof neben Dauphinestr. 199",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25383576,
+      "lon": 14.28583019
+    },
+    {
+      "id": "brunnen_tb15",
+      "kind": "water",
+      "name": "Spielplatz Hainbuchenweg Westliches Parkende",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.24618429,
+      "lon": 14.28270305
+    },
+    {
+      "id": "brunnen_tb16",
+      "kind": "water",
+      "name": "Spielplatz Karl Steiger Str. bei Karl Steiger Str. 42",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25101048,
+      "lon": 14.30926247
+    },
+    {
+      "id": "brunnen_tb17",
+      "kind": "water",
+      "name": "Park Dauphinestr Kleinmünchen bei Dauphinestr. 24",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25187038,
+      "lon": 14.31997441
+    },
+    {
+      "id": "brunnen_tb18",
+      "kind": "water",
+      "name": "Spielplatz Straßlandweg nach Straßlandweg 16",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25696302,
+      "lon": 14.31398441
+    },
+    {
+      "id": "brunnen_tb19",
+      "kind": "water",
+      "name": "Spielplatz Ecke Denkstr. Schickmayrstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25423783,
+      "lon": 14.31343855
+    },
+    {
+      "id": "brunnen_tb20",
+      "kind": "water",
+      "name": "Park Ziegeleistr. Spielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.28978714,
+      "lon": 14.28408181
+    },
+    {
+      "id": "brunnen_tb21",
+      "kind": "water",
+      "name": "Spielplatz Knollgutstr. bei Knollgutstr.26 (Pichling)",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25198552,
+      "lon": 14.36746557
+    },
+    {
+      "id": "brunnen_tb22",
+      "kind": "water",
+      "name": "Schiltenberg (am Waldrand) ca 100 m oberhalb KG Hofmannsthalweg",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.24226141,
+      "lon": 14.34193445
+    },
+    {
+      "id": "brunnen_tb23",
+      "kind": "water",
+      "name": "Spielplatz Afritschweg",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.23824421,
+      "lon": 14.33468267
+    },
+    {
+      "id": "brunnen_tb24",
+      "kind": "water",
+      "name": "Spielplatz Schulertal bei GtA Ritzbergerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30139913,
+      "lon": 14.27462353
+    },
+    {
+      "id": "brunnen_tb25",
+      "kind": "water",
+      "name": "Spielplatz Neufahrergasse",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.34464758,
+      "lon": 14.292721
+    },
+    {
+      "id": "brunnen_tb26",
+      "kind": "water",
+      "name": "Spielplatz Prunerstift hinter Musikschule",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30755617,
+      "lon": 14.29229663
+    },
+    {
+      "id": "brunnen_tb27",
+      "kind": "water",
+      "name": "Donaupark Spielplatz hinter Parkbad",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31244648,
+      "lon": 14.29430116
+    },
+    {
+      "id": "brunnen_tb28",
+      "kind": "water",
+      "name": "Glimpfingerstr. 62",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27326547,
+      "lon": 14.30243037
+    },
+    {
+      "id": "brunnen_tb29",
+      "kind": "water",
+      "name": "Tummelplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.3047155,
+      "lon": 14.28341774
+    },
+    {
+      "id": "brunnen_tb44",
+      "kind": "water",
+      "name": "Dorfplatz Magdalena",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33660629,
+      "lon": 14.302841
+    },
+    {
+      "id": "brunnen_tb32",
+      "kind": "water",
+      "name": "Rädlerweg vor Basketballfeld",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25053499,
+      "lon": 14.3120375
+    },
+    {
+      "id": "brunnen_tb33",
+      "kind": "water",
+      "name": "Ecke Auwiesenstr. Viktor Adler Gang vor Sportanlage Auwiesen",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.24470983,
+      "lon": 14.3021425
+    },
+    {
+      "id": "brunnen_tb35",
+      "kind": "water",
+      "name": "Pferdepromenade II Spielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.3362952,
+      "lon": 14.305249
+    },
+    {
+      "id": "brunnen_tb36",
+      "kind": "water",
+      "name": "Pferdepromenade I direkt unter der Kirche",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33602499,
+      "lon": 14.3030213
+    },
+    {
+      "id": "brunnen_tb37",
+      "kind": "water",
+      "name": "Spielplatz Schloss",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30496341,
+      "lon": 14.28119766
+    },
+    {
+      "id": "brunnen_tb38",
+      "kind": "water",
+      "name": "Freinberg Neben Jägermayrhof",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30082342,
+      "lon": 14.2662525
+    },
+    {
+      "id": "brunnen_tb39",
+      "kind": "water",
+      "name": "Spielplatz Biesenfeld",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33450452,
+      "lon": 14.30326451
+    },
+    {
+      "id": "brunnen_tb41",
+      "kind": "water",
+      "name": "Hummelhofwald bei Wattrinne",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27800266,
+      "lon": 14.29329847
+    },
+    {
+      "id": "brunnen_tb42",
+      "kind": "water",
+      "name": "Liegewiese Bauernberg Eingang bei Auf der Gugl 22",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29447096,
+      "lon": 14.27953696
+    },
+    {
+      "id": "brunnen_tb43",
+      "kind": "water",
+      "name": "Andres Hofer Park bei Parkeingang Kandl Heim",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.28662561,
+      "lon": 14.29655311
+    },
+    {
+      "id": "brunnen_tb45",
+      "kind": "water",
+      "name": "Spielplatz Mittelgasse",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30822915,
+      "lon": 14.27769288
+    },
+    {
+      "id": "brunnen_tb46",
+      "kind": "water",
+      "name": "Hummelhofwald Spielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27796347,
+      "lon": 14.29249397
+    },
+    {
+      "id": "brunnen_tb47",
+      "kind": "water",
+      "name": "Pulvermühlpark bei Fröllerweg 53",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.33267757,
+      "lon": 14.30109121
+    },
+    {
+      "id": "brunnen_tb48",
+      "kind": "water",
+      "name": "Freinberg Kuppe (Hundetränke) bei Rot Kreuz Sender",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30307604,
+      "lon": 14.26473435
+    },
+    {
+      "id": "brunnen_tb49",
+      "kind": "water",
+      "name": "Teufelstr",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26902324,
+      "lon": 14.29200968
+    },
+    {
+      "id": "brunnen_tb50",
+      "kind": "water",
+      "name": "Spielplatz Am Damm unterhalb Ferihumerstr. 50",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.3165025,
+      "lon": 14.29201176
+    },
+    {
+      "id": "brunnen_tb51",
+      "kind": "water",
+      "name": "Spielplatz Am Damm unterhalb Ferihumerstr. 50",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31648665,
+      "lon": 14.29204226
+    },
+    {
+      "id": "brunnen_tb52",
+      "kind": "water",
+      "name": "Spielplatz Am Damm unterhalb Ferihumerstr. 50",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31632327,
+      "lon": 14.29199808
+    },
+    {
+      "id": "brunnen_tb53",
+      "kind": "water",
+      "name": "Spielplatz Am Damm unterhalb Ferihumerstr. 50",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31627081,
+      "lon": 14.29190022
+    },
+    {
+      "id": "brunnen_tb55",
+      "kind": "water",
+      "name": "Spielplatz Einfaltstr. gegenüber Kinderg. Einfaltstr. 8",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27066781,
+      "lon": 14.307695
+    },
+    {
+      "id": "brunnen_tb54",
+      "kind": "water",
+      "name": "Spielplatz Marktmühlgasse gegenü. Markrtmühlg.5",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.24535249,
+      "lon": 14.32737123
+    },
+    {
+      "id": "brunnen_tb56",
+      "kind": "water",
+      "name": "Eingang Hummelhofwald",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.2756079,
+      "lon": 14.29277262
+    },
+    {
+      "id": "brunnen_tb57",
+      "kind": "water",
+      "name": "Stadtpark gegnüber Huemerstr.3",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30549004,
+      "lon": 14.29823468
+    },
+    {
+      "id": "brunnen_tb58",
+      "kind": "water",
+      "name": "Ecke Kaisergasse Untere Donaulände",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.3091686,
+      "lon": 14.29229501
+    },
+    {
+      "id": "brunnen_tb59",
+      "kind": "water",
+      "name": "Lonstorfer Platz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29352438,
+      "lon": 14.31401947
+    },
+    {
+      "id": "brunnen_tb60",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Nord bei Kopernikusstr",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27475387,
+      "lon": 14.29521002
+    },
+    {
+      "id": "brunnen_tb61",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Nord Rampe Nord",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.2736279,
+      "lon": 14.29529359
+    },
+    {
+      "id": "brunnen_tb62",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Süd bei Skaterplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27106538,
+      "lon": 14.29523775
+    },
+    {
+      "id": "brunnen_tb63",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Süd Parkeingang Glimpfingerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.27016036,
+      "lon": 14.29581271
+    },
+    {
+      "id": "brunnen_tb64",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Süd Wasserspielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26949742,
+      "lon": 14.29541386
+    },
+    {
+      "id": "brunnen_tb66",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Süd Wasserspielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26952667,
+      "lon": 14.29545623
+    },
+    {
+      "id": "brunnen_tb67",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Süd Wasserspielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26942946,
+      "lon": 14.29549046
+    },
+    {
+      "id": "brunnen_tb69",
+      "kind": "water",
+      "name": "Solar City Zentrum Lunaplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.25783592,
+      "lon": 14.36039633
+    },
+    {
+      "id": "brunnen_tb71",
+      "kind": "water",
+      "name": "Solar City Wasserspielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26060707,
+      "lon": 14.36210503
+    },
+    {
+      "id": "brunnen_tb72",
+      "kind": "water",
+      "name": "Herbert-Bayer-Platz (Prunerstr.)",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30675681,
+      "lon": 14.29192309
+    },
+    {
+      "id": "brunnen_tb73",
+      "kind": "water",
+      "name": "Heilhamerpark ca. 250 m südlich Parkeingang Leonfeldnerstr. 66",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.32551323,
+      "lon": 14.28802918
+    },
+    {
+      "id": "brunnen_tb74",
+      "kind": "water",
+      "name": "Hauptplatz südliche Grüninsel",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30538479,
+      "lon": 14.28678871
+    },
+    {
+      "id": "brunnen_tb75",
+      "kind": "water",
+      "name": "Grünmarkt Urfahr",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31128868,
+      "lon": 14.28084962
+    },
+    {
+      "id": "brunnen_tb76",
+      "kind": "water",
+      "name": "Bauernberg Spielplatz oberhalb der Liegewiese",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29479983,
+      "lon": 14.27957641
+    },
+    {
+      "id": "brunnen_tb77",
+      "kind": "water",
+      "name": "Volksgarten Wasserspielplatz",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29509724,
+      "lon": 14.29152675
+    },
+    {
+      "id": "brunnen_tb79",
+      "kind": "water",
+      "name": "Steinmetzplatzl bei WC-Anlage Ottensheimerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30797079,
+      "lon": 14.27910507
+    },
+    {
+      "id": "brunnen_tb80",
+      "kind": "water",
+      "name": "Skaterplatz Ecke Lastenstr./ Grestenbergerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29485279,
+      "lon": 14.30636298
+    },
+    {
+      "id": "brunnen_tb81",
+      "kind": "water",
+      "name": "Basketballfeld Südende Grestenbergerstr.",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29188168,
+      "lon": 14.31026176
+    },
+    {
+      "id": "brunnen_tb82",
+      "kind": "water",
+      "name": "Park Hessenplatz Kiosk-Gebäude",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.30075952,
+      "lon": 14.29393057
+    },
+    {
+      "id": "brunnen_tb83",
+      "kind": "water",
+      "name": "Hundefreilaufzone Blumau",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.29532841,
+      "lon": 14.29524342
+    },
+    {
+      "id": "brunnen_tb84",
+      "kind": "water",
+      "name": "Hundefreilaufzone Ing. Stern Str.",
+      "detail": "listed as operational",
+      "lat": 48.29706983,
+      "lon": 14.31696038
+    },
+    {
+      "id": "brunnen_tb85",
+      "kind": "water",
+      "name": "Heilhammerweg neben WC Container",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.31873531,
+      "lon": 14.29360784
+    },
+    {
+      "id": "brunnen_tb86",
+      "kind": "water",
+      "name": "A7 Überplattung Bindermichl Rampe Lissfeld",
+      "detail": "listed as operational · keine Angabe",
+      "lat": 48.26769788,
+      "lon": 14.2964304
+    },
+    {
+      "id": "wc_1",
+      "kind": "toilet",
+      "name": "Hauptplatz ARH",
+      "detail": "accessible · Mo - Fr 7:00-20:00 Sa 5:30 - 20:00 So 8:30 - 20:00",
+      "lat": 48.30593158,
+      "lon": 14.28686688
+    },
+    {
+      "id": "wc_2",
+      "kind": "toilet",
+      "name": "Südbahnhofmarkt an Markttagen Di, Fr, Sa besetzt von 07:00 - 14:00",
+      "detail": "accessible · Mo - Sa 06:00 - 18:00 So geschlossen",
+      "lat": 48.30098535,
+      "lon": 14.30090102
+    },
+    {
+      "id": "wc_3",
+      "kind": "toilet",
+      "name": "Auf der Gugl",
+      "detail": "06:00 - 20:00",
+      "lat": 48.29400074,
+      "lon": 14.27993372
+    },
+    {
+      "id": "wc_4",
+      "kind": "toilet",
+      "name": "Auhof",
+      "detail": "accessible · durchgehend",
+      "lat": 48.33455931,
+      "lon": 14.3207815
+    },
+    {
+      "id": "wc_5",
+      "kind": "toilet",
+      "name": "Bergschlösslpark Pförtnergebäude",
+      "detail": "accessible · durchgehend",
+      "lat": 48.29141867,
+      "lon": 14.2855193
+    },
+    {
+      "id": "wc_6",
+      "kind": "toilet",
+      "name": "Bindermichl (Stadlerstraße)",
+      "detail": "accessible · 05:00 - 22:00",
+      "lat": 48.26923977,
+      "lon": 14.29222089
+    },
+    {
+      "id": "wc_7",
+      "kind": "toilet",
+      "name": "Donaupark",
+      "detail": "accessible · 07:00 - 20:00",
+      "lat": 48.31219915,
+      "lon": 14.29453322
+    },
+    {
+      "id": "wc_8",
+      "kind": "toilet",
+      "name": "Freinberg",
+      "detail": "accessible · durchgehend",
+      "lat": 48.2984861,
+      "lon": 14.26696937
+    },
+    {
+      "id": "wc_9",
+      "kind": "toilet",
+      "name": "Grüne Mitte",
+      "detail": "accessible · 06:00 - 20:00",
+      "lat": 48.29229275,
+      "lon": 14.30792033
+    },
+    {
+      "id": "wc_10",
+      "kind": "toilet",
+      "name": "Grünmarkt Urfahr",
+      "detail": "accessible · 07:00 - 21:00",
+      "lat": 48.31150376,
+      "lon": 14.2807553
+    },
+    {
+      "id": "wc_11",
+      "kind": "toilet",
+      "name": "Hessenplatz",
+      "detail": "accessible · 06:00 - 21:00",
+      "lat": 48.30040731,
+      "lon": 14.29474377
+    },
+    {
+      "id": "wc_12",
+      "kind": "toilet",
+      "name": "Hummelhofwald",
+      "detail": "accessible · 05:00 - 21:00",
+      "lat": 48.27543404,
+      "lon": 14.29247118
+    },
+    {
+      "id": "wc_13",
+      "kind": "toilet",
+      "name": "Lentos Kunstmuseum",
+      "detail": "accessible · 08:30 - 22:30",
+      "lat": 48.30819803,
+      "lon": 14.28793353
+    },
+    {
+      "id": "wc_14",
+      "kind": "toilet",
+      "name": "Munschgasse",
+      "detail": "accessible · 06:00 - 22:00",
+      "lat": 48.26289452,
+      "lon": 14.30570621
+    },
+    {
+      "id": "wc_15",
+      "kind": "toilet",
+      "name": "Negrelliweg",
+      "detail": "accessible · 05:00 - 21:00",
+      "lat": 48.25221341,
+      "lon": 14.28487406
+    },
+    {
+      "id": "wc_16",
+      "kind": "toilet",
+      "name": "Neues Rathaus",
+      "detail": "accessible · gebunden an Öffnungszeiten Neues Rathaus",
+      "lat": 48.30967645,
+      "lon": 14.28314821
+    },
+    {
+      "id": "wc_17",
+      "kind": "toilet",
+      "name": "Pöstlingberg",
+      "detail": "accessible · 05:00 - 21:00",
+      "lat": 48.32543602,
+      "lon": 14.25948982
+    },
+    {
+      "id": "wc_18",
+      "kind": "toilet",
+      "name": "Promenade",
+      "detail": "accessible · 05:00 - 22:00",
+      "lat": 48.30396638,
+      "lon": 14.28634511
+    },
+    {
+      "id": "wc_19",
+      "kind": "toilet",
+      "name": "Sonnensteinstraße",
+      "detail": "Mo - Fr 08:00 - 22:00 Sa, Ftg 10:00 - 22:00 So 10:00 - 15:00",
+      "lat": 48.31241818,
+      "lon": 14.28329332
+    },
+    {
+      "id": "wc_20",
+      "kind": "toilet",
+      "name": "Steinmetzplatz",
+      "detail": "accessible · 06:00 - 24:00",
+      "lat": 48.3079737,
+      "lon": 14.27913985
+    },
+    {
+      "id": "wc_21",
+      "kind": "toilet",
+      "name": "Unionkreuzung",
+      "detail": "accessible · 05:00 - 21:00",
+      "lat": 48.29040424,
+      "lon": 14.29721133
+    },
+    {
+      "id": "wc_22",
+      "kind": "toilet",
+      "name": "Urfahrmarkt",
+      "detail": "accessible · 05:00 - 24:00",
+      "lat": 48.31220474,
+      "lon": 14.28736092
+    },
+    {
+      "id": "wc_23",
+      "kind": "toilet",
+      "name": "Volksgarten",
+      "detail": "accessible · November - März 06:00 - 17:00 April - Oktober 06:00 - 21:00",
+      "lat": 48.29598092,
+      "lon": 14.29170928
+    },
+    {
+      "id": "wc_24",
+      "kind": "toilet",
+      "name": "Werndlstraße",
+      "detail": "accessible · 05:00 - 22:00",
+      "lat": 48.2718732,
+      "lon": 14.29457362
+    },
+    {
+      "id": "wc_25",
+      "kind": "toilet",
+      "name": "Ziegeleistraße",
+      "detail": "accessible · 05:00 - 22:00",
+      "lat": 48.28995123,
+      "lon": 14.28461615
+    },
+    {
+      "id": "wc_26",
+      "kind": "toilet",
+      "name": "Bahnhof Ebelsberg",
+      "detail": "accessible · 05:00 - 22:00",
+      "lat": 48.25232906,
+      "lon": 14.34727866
+    },
+    {
+      "id": "wc_27",
+      "kind": "toilet",
+      "name": "Heilhamerweg 2s",
+      "detail": "accessible · wie Öffnungszeiten Imbissstand",
+      "lat": 48.31863816,
+      "lon": 14.29346727
+    },
+    {
+      "id": "wc_28",
+      "kind": "toilet",
+      "name": "Domplatz",
+      "detail": "accessible · 07:00 - 21:00",
+      "lat": 48.30054269,
+      "lon": 14.28710377
+    },
+    {
+      "id": "wc_29",
+      "kind": "toilet",
+      "name": "Volkshaus Auwiesen",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.24968632,
+      "lon": 14.30855355
+    },
+    {
+      "id": "wc_30",
+      "kind": "toilet",
+      "name": "Volkshaus Bindermichl",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.2730256,
+      "lon": 14.29009564
+    },
+    {
+      "id": "wc_31",
+      "kind": "toilet",
+      "name": "Volkshaus Dornach",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.33107564,
+      "lon": 14.3148476
+    },
+    {
+      "id": "wc_32",
+      "kind": "toilet",
+      "name": "Volkshaus Ebelsberg",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.24416727,
+      "lon": 14.32926439
+    },
+    {
+      "id": "wc_33",
+      "kind": "toilet",
+      "name": "Volkshaus Ferdinand Marklstraße",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.33332745,
+      "lon": 14.29305438
+    },
+    {
+      "id": "wc_34",
+      "kind": "toilet",
+      "name": "Volkshaus Franckviertel",
+      "detail": "gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.291978,
+      "lon": 14.31533999
+    },
+    {
+      "id": "wc_35",
+      "kind": "toilet",
+      "name": "Volkshaus Froschberg",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.28535916,
+      "lon": 14.28201131
+    },
+    {
+      "id": "wc_36",
+      "kind": "toilet",
+      "name": "Volkshaus Harbach Außenanlage",
+      "detail": "Mo - Fr 07:00 - 20:00 Sa,So geschlossen",
+      "lat": 48.33023271,
+      "lon": 14.28449985
+    },
+    {
+      "id": "wc_37",
+      "kind": "toilet",
+      "name": "Volkshaus Kandlheim",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.28639772,
+      "lon": 14.29667799
+    },
+    {
+      "id": "wc_38",
+      "kind": "toilet",
+      "name": "Volkshaus Kleinmünchen",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.25300932,
+      "lon": 14.3133298
+    },
+    {
+      "id": "wc_39",
+      "kind": "toilet",
+      "name": "Volkshaus Keferfeld",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.27077458,
+      "lon": 14.28280631
+    },
+    {
+      "id": "wc_40",
+      "kind": "toilet",
+      "name": "Volkshaus Neue Heimat",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.25106848,
+      "lon": 14.29388848
+    },
+    {
+      "id": "wc_41",
+      "kind": "toilet",
+      "name": "Volkshaus Pichling",
+      "detail": "accessible · gebunden an Öffnungszeiten Volkshaus",
+      "lat": 48.25799213,
+      "lon": 14.36079072
+    },
+    {
+      "id": "wc_m1",
+      "kind": "toilet",
+      "name": "Stadtpark Huemerstraße gegenüber Oberbank",
+      "detail": "ganzjährig",
+      "lat": 48.30322428,
+      "lon": 14.29879996
+    },
+    {
+      "id": "wc_m2",
+      "kind": "toilet",
+      "name": "Lohnstorferpark Lohnstorferplatz",
+      "detail": "Mai bis September",
+      "lat": 48.29329201,
+      "lon": 14.31416566
+    },
+    {
+      "id": "wc_m3",
+      "kind": "toilet",
+      "name": "Stadtpark Huemerstraße",
+      "detail": "Mai bis September",
+      "lat": 48.30556927,
+      "lon": 14.29691639
+    },
+    {
+      "id": "wc_m4",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Limonikeller Limonigasse",
+      "detail": "Mai bis September",
+      "lat": 48.29832097,
+      "lon": 14.28169814
+    },
+    {
+      "id": "wc_m5",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Prunerstift Fabrikstraße 10",
+      "detail": "Mai bis September",
+      "lat": 48.3075444,
+      "lon": 14.29192515
+    },
+    {
+      "id": "wc_m6",
+      "kind": "toilet",
+      "name": "Funcourt Schwindtstraße Einfaltstraße 8",
+      "detail": "Mai bis September",
+      "lat": 48.27067486,
+      "lon": 14.30769893
+    },
+    {
+      "id": "wc_m7",
+      "kind": "toilet",
+      "name": "WAG Park OED Landwiedstraße",
+      "detail": "Mai bis September",
+      "lat": 48.26287784,
+      "lon": 14.28833091
+    },
+    {
+      "id": "wc_m8",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Baumgärtlstraße Baumgärtlstraße",
+      "detail": "Mai bis September",
+      "lat": 48.33007645,
+      "lon": 14.30859763
+    },
+    {
+      "id": "wc_m9",
+      "kind": "toilet",
+      "name": "Andreas Hoferpark Andreas-Hofer-Platz",
+      "detail": "Mai bis September",
+      "lat": 48.28647919,
+      "lon": 14.29769016
+    },
+    {
+      "id": "wc_m10",
+      "kind": "toilet",
+      "name": "Radweg Obere Donaustraße",
+      "detail": "Mai bis September",
+      "lat": 48.30614727,
+      "lon": 14.27263563
+    },
+    {
+      "id": "wc_m11",
+      "kind": "toilet",
+      "name": "Donaustrand Alturfahr",
+      "detail": "Mai bis September",
+      "lat": 48.30686412,
+      "lon": 14.27626153
+    },
+    {
+      "id": "wc_m12",
+      "kind": "toilet",
+      "name": "Donaustrand Alturfahr",
+      "detail": "Mai bis September",
+      "lat": 48.30686412,
+      "lon": 14.27626153
+    },
+    {
+      "id": "wc_m13",
+      "kind": "toilet",
+      "name": "Donaustrand Winterhafen Am Winterhafen 20",
+      "detail": "Mai bis September",
+      "lat": 48.32061784,
+      "lon": 14.30727166
+    },
+    {
+      "id": "wc_m14",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Am Damm",
+      "detail": "Mai bis September",
+      "lat": 48.31609683,
+      "lon": 14.29193659
+    },
+    {
+      "id": "wc_m15",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Am Damm",
+      "detail": "Mai bis September",
+      "lat": 48.31609683,
+      "lon": 14.29193659
+    },
+    {
+      "id": "wc_m16",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Schulertal Schulertal",
+      "detail": "Mai bis September",
+      "lat": 48.30152454,
+      "lon": 14.27486947
+    },
+    {
+      "id": "wc_m17",
+      "kind": "toilet",
+      "name": "Poschacherwiese Poschacherstraße",
+      "detail": "Mai bis September",
+      "lat": 48.28501095,
+      "lon": 14.3044
+    },
+    {
+      "id": "wc_m18",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Minnesängerplatz Wallnerstraße 18-20",
+      "detail": "Mai bis September",
+      "lat": 48.28892161,
+      "lon": 14.27639031
+    },
+    {
+      "id": "wc_m19",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Mittelgasse Mittelgasse",
+      "detail": "Mai bis September",
+      "lat": 48.30787359,
+      "lon": 14.27708893
+    },
+    {
+      "id": "wc_m20",
+      "kind": "toilet",
+      "name": "City Park Johann-Konrad-Vogelstraße",
+      "detail": "Mai bis September",
+      "lat": 48.30035848,
+      "lon": 14.29196621
+    },
+    {
+      "id": "wc_m21",
+      "kind": "toilet",
+      "name": "Sternpark Spielplatz Ing. Sternstraße 4",
+      "detail": "Mai bis September",
+      "lat": 48.29794092,
+      "lon": 14.31529229
+    },
+    {
+      "id": "wc_m22",
+      "kind": "toilet",
+      "name": "Margarethner Häufl Margarethen beim Sportplatz",
+      "detail": "Mai bis September",
+      "lat": 48.30785569,
+      "lon": 14.25483179
+    },
+    {
+      "id": "wc_m23",
+      "kind": "toilet",
+      "name": "Schillerpark bei Würstlstand",
+      "detail": "ganzjährig",
+      "lat": 48.29823325,
+      "lon": 14.29122567
+    },
+    {
+      "id": "wc_m24",
+      "kind": "toilet",
+      "name": "Volksgarten gegenüber Volksgartenstraße 28",
+      "detail": "ganzjährig",
+      "lat": 48.29538821,
+      "lon": 14.29052567
+    },
+    {
+      "id": "wc_m25",
+      "kind": "toilet",
+      "name": "Parkplatz Oberwirt St. Magdalena",
+      "detail": "Mai bis September",
+      "lat": 48.33686558,
+      "lon": 14.30227927
+    },
+    {
+      "id": "wc_m26",
+      "kind": "toilet",
+      "name": "Kinderspielplatz Hummelhofwald",
+      "detail": "Mai bis September",
+      "lat": 48.27778363,
+      "lon": 14.29326952
+    },
+    {
+      "id": "wc_m27",
+      "kind": "toilet",
+      "name": "Volksgarten gegenüber Weingartshofstraße",
+      "detail": "ganzjährig",
+      "lat": 48.29470013,
+      "lon": 14.2910789
+    }
+  ]
+}
