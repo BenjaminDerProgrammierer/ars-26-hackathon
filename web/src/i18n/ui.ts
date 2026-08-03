@@ -17,6 +17,15 @@ export function langFromPathname(pathname: string): Lang {
   return isLang(locale) ? locale : defaultLang;
 }
 
+/** Replace a locale prefix, or add one to a nonlocalized pathname. */
+export function localizedPathname(pathname: string, lang: Lang): string {
+  const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  if (/^\/(en|de)(?:\/|$)/.test(normalized)) {
+    return normalized.replace(/^\/(en|de)(\/|$)/, `/${lang}$2`);
+  }
+  return `/${lang}${normalized}`.replace(/\/{2,}/g, "/");
+}
+
 export const ui = {
   en: {
     "site.title": "AI Hackathon",

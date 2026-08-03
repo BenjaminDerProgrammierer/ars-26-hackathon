@@ -1,5 +1,10 @@
 ---
-import { type Lang, languages, useTranslations } from "../i18n/ui";
+import {
+  type Lang,
+  languages,
+  localizedPathname,
+  useTranslations,
+} from "../i18n/ui";
 
 interface Props {
   lang: Lang;
@@ -12,7 +17,7 @@ const t = useTranslations(lang);
 const targets = availableLangs.map((code) => ({
   code,
   label: languages[code],
-  url: Astro.url.pathname.replace(/\/(en|de)(\/|$)/, `/${code}$2`),
+  url: localizedPathname(Astro.url.pathname, code),
   current: code === lang,
 }));
 ---
@@ -38,6 +43,7 @@ const targets = availableLangs.map((code) => ({
     "[data-language-switch-link]",
   )) {
     link.search = window.location.search;
+    link.hash = window.location.hash;
   }
 </script>
 
