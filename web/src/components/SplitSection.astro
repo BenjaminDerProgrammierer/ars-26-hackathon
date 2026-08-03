@@ -13,6 +13,9 @@ const { flip = false } = Astro.props;
 
 <section class:list={["split", { flip }]}>
   <div class="wrap grid">
+    <div class="heading">
+      <slot name="heading" />
+    </div>
     <div class="media">
       <slot name="media" />
     </div>
@@ -30,29 +33,49 @@ const { flip = false } = Astro.props;
   .grid {
     display: grid;
     gap: var(--space-6);
-    align-items: center;
+  }
+
+  .heading :global(h2) {
+    margin-bottom: 0;
+    font-size: var(--text-xl);
   }
 
   @media (min-width: 48rem) {
     .grid {
       grid-template-columns: 2fr 1fr;
+      grid-template-areas:
+        "media heading"
+        "media text";
+      align-content: center;
+      column-gap: var(--space-6);
+      row-gap: var(--space-2);
     }
 
     .flip .grid {
       grid-template-columns: 1fr 2fr;
+      grid-template-areas:
+        "heading media"
+        "text media";
     }
 
-    .flip .media {
-      order: 2;
+    .heading {
+      grid-area: heading;
+      align-self: end;
+    }
+
+    .media {
+      grid-area: media;
+      align-self: center;
+    }
+
+    .text {
+      grid-area: text;
+      align-self: start;
     }
   }
 
   .media :global(> *) {
     width: 100%;
-  }
-
-  .text :global(h2) {
-    font-size: var(--text-xl);
   }
 
   .text :global(p:last-child) {

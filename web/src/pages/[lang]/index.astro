@@ -206,7 +206,7 @@ const copy = {
     <div slot="media" class="media-field">
       <span class="section-mark section-mark--identity" aria-hidden="true">01</span>
     </div>
-    <h2>{copy.datasets.heading}</h2>
+    <h2 slot="heading">{copy.datasets.heading}</h2>
     <div class="data-world">
       <h3>{copy.datasets.festivalLabel}</h3>
       <p>{copy.datasets.festivalBody}</p>
@@ -226,7 +226,7 @@ const copy = {
     <div slot="media" class="media-field">
       <span class="section-mark section-mark--program" aria-hidden="true">02</span>
     </div>
-    <h2>{copy.tutorials.heading}</h2>
+    <h2 slot="heading">{copy.tutorials.heading}</h2>
     <p>{copy.tutorials.body}</p>
     <p>
       <a href={href(lang, "tutorials")}>{copy.tutorials.link}</a>
@@ -237,7 +237,7 @@ const copy = {
     <div slot="media" class="media-field">
       <span class="section-mark section-mark--context" aria-hidden="true">03</span>
     </div>
-    <h2>{copy.agents.heading}</h2>
+    <h2 slot="heading">{copy.agents.heading}</h2>
     <p>{copy.agents.body}</p>
     <p><a href={href(lang, "coding-agents")}>{copy.agents.link}</a></p>
   </SplitSection>
