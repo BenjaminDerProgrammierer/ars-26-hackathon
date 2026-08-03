@@ -17,6 +17,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const lang = Astro.params.lang as Lang;
+const sourceLang = lang === "en" ? "de" : undefined;
 const { Content } = await render(entry);
 const slug = entry.id.split("/")[0];
 const datasetDocument = (await getCollection("datasetDocs")).find(
@@ -83,6 +84,7 @@ function datasetHref(id: string): string {
   intro={entry.data.summary}
   bandColor="var(--color-places)"
   textColor="var(--color-paper)"
+  titleLang={sourceLang}
 >
   <p class="back"><a href={href(lang, "datasets")}>← {copy.back}</a></p>
 
@@ -93,25 +95,27 @@ function datasetHref(id: string): string {
     </div>
     <div>
       <dt>{copy.provider}</dt>
-      <dd>{entry.data.provider}</dd>
+      <dd lang={sourceLang}>{entry.data.provider}</dd>
     </div>
     <div>
       <dt>{copy.format}</dt>
-      <dd>{entry.data.format}</dd>
+      <dd lang={sourceLang}>{entry.data.format}</dd>
     </div>
     <div>
       <dt>{copy.license}</dt>
-      <dd>{entry.data.license}</dd>
+      <dd lang={sourceLang}>{entry.data.license}</dd>
     </div>
     <div>
       <dt>{copy.vintage}</dt>
-      <dd>{entry.data.data_vintage}</dd>
+      <dd lang={sourceLang}>{entry.data.data_vintage}</dd>
     </div>
   </dl>
 
   {lang === "en" && <p class="language-note">{copy.sourceLanguage}</p>}
 
-  {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
+  <div lang={sourceLang}>
+    {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
+  </div>
 
   {
     datasetDocument && (
@@ -126,14 +130,14 @@ function datasetHref(id: string): string {
   <nav class="pager" aria-label={copy.back}>
     {
       previous ? (
-        <a href={datasetHref(previous.id)} rel="prev">
+        <a href={datasetHref(previous.id)} rel="prev" lang={sourceLang}>
           ← {previous.data.title}
         </a>
       ) : (
         <a href={href(lang, "datasets")} rel="up">← {copy.back}</a>
       )
     }
-    {next && <a href={datasetHref(next.id)} rel="next">{next.data.title} →</a>}
+    {next && <a href={datasetHref(next.id)} rel="next" lang={sourceLang}>{next.data.title} →</a>}
   </nav>
 </ProseLayout>
 

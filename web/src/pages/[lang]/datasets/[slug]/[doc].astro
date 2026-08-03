@@ -21,6 +21,7 @@ export async function getStaticPaths() {
 
 const { entry, slug } = Astro.props;
 const lang = Astro.params.lang as Lang;
+const sourceLang = lang === "en" ? "de" : undefined;
 const { Content } = await render(entry);
 const datasets = await getCollection("datasets");
 const datasetSlugs = new Set(
@@ -53,10 +54,13 @@ const copy = {
   intro={entry.data.summary}
   bandColor="var(--color-places)"
   textColor="var(--color-paper)"
+  titleLang={sourceLang}
 >
   <p><a href={datasetUrl}>← {copy.back}</a></p>
 
   {lang === "en" && <p class="language-note">{copy.sourceLanguage}</p>}
 
-  {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
+  <div lang={sourceLang}>
+    {renderedContent ? <Fragment set:html={renderedContent} /> : <Content />}
+  </div>
 </ProseLayout>

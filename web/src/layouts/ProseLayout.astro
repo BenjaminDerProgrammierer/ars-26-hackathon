@@ -8,6 +8,7 @@ interface Props {
   intro?: string;
   description?: string;
   availableLangs?: Lang[];
+  titleLang?: Lang;
   contentLang?: Lang;
   /** Role color for the title band; defaults to the identity orange. */
   bandColor?: string;
@@ -21,6 +22,7 @@ const {
   intro,
   description,
   availableLangs,
+  titleLang,
   contentLang,
   bandColor = "var(--color-identity)",
   textColor = "var(--color-on-identity)",
@@ -35,7 +37,7 @@ const {
 >
   <section
     class="title-band"
-    lang={contentLang}
+    lang={titleLang ?? contentLang}
     style={`background: ${bandColor}; color: ${textColor}; --band-focus: ${textColor}`}
   >
     <div class="wrap">

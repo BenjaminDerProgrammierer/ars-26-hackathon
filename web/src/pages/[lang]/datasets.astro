@@ -10,6 +10,7 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
+const sourceLang = lang === "en" ? "de" : undefined;
 
 const datasets = (await getCollection("datasets")).sort(compareDatasets);
 
@@ -176,23 +177,23 @@ function slugFor(id: string): string {
                 <article>
                   <div class="dataset-heading">
                     <p class={`status status--${status}`}>{copy.status[status].label}</p>
-                    <h3>
+                    <h3 lang={sourceLang}>
                       <a href={href(lang, `datasets/${slugFor(dataset.id)}`)}>
                         {dataset.data.title}
                       </a>
                     </h3>
-                    <p class="provider">{dataset.data.provider}</p>
+                    <p class="provider" lang={sourceLang}>{dataset.data.provider}</p>
                   </div>
                   <div class="dataset-body">
-                    <p class="summary">{dataset.data.summary}</p>
+                    <p class="summary" lang={sourceLang}>{dataset.data.summary}</p>
                     <dl>
                       <div>
                         <dt>{copy.format}</dt>
-                        <dd>{dataset.data.format}</dd>
+                        <dd lang={sourceLang}>{dataset.data.format}</dd>
                       </div>
                       <div>
                         <dt>{copy.vintage}</dt>
-                        <dd>{dataset.data.data_vintage}</dd>
+                        <dd lang={sourceLang}>{dataset.data.data_vintage}</dd>
                       </div>
                     </dl>
                     <a class="detail-link" href={href(lang, `datasets/${slugFor(dataset.id)}`)}>

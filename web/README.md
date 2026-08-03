@@ -1,6 +1,15 @@
 # Ars Electronica Festival 2026 AI Hackathon website
 
-The bilingual public website for the hackathon, built with Astro.
+The partially bilingual public website for the hackathon, built with Astro.
+
+## Language coverage
+
+The primary interface and core informational pages are maintained in English
+and German. The three tutorials and two walkthroughs are maintained in German
+only and are shown in German on both `/en/` and `/de/` routes. The authoritative
+Linz dataset notes and API references are also maintained in German; English
+dataset routes translate the surrounding interface and identify the embedded
+German content with HTML language metadata for assistive technology.
 
 ## Development
 
