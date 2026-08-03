@@ -1,4 +1,6 @@
 **
+!.git/
+!.git/index
 !example-projects/
 !example-projects/**
 !opendata-linz/

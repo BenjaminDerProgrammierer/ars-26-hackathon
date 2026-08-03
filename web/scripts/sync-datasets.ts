@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
-import { copyFile, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
+import { copyFile, cp, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
@@ -31,6 +31,9 @@ const datasetFiles = [
 ] as const;
 
 async function syncDatasets() {
+  const datasetsRoot = join(webRoot, "public", "datasets");
+  await rm(datasetsRoot, { recursive: true, force: true });
+
   await Promise.all(
     datasetFiles.map(async ([dataset, filename]) => {
       const source = join(repositoryRoot, "opendata-linz", dataset, filename);
@@ -58,6 +61,7 @@ async function syncExampleProjects() {
 
   const downloadsRoot = join(webRoot, "public", "downloads");
   const temporaryRoot = await mkdtemp(join(tmpdir(), "ars-example-projects-"));
+  await rm(downloadsRoot, { recursive: true, force: true });
   await mkdir(downloadsRoot, { recursive: true });
 
   try {
@@ -65,23 +69,35 @@ async function syncExampleProjects() {
       projects.map(async (project) => {
         const filename = `${project}.zip`;
         const archive = join(temporaryRoot, filename);
-
-        await run(
-          "zip",
-          [
-            "-rq",
-            archive,
-            join("example-projects", project),
-            "-x",
-            "*/node_modules/*",
-            "*/dist/*",
-            "*/__pycache__/*",
-            "*.pyc",
-            "*.pyo",
-            "*.DS_Store",
-          ],
+        const projectRoot = join("example-projects", project);
+        const stagedProjectRoot = join(temporaryRoot, projectRoot);
+        const { stdout } = await run(
+          "git",
+          ["ls-files", "-z", "--cached", "--", `${projectRoot}/`],
           { cwd: repositoryRoot },
         );
+        const trackedFiles = stdout.split("\0").filter(Boolean);
+
+        await Promise.all(
+          trackedFiles.map(async (trackedFile) => {
+            const projectFile = relative(projectRoot, trackedFile);
+            if (projectFile.startsWith("..")) {
+              throw new Error(
+                `Refusing to archive path outside ${projectRoot}`,
+              );
+            }
+            const destination = join(stagedProjectRoot, projectFile);
+            await mkdir(dirname(destination), { recursive: true });
+            await cp(join(repositoryRoot, trackedFile), destination, {
+              dereference: false,
+              preserveTimestamps: true,
+            });
+          }),
+        );
+
+        await run("zip", ["-rqy", archive, projectRoot], {
+          cwd: temporaryRoot,
+        });
         await copyFile(archive, join(downloadsRoot, filename));
       }),
     );

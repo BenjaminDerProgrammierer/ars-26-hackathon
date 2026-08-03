@@ -8,7 +8,10 @@ RUN npm ci --omit=dev
 FROM base AS build
 ARG SITE_URL=https://arselectronicahackathon-web.azurewebsites.net
 ENV SITE_URL=$SITE_URL
-RUN apk add --no-cache zip
+WORKDIR /workspace
+RUN apk add --no-cache git zip && git init
+COPY .git/index .git/index
+WORKDIR /workspace/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ .
