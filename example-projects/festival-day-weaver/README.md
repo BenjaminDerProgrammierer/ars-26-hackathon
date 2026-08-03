@@ -14,15 +14,20 @@ npm run prepare-data
 npm run dev
 ```
 
-## Why times are entered manually
+## Calendar slots and manual entry
 
 The bundled Ars Electronica snapshot contains public projects and venues, but
 its public calendar rows do not currently resolve to public projects. The
 preparation script follows the dataset contract and therefore emits no
 official event slots instead of using hidden/test records or parsing display
 text from projects. The interface explains this and lets visitors enter times
-from the official festival program. If a repaired export is used later,
-`npm run prepare-data` will include trustworthy slots automatically.
+from the official festival program.
+
+When a repaired export is used, `npm run prepare-data` includes trustworthy
+slots for selectable, mapped projects. Choosing one of those projects then
+offers its official program slots in the planner; selecting a slot fills the
+start, end, and recommended-arrival fields. Manual entry remains available for
+projects without a usable slot.
 
 ## Prototype boundaries
 

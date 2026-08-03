@@ -8,6 +8,7 @@ import {
   festivalSnapshotDate,
   loadServices,
   projects,
+  type FestivalEvent,
   type FestivalProject,
   type ServiceKind,
   type ServicePlace,
@@ -34,6 +35,16 @@ type Transfer = {
 };
 
 const projectById = new Map(projects.map((project) => [project.id, project]));
+const calendarEventById = new Map(calendarEvents.map((event) => [event.id, event]));
+const calendarEventsByProject = new Map<string, FestivalEvent[]>();
+for (const event of calendarEvents) {
+  const projectEvents = calendarEventsByProject.get(event.project_id) ?? [];
+  projectEvents.push(event);
+  calendarEventsByProject.set(event.project_id, projectEvents);
+}
+for (const projectEvents of calendarEventsByProject.values()) {
+  projectEvents.sort((first, second) => first.start.localeCompare(second.start));
+}
 const storageKey = "festival-day-weaver-plan-v1";
 const state = {
   plan: loadPlan(),
@@ -74,13 +85,20 @@ app.innerHTML = `
     <section class="data-status" aria-labelledby="data-status-title">
       <p class="eyebrow">DATA STATUS // ${formatSnapshotDate(festivalSnapshotDate)}</p>
       <div>
-        <h2 id="data-status-title">Bring the time.<br>We’ll weave the route.</h2>
-        <p>
-          The current public export has festival projects and venues, but its public
-          calendar rows do not resolve to public projects. Choose an event below and
-          enter the time shown in the official program. We won’t turn hidden test
-          records into a schedule.
-        </p>
+        ${calendarEvents.length > 0
+          ? `<h2 id="data-status-title">Choose a slot.<br>We’ll weave the route.</h2>
+             <p>
+               This snapshot includes ${calendarEvents.length} trustworthy public calendar
+               ${calendarEvents.length === 1 ? "slot" : "slots"}. Choose a project to use its
+               official program time, or enter a time manually when no slot is available.
+             </p>`
+          : `<h2 id="data-status-title">Bring the time.<br>We’ll weave the route.</h2>
+             <p>
+               The current public export has festival projects and venues, but its public
+               calendar rows do not resolve to public projects. Choose an event below and
+               enter the time shown in the official program. We won’t turn hidden test
+               records into a schedule.
+             </p>`}
       </div>
     </section>
 
@@ -115,7 +133,14 @@ app.innerHTML = `
             </div>
             <p class="field-hint" id="project-hint">Choose a title from the public festival dataset.</p>
           </div>
-          <div class="field">
+          <div class="field field--wide">
+            <label for="calendar-slot">Program time</label>
+            <select id="calendar-slot" name="calendar-slot" disabled>
+              <option value="manual">Choose a project to see official slots</option>
+            </select>
+            <p class="field-hint" id="calendar-slot-hint">You can always enter a time manually below.</p>
+          </div>
+          <div class="field field--start">
             <label for="start">Starts</label>
             <input id="start" name="start" type="datetime-local" value="2026-09-09T10:00" required>
           </div>
@@ -200,6 +225,8 @@ const form = requiredElement<HTMLFormElement>("#event-form");
 const projectInput = requiredElement<HTMLInputElement>("#project");
 const projectResults = requiredElement<HTMLDivElement>("#project-results");
 const projectHint = requiredElement<HTMLParagraphElement>("#project-hint");
+const calendarSlotSelect = requiredElement<HTMLSelectElement>("#calendar-slot");
+const calendarSlotHint = requiredElement<HTMLParagraphElement>("#calendar-slot-hint");
 const startInput = requiredElement<HTMLInputElement>("#start");
 const endInput = requiredElement<HTMLInputElement>("#end");
 const arrivalSelect = requiredElement<HTMLSelectElement>("#arrival");
@@ -243,6 +270,62 @@ function normalized(value: string): string {
 
 function selectedProject(): FestivalProject | undefined {
   return projectById.get(selectedProjectId);
+}
+
+function projectCalendarEvents(projectId: string): FestivalEvent[] {
+  return calendarEventsByProject.get(projectId) ?? [];
+}
+
+function festivalInputValue(value: string): string {
+  return value.slice(0, 16);
+}
+
+function calendarSlotLabel(event: FestivalEvent): string {
+  return `${formatDay(event.start)}, ${formatTime(event.start)}–${formatTime(event.end)}`;
+}
+
+function applyCalendarEvent(event: FestivalEvent): void {
+  startInput.value = festivalInputValue(event.start);
+  endInput.value = festivalInputValue(event.end);
+  if (
+    !Array.from(arrivalSelect.options).some(
+      (option) => option.value === String(event.arrival_minutes),
+    )
+  ) {
+    arrivalSelect.add(
+      new Option(`${event.arrival_minutes} minutes`, String(event.arrival_minutes)),
+    );
+  }
+  arrivalSelect.value = String(event.arrival_minutes);
+  endInput.removeAttribute("aria-invalid");
+  formMessage.textContent = `Official slot selected: ${calendarSlotLabel(event)}.`;
+}
+
+function updateCalendarSlotPicker(project: FestivalProject): void {
+  const slots = projectCalendarEvents(project.id);
+  if (slots.length === 0) {
+    calendarSlotSelect.innerHTML = `<option value="manual">Enter the program time manually</option>`;
+    calendarSlotSelect.disabled = true;
+    calendarSlotHint.textContent = "No trustworthy calendar slot is available for this project.";
+    return;
+  }
+  calendarSlotSelect.innerHTML = [
+    ...slots.map(
+      (event) =>
+        `<option value="${escapeHtml(event.id)}">${escapeHtml(calendarSlotLabel(event))}</option>`,
+    ),
+    `<option value="manual">Enter a different time manually</option>`,
+  ].join("");
+  calendarSlotSelect.disabled = false;
+  calendarSlotHint.textContent = `${slots.length} official ${slots.length === 1 ? "slot" : "slots"} available in this snapshot.`;
+  const firstSlot = slots[0];
+  if (firstSlot) applyCalendarEvent(firstSlot);
+}
+
+function resetCalendarSlotPicker(): void {
+  calendarSlotSelect.innerHTML = `<option value="manual">Choose a project to see official slots</option>`;
+  calendarSlotSelect.disabled = true;
+  calendarSlotHint.textContent = "You can always enter a time manually below.";
 }
 
 function projectMatches(query: string): FestivalProject[] {
@@ -324,6 +407,7 @@ function chooseProject(project: FestivalProject): void {
   projectInput.removeAttribute("aria-invalid");
   projectHint.textContent = `${project.category} // ${project.venue}`;
   formMessage.textContent = "";
+  updateCalendarSlotPicker(project);
   closeProjectResults();
 }
 
@@ -696,6 +780,7 @@ form.addEventListener("submit", (event) => {
   formMessage.textContent = `${project.title} added.`;
   selectedProjectId = "";
   projectInput.value = "";
+  resetCalendarSlotPicker();
   const nextStart = new Date(parseLocal(endInput.value).valueOf() + 90 * 60_000);
   const nextEnd = new Date(nextStart.valueOf() + 60 * 60_000);
   startInput.value = localInputValue(nextStart);
@@ -720,10 +805,32 @@ function localInputValue(date: Date): string {
 projectInput.addEventListener("input", () => {
   selectedProjectId = "";
   projectHint.textContent = "Choose a title from the public festival dataset.";
+  resetCalendarSlotPicker();
   projectInput.removeAttribute("aria-invalid");
   formMessage.textContent = "";
   renderProjectResults();
 });
+
+calendarSlotSelect.addEventListener("change", () => {
+  const event = calendarEventById.get(calendarSlotSelect.value);
+  if (event) {
+    applyCalendarEvent(event);
+    return;
+  }
+  calendarSlotHint.textContent = "Using a manually entered time for this project.";
+  formMessage.textContent = "Enter the time shown in the official program.";
+  startInput.focus();
+});
+
+for (const input of [startInput, endInput]) {
+  input.addEventListener("input", () => {
+    if (calendarEventById.has(calendarSlotSelect.value)) {
+      calendarSlotSelect.value = "manual";
+      calendarSlotHint.textContent = "Program time changed manually.";
+      formMessage.textContent = "Using a manually adjusted time for this project.";
+    }
+  });
+}
 
 projectInput.addEventListener("focus", () => {
   renderProjectResults();

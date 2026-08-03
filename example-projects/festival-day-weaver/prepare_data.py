@@ -145,6 +145,7 @@ def main() -> None:
             }
         )
 
+    schedulable_project_ids = {project["id"] for project in projects}
     events = []
     for slot in data["calendar"]:
         if (
@@ -154,7 +155,7 @@ def main() -> None:
             continue
         project_id = slot.get("project_ref")
         project = public_projects.get(project_id)
-        if not project:
+        if not project or project_id not in schedulable_project_ids:
             continue
         location = next(
             (

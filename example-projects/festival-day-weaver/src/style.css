@@ -268,7 +268,7 @@ h2 {
   border-top: 1px solid var(--black);
 }
 
-.field:nth-of-type(3) {
+.field--start {
   border-left: 1px solid var(--black);
 }
 
