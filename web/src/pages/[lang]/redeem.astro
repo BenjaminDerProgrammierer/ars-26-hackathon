@@ -22,35 +22,44 @@ let rateLimited = false;
 if (Astro.request.method === "GET") {
   code = Astro.url.searchParams.get("code")?.trim() || "";
 } else if (Astro.request.method === "POST") {
-  const formData = await Astro.request.formData();
-  const submittedCode = formData.get("code");
-  code = typeof submittedCode === "string" ? submittedCode.trim() : "";
-}
-
-if (code) {
-  const retryAfter = redeemRateLimit(Astro.request);
+  const retryAfter = redeemRateLimit(Astro.clientAddress);
   if (retryAfter !== null) {
     Astro.response.status = 429;
     Astro.response.headers.set("Retry-After", String(retryAfter));
     rateLimited = true;
   } else {
-    try {
-      accessText = await lookupRedeemCode(code);
-    } catch (error: unknown) {
-      const safeDetails =
-        typeof error === "object" && error !== null
-          ? {
-              name: "name" in error ? String(error.name) : "Error",
-              statusCode:
-                "statusCode" in error ? String(error.statusCode) : undefined,
-              serviceCode: "code" in error ? String(error.code) : undefined,
-              requestId:
-                "requestId" in error ? String(error.requestId) : undefined,
-            }
-          : { name: "UnknownError" };
-      console.error("Redeem code lookup failed", safeDetails);
-      lookupError = true;
-    }
+    const formData = await Astro.request.formData();
+    const submittedCode = formData.get("code");
+    code = typeof submittedCode === "string" ? submittedCode.trim() : "";
+  }
+}
+
+if (code && Astro.request.method === "GET") {
+  const retryAfter = redeemRateLimit(Astro.clientAddress);
+  if (retryAfter !== null) {
+    Astro.response.status = 429;
+    Astro.response.headers.set("Retry-After", String(retryAfter));
+    rateLimited = true;
+  }
+}
+
+if (code && !rateLimited) {
+  try {
+    accessText = await lookupRedeemCode(code);
+  } catch (error: unknown) {
+    const safeDetails =
+      typeof error === "object" && error !== null
+        ? {
+            name: "name" in error ? String(error.name) : "Error",
+            statusCode:
+              "statusCode" in error ? String(error.statusCode) : undefined,
+            serviceCode: "code" in error ? String(error.code) : undefined,
+            requestId:
+              "requestId" in error ? String(error.requestId) : undefined,
+          }
+        : { name: "UnknownError" };
+    console.error("Redeem code lookup failed", safeDetails);
+    lookupError = true;
   }
 }
 ---
@@ -98,7 +107,7 @@ if (code) {
       </form>
 
       {
-        code && (
+        (code || rateLimited) && (
           <div
             class="redeem-result"
             id="redeem-result"

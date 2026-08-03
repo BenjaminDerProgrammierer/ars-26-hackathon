@@ -5,6 +5,7 @@ import react from "@astrojs/react";
 import { defineConfig, fontProviders } from "astro/config";
 
 const productionSite = "https://arselectronicahackathon-web.azurewebsites.net";
+const productionCustomHostname = "hackathon.ars.electronica.art";
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,6 +18,10 @@ export default defineConfig({
     allowedDomains: [
       {
         hostname: "arselectronicahackathon-web.azurewebsites.net",
+        protocol: "https",
+      },
+      {
+        hostname: productionCustomHostname,
         protocol: "https",
       },
     ],

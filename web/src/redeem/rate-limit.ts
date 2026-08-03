@@ -8,21 +8,20 @@ const requestsPerWindow = 10;
 const maxTrackedClients = 10_000;
 const clients = new Map<string, RateLimitEntry>();
 
-function clientKey(request: Request): string {
-  return request.headers.get("x-azure-clientip")?.trim() || "unknown";
-}
-
 function pruneExpired(now: number): void {
   for (const [key, entry] of clients) {
     if (entry.resetAt <= now) clients.delete(key);
   }
 }
 
-export function redeemRateLimit(request: Request): number | null {
+export function redeemRateLimit(clientAddress: string): number | null {
+  const key = clientAddress.trim();
+  if (!key)
+    throw new Error("A client address is required for redeem rate limiting");
+
   const now = Date.now();
   if (clients.size >= maxTrackedClients) pruneExpired(now);
 
-  const key = clientKey(request);
   const current = clients.get(key);
   if (!current || current.resetAt <= now) {
     if (clients.size >= maxTrackedClients) return Math.ceil(windowMs / 1_000);
