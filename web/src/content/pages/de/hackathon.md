@@ -1,10 +1,10 @@
 ---
 title: "Über den Hackathon"
-intro: "Zwei Tage Bauen mit Festivaldaten, offenen Daten der Stadt Linz und AI Coding Agents — mitten im Ars Electronica Festival 2026."
+intro: "Drei Tage Bauen mit Festivaldaten, offenen Daten der Stadt Linz und AI Coding Agents — mitten im Ars Electronica Festival 2026."
 ---
 
 Der AI Hackathon ist ein offizielles Sub-Event des Ars Electronica Festival
-2026, **Future Begins / Negotiating Humanity**, und findet am 11. und 12.
+2026, **Future Begins / Negotiating Humanity**, und findet vom 11. bis 13.
 September 2026 in der Grand Garage in Linz statt. Teams von zwei bis fünf
 Personen bauen Prototypen, die den Programmdatensatz des Festivals mit offenen
 Daten der Stadt Linz verbinden.
@@ -14,7 +14,7 @@ Daten der Stadt Linz verbinden.
 
 ## Auf einen Blick
 
-- **Hackathon:** 11.–12. September 2026 in der Grand Garage in Linz
+- **Hackathon:** 11.–13. September 2026 in der Grand Garage in Linz
 - **Anmeldung:** 21. Juli bis 31. August 2026
 - **Kosten:** Kostenlos; eine Anmeldung genügt
 - **Mindestalter:** 14 Jahre
@@ -29,7 +29,7 @@ Daten der Stadt Linz verbinden.
 
 **Linz neu entdecken.**
 
-Entwickelt beim zweitägigen KI-Hackathon kreative digitale Projekte mit
+Entwickelt beim dreitägigen KI-Hackathon kreative digitale Projekte mit
 Festivaldaten und offenen Daten der Stadt Linz.
 
 Mithilfe von KI-Tools und begleitet von Mentor\*innen macht ihr aus euren Ideen
@@ -92,5 +92,6 @@ Performances, Konzerte, Konferenzen und interaktive Formate.
 ## Wie die Gewinner:innen ausgewählt werden
 
 Eine Jury aus Festivalkurator:innen, Stadtvertreter:innen und Engineers bewertet
-am letzten Nachmittag alle Einreichungen nach Idee, Umsetzung und der Qualität
-der Verbindung zwischen den beiden Datenwelten.
+alle Einreichungen. Am 13. September 2026 stimmt die Jury ab; anschließend
+werden die Gewinnerteams bei der Siegerehrung ausgezeichnet. Bewertet werden
+Idee, Umsetzung und die Qualität der Verbindung zwischen den beiden Datenwelten.

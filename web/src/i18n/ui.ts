@@ -31,7 +31,7 @@ export const ui = {
     "site.title": "AI Hackathon",
     "site.affiliation": "Ars Electronica Festival 2026",
     "site.theme": "Future Begins / Negotiating Humanity",
-    "site.datePlace": "September 11–12, 2026 // Grand Garage, Linz",
+    "site.datePlace": "September 11–13, 2026 // Grand Garage, Linz",
 
     "nav.home": "Hackathon",
     "nav.about": "About",
@@ -66,7 +66,7 @@ export const ui = {
     "site.title": "AI Hackathon",
     "site.affiliation": "Ars Electronica Festival 2026",
     "site.theme": "Future Begins / Negotiating Humanity",
-    "site.datePlace": "11.–12. September 2026 // Grand Garage, Linz",
+    "site.datePlace": "11.–13. September 2026 // Grand Garage, Linz",
 
     "nav.home": "Hackathon",
     "nav.about": "Über",

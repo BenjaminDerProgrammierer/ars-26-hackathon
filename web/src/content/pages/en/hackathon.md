@@ -1,10 +1,10 @@
 ---
 title: "About the Hackathon"
-intro: "Two days of building with festival data, City of Linz open data, and AI coding agents — in the middle of Ars Electronica Festival 2026."
+intro: "Three days of building with festival data, City of Linz open data, and AI coding agents — in the middle of Ars Electronica Festival 2026."
 ---
 
 The AI Hackathon is an official sub-event of Ars Electronica Festival 2026,
-**Future Begins / Negotiating Humanity**, taking place September 11–12, 2026,
+**Future Begins / Negotiating Humanity**, taking place September 11–13, 2026,
 at Grand Garage in Linz, Austria. Teams of two to five people build working
 prototypes — apps, websites, installations, visualizations — that combine the
 festival's own program data with open data published by the City of Linz.
@@ -14,7 +14,7 @@ festival's own program data with open data published by the City of Linz.
 
 ## At a glance
 
-- **Hackathon:** September 11–12, 2026, at Grand Garage in Linz
+- **Hackathon:** September 11–13, 2026, at Grand Garage in Linz
 - **Registration:** July 21 through August 31, 2026
 - **Cost:** Free; registration is sufficient
 - **Minimum age:** 14
@@ -29,7 +29,7 @@ festival's own program data with open data published by the City of Linz.
 
 **Linz neu entdecken — rediscover Linz.**
 
-At this two-day AI hackathon, develop creative digital projects using festival
+At this three-day AI hackathon, develop creative digital projects using festival
 data and open data from the City of Linz.
 
 With AI tools and support from mentors, turn your ideas into tangible projects:
@@ -86,5 +86,6 @@ concerts, conferences, and interactive formats.
 ## How winners are chosen
 
 A jury of festival curators, city representatives, and engineers reviews all
-submissions on the final afternoon. Projects are judged on idea, execution,
-and how meaningfully they connect the two data worlds.
+submissions. On September 13, 2026, the jury votes and the winning teams are
+honored at the award ceremony. Projects are judged on idea, execution, and how
+meaningfully they connect the two data worlds.
