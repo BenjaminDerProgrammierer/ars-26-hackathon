@@ -16,6 +16,11 @@ param storageAccountName string = 'arselectronicahackathon'
 @maxLength(63)
 param accessCodesTableName string = 'AccessCodes'
 
+@description('Name of the table that stores shared redeem rate-limit counters.')
+@minLength(3)
+@maxLength(63)
+param redeemRateLimitsTableName string = 'RedeemRateLimits'
+
 @description('Globally unique name of the Linux web app.')
 @minLength(2)
 @maxLength(60)
@@ -63,6 +68,7 @@ module storage 'modules/storage.bicep' = {
     location: location
     storageAccountName: storageAccountName
     accessCodesTableName: accessCodesTableName
+    redeemRateLimitsTableName: redeemRateLimitsTableName
   }
 }
 
@@ -102,6 +108,7 @@ module webApp 'modules/web-app.bicep' = {
     webAppContainerImage: webAppContainerImage
     storageAccountName: storageAccountName
     accessCodesTableName: accessCodesTableName
+    redeemRateLimitsTableName: redeemRateLimitsTableName
     webAppIdentityName: '${webAppName}-identity'
     githubDeploymentIdentityName: '${webAppName}-github-deploy'
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
@@ -127,9 +134,23 @@ module webAppTableReaderRole 'modules/table-reader-role.bicep' = {
   ]
 }
 
+module webAppRateLimitTableContributorRole 'modules/table-contributor-role.bicep' = {
+  name: 'table-contributor-${uniqueString(webAppName)}'
+  params: {
+    storageAccountName: storageAccountName
+    tableName: redeemRateLimitsTableName
+    #disable-next-line what-if-short-circuiting
+    principalId: identities.outputs.webAppIdentityPrincipalId
+  }
+  dependsOn: [
+    storage
+  ]
+}
+
 output storageAccountResourceId string = storage.outputs.storageAccountResourceId
 output storageAccountName string = storage.outputs.storageAccountName
 output tableName string = storage.outputs.tableName
+output rateLimitTableName string = storage.outputs.rateLimitTableName
 output tableServiceEndpoint string = storage.outputs.tableServiceEndpoint
 output webAppDefaultHostname string = webApp.outputs.defaultHostname
 output webAppCustomHostname string = webApp.outputs.customHostname

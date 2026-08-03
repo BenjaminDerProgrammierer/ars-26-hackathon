@@ -11,7 +11,7 @@ const productionCustomHostname = "hackathon.ars.electronica.art";
 export default defineConfig({
   site: process.env.SITE_URL || productionSite,
   base: "/",
-  adapter: node({ mode: "standalone" }),
+  adapter: node({ mode: "standalone", bodySizeLimit: 8 * 1024 }),
   integrations: [react()],
   trailingSlash: "always",
   security: {

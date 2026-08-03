@@ -3,6 +3,7 @@ targetScope = 'resourceGroup'
 param location string
 param storageAccountName string
 param accessCodesTableName string
+param redeemRateLimitsTableName string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' = {
   name: storageAccountName
@@ -39,7 +40,14 @@ resource accessCodesTable 'Microsoft.Storage/storageAccounts/tableServices/table
   properties: {}
 }
 
+resource redeemRateLimitsTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2025-01-01' = {
+  parent: tableService
+  name: redeemRateLimitsTableName
+  properties: {}
+}
+
 output storageAccountResourceId string = storageAccount.id
 output storageAccountName string = storageAccount.name
 output tableName string = accessCodesTable.name
+output rateLimitTableName string = redeemRateLimitsTable.name
 output tableServiceEndpoint string = 'https://${storageAccount.name}.table.${environment().suffixes.storage}'

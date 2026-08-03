@@ -2,7 +2,7 @@
 import { isLang, useTranslations } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { lookupRedeemCode } from "../../redeem/data";
-import { redeemRateLimit } from "../../redeem/rate-limit";
+import { redeemClientAddress, redeemRateLimit } from "../../redeem/rate-limit";
 
 export const prerender = false;
 
@@ -22,28 +22,46 @@ let rateLimited = false;
 if (Astro.request.method === "GET") {
   code = Astro.url.searchParams.get("code")?.trim() || "";
 } else if (Astro.request.method === "POST") {
-  const retryAfter = redeemRateLimit(Astro.clientAddress);
-  if (retryAfter !== null) {
-    Astro.response.status = 429;
-    Astro.response.headers.set("Retry-After", String(retryAfter));
-    rateLimited = true;
-  } else {
-    const formData = await Astro.request.formData();
-    const submittedCode = formData.get("code");
-    code = typeof submittedCode === "string" ? submittedCode.trim() : "";
+  try {
+    const retryAfter = await redeemRateLimit(
+      redeemClientAddress(Astro.request, Astro.clientAddress),
+    );
+    if (retryAfter !== null) {
+      Astro.response.status = 429;
+      Astro.response.headers.set("Retry-After", String(retryAfter));
+      rateLimited = true;
+    } else {
+      const formData = await Astro.request.formData();
+      const submittedCode = formData.get("code");
+      code = typeof submittedCode === "string" ? submittedCode.trim() : "";
+    }
+  } catch (error: unknown) {
+    console.error("Redeem request rejected before lookup", {
+      name:
+        typeof error === "object" && error !== null && "name" in error
+          ? String(error.name)
+          : "UnknownError",
+    });
+    lookupError = true;
   }
 }
 
 if (code && Astro.request.method === "GET") {
-  const retryAfter = redeemRateLimit(Astro.clientAddress);
-  if (retryAfter !== null) {
-    Astro.response.status = 429;
-    Astro.response.headers.set("Retry-After", String(retryAfter));
-    rateLimited = true;
+  try {
+    const retryAfter = await redeemRateLimit(
+      redeemClientAddress(Astro.request, Astro.clientAddress),
+    );
+    if (retryAfter !== null) {
+      Astro.response.status = 429;
+      Astro.response.headers.set("Retry-After", String(retryAfter));
+      rateLimited = true;
+    }
+  } catch {
+    lookupError = true;
   }
 }
 
-if (code && !rateLimited) {
+if (code && !rateLimited && !lookupError) {
   try {
     accessText = await lookupRedeemCode(code);
   } catch (error: unknown) {
@@ -107,7 +125,7 @@ if (code && !rateLimited) {
       </form>
 
       {
-        (code || rateLimited) && (
+        (code || rateLimited || lookupError) && (
           <div
             class="redeem-result"
             id="redeem-result"

@@ -9,6 +9,7 @@ param appServicePlanCapacity int
 param webAppContainerImage string
 param storageAccountName string
 param accessCodesTableName string
+param redeemRateLimitsTableName string
 param webAppIdentityName string
 param githubDeploymentIdentityName string
 param logAnalyticsWorkspaceName string
@@ -125,6 +126,7 @@ resource webAppSettings 'Microsoft.Web/sites/config@2024-11-01' = {
     SITE_URL: 'https://${webAppName}.azurewebsites.net'
     AZURE_STORAGE_ACCOUNT_NAME: storageAccountName
     AZURE_STORAGE_TABLE_NAME: accessCodesTableName
+    AZURE_STORAGE_RATE_LIMIT_TABLE_NAME: redeemRateLimitsTableName
     AZURE_STORAGE_TABLE_ENDPOINT: tableServiceEndpoint
     AZURE_CLIENT_ID: webAppIdentity.properties.clientId
     AZURE_TOKEN_CREDENTIALS: 'prod'
