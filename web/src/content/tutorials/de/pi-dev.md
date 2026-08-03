@@ -45,6 +45,67 @@ Wiederkehrende Regeln gehören in eine `AGENTS.md` im Projekt:
 
 So müsst ihr wichtige Rahmenbedingungen nicht in jedem Prompt wiederholen.
 
+## Hackathon-Skills installieren
+
+Skills geben Pi zusätzliches, auf diesen Hackathon zugeschnittenes Wissen. Die
+beiden Daten-Skills erklären Pi, wie es den Festival-Datensatz korrekt
+verknüpft und wie es die auf der Hackathon-Website angebotenen Linz-Datensätze
+einschließlich ihrer Kurz-Dokumentationen findet und sicher herunterlädt.
+
+Öffnet ein Terminal **im Ordner eures Projekts** und installiert beide Skills
+mit [skills.sh](https://skills.sh/):
+
+```sh
+npx skills@latest add BenjaminDerProgrammierer/ars-26-hackathon \
+  --skill ars-dataset hackathon-datasets \
+  --agent pi \
+  --yes
+```
+
+`npx` lädt das aktuelle `skills`-Werkzeug bei Bedarf automatisch. Der Befehl
+installiert die Skills nur für dieses Projekt unter `.pi/skills/` und legt eine
+`skills-lock.json` an. Ihr braucht dafür Node.js, `npm`, Git und Internetzugang;
+in der bereitgestellten Online-Entwicklungsumgebung ist alles vorhanden. Die
+Installation enthält Programme und Anweisungen, die der Agent ausführen darf.
+Installiert daher nur Skills aus Quellen, denen ihr vertraut.
+
+Prüft anschließend die Installation:
+
+```sh
+npx skills@latest list --agent pi
+```
+
+In der Ausgabe müssen `ars-dataset` und `hackathon-datasets` stehen. Startet Pi
+danach neu, damit es die neuen Skills sicher erkennt:
+
+```sh
+pi
+```
+
+Nennt den passenden Skill im ersten Auftrag ausdrücklich. Zum Beispiel:
+
+> Verwende den Skill `hackathon-datasets`. Finde den passendsten Datensatz für
+> eine Karte mit Trinkbrunnen, lies zuerst alle Hinweise und verlinkten
+> Kurz-Dokumentationen auf der Hackathon-Website und lade danach die
+> aufbereitete Datei in den Ordner `data/`. Erkläre mir Felder und wichtige
+> Einschränkungen, bevor du Code änderst.
+
+Für den laufend aktualisierten Festival-Programmdatensatz:
+
+> Verwende den Skill `ars-dataset`. Lade den aktuellen Export herunter, prüfe
+> ihn und erkläre mir die sicheren Verknüpfungen für Projekte, Orte und
+> Kalender. Ändere noch keinen Code.
+
+Aktualisiert die installierten Projekt-Skills später mit:
+
+```sh
+npx skills@latest update --project --yes
+```
+
+Falls `npx` nach einer Bestätigung zur Installation des `skills`-Pakets fragt,
+bestätigt diese. Bei einem Netzwerkfehler prüft zuerst, ob GitHub und npm im
+Terminal erreichbar sind, und führt denselben Befehl erneut aus.
+
 ## Den Überblick behalten
 
 - Brecht einen falschen Weg früh mit `Ctrl+C` ab.

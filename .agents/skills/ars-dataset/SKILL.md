@@ -26,15 +26,70 @@ Key places:
   fresh clone. Feedback sent to the data provider lives in
   `ars-dataset/discussions/`.
 - **This skill's tooling**: `scripts/ars_dataset.py` (stdlib-only CLI + importable
-  module). Run it for all routine handling instead of writing ad-hoc code:
+  module). Resolve the script relative to this `SKILL.md`: skills.sh normally
+  installs it at `.pi/skills/ars-dataset/`, while this source repository keeps
+  it at `.agents/skills/ars-dataset/`. Run it for all routine handling instead
+  of writing ad-hoc code:
 
 ```bash
-TOOL=.agents/skills/ars-dataset/scripts/ars_dataset.py
+SKILL_DIR=.pi/skills/ars-dataset                       # participant project
+# SKILL_DIR=.agents/skills/ars-dataset                 # this source repository
+TOOL="$SKILL_DIR/scripts/ars_dataset.py"
 python3 "$TOOL" download -o /tmp/ars-export.json       # fetch latest
 python3 "$TOOL" summary [FILE_OR_URL]                   # counts + health metrics
 python3 "$TOOL" verify  [FILE_OR_URL]                   # schema + core invariants
 python3 "$TOOL" diff OLD.json NEW.json                  # metadata/field/record drift
 ```
+
+## Participant quick start
+
+In a fresh hackathon project, keep the current export in a project-local data
+directory. Download first, then verify and summarize before writing code:
+
+```bash
+mkdir -p data
+python3 "$TOOL" download -o data/ars-festival-2026.json
+python3 "$TOOL" verify data/ars-festival-2026.json
+python3 "$TOOL" summary data/ars-festival-2026.json
+```
+
+`verify` may report the documented upstream relation failures described below.
+Do not “repair” them by guessing. Use `summary` to understand what is actually
+resolvable, tell the participant which limitation affects the requested idea,
+and build only on valid records.
+
+Before implementation, read `references/data-model.md` for fields and joins and
+`references/data-quality.md` for current measured issues. Both live beside this
+file in the installed skill. Then inspect a few real records and propose the
+smallest data model needed by the feature.
+
+For Python analysis, add the installed script directory to the import path:
+
+```python
+from pathlib import Path
+import sys
+
+skill_scripts = Path(".pi/skills/ars-dataset/scripts").resolve()
+sys.path.insert(0, str(skill_scripts))
+from ars_dataset import build_indexes, event_rows, load
+
+data = load("data/ars-festival-2026.json")
+indexes = build_indexes(data)
+rows = event_rows(data)
+```
+
+For a browser project, load the JSON with `fetch`, check `response.ok`, and use
+the same semantics documented here when implementing joins. Never expose
+non-public records or render a URL when `link_allowed` is false. Keep the
+provider attribution in the project and re-run download/verify before the demo
+because the export is updated regularly.
+
+Example participant request:
+
+> Use the `ars-dataset` skill. Download and verify the latest festival export
+> into `data/`, read the data model and quality notes, inspect representative
+> records, and explain which project, location, and calendar fields are safe for
+> my idea. Do not change application code yet.
 
 ## Task: update the repo snapshot to the latest export
 
