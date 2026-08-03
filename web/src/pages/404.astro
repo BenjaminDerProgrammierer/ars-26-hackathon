@@ -1,19 +1,35 @@
 ---
-import { href } from "../i18n/ui";
+import { href, langFromPathname } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+export const prerender = false;
+
+const lang = langFromPathname(Astro.originPathname);
+const copy = {
+  en: {
+    message: "This page does not exist — yet.",
+    home: "To the hackathon",
+    otherHome: "Zum Hackathon",
+  },
+  de: {
+    message: "Diese Seite existiert nicht — noch nicht.",
+    home: "Zum Hackathon",
+    otherHome: "To the hackathon",
+  },
+}[lang];
+const otherLang = lang === "de" ? "en" : "de";
 ---
 
-<BaseLayout lang="en" title="404">
+<BaseLayout lang={lang} title="404">
   <section class="notfound">
     <div class="wrap wrap--reading">
       <h1>404</h1>
+      <p>{copy.message}</p>
       <p>
-        This page does not exist — yet. // Diese Seite existiert nicht — noch
-        nicht.
-      </p>
-      <p>
-        <a class="button" href={href("en")}>To the hackathon</a>
-        <a class="button button--outline" href={href("de")}>Zum Hackathon</a>
+        <a class="button" href={href(lang)}>{copy.home}</a>
+        <a class="button button--outline" href={href(otherLang)}
+          >{copy.otherHome}</a
+        >
       </p>
     </div>
   </section>

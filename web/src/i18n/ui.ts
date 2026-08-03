@@ -11,6 +11,12 @@ export function isLang(value: string | undefined): value is Lang {
   return value === "en" || value === "de";
 }
 
+/** Resolve a locale-prefixed request path, falling back to the site default. */
+export function langFromPathname(pathname: string): Lang {
+  const locale = pathname.match(/^\/([^/]+)(?:\/|$)/)?.[1];
+  return isLang(locale) ? locale : defaultLang;
+}
+
 export const ui = {
   en: {
     "site.title": "AI Hackathon",
