@@ -137,7 +137,7 @@ resource webAppSettings 'Microsoft.Web/sites/config@2024-11-01' = {
   ]
 }
 
-resource webAppCustomHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2024-11-01' = {
+resource webAppCustomHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2024-11-01' = if (!empty(webAppCustomHostname)) {
   parent: existingWebApp
   name: webAppCustomHostname
   properties: {
@@ -221,4 +221,4 @@ resource webAppServerErrorAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
 }
 
 output defaultHostname string = webApp.outputs.defaultHostname
-output customHostname string = webAppCustomHostnameBinding.name
+output customHostname string = webAppCustomHostname

@@ -11,6 +11,7 @@ repository="${GITHUB_REPOSITORY:-}"
 admin_principal_id="${AZURE_ADMIN_PRINCIPAL_ID:-}"
 admin_principal_type="${AZURE_ADMIN_PRINCIPAL_TYPE:-}"
 alert_email=""
+custom_hostname=""
 skip_admin_roles=false
 skip_github=false
 
@@ -25,6 +26,7 @@ make the newly-created GHCR package public.
 Options:
   --repository OWNER/REPO       GitHub repository (default: current gh repo)
   --alert-email EMAIL           Override the infrastructure alert recipient
+  --custom-hostname HOST        Bind a DNS-validated App Service hostname
   --admin-principal-id ID       Azure object ID used by the local admin tool
   --admin-principal-type TYPE   User, Group, or ServicePrincipal
   --skip-admin-roles            Do not grant roles to an admin-tool identity
@@ -55,6 +57,11 @@ while (($# > 0)); do
     --alert-email)
       (($# >= 2)) || fail "--alert-email requires an address"
       alert_email="$2"
+      shift 2
+      ;;
+    --custom-hostname)
+      (($# >= 2)) || fail "--custom-hostname requires a hostname"
+      custom_hostname="$2"
       shift 2
       ;;
     --admin-principal-id)
@@ -124,6 +131,7 @@ deployment_arguments=(
   "location=$LOCATION"
   "githubOrganization=$github_owner"
   "githubRepository=$github_repository"
+  "webAppCustomHostname=$custom_hostname"
   --only-show-errors
   --output none
 )

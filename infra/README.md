@@ -50,6 +50,10 @@ admin-tool roles to a different Azure identity, or use `--skip-admin-roles` and
 options. It prints the non-secret Azure settings required by
 `admin-tool/.env` when it completes.
 
+The bootstrap does not bind the production custom hostname because App Service
+requires its `asuid` TXT ownership record to exist first. Once DNS is ready,
+rerun it with `--custom-hostname hackathon.ars.electronica.art`.
+
 ## Manual deployment
 
 The `Publish web container` GitHub Actions workflow builds `web/Dockerfile` and
