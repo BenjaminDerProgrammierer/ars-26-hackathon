@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # vcenv per-VM provisioning script.
-# This is a TEMPLATE: deploy.sh renders the ${VC_*} placeholders with envsubst
-# (restricted to the VC_* names), base64-encodes the result, and delivers it via
-# cloud-init. Every other $shell reference is evaluated at runtime on the VM.
+# This is a TEMPLATE: admin-tool/src/lib/dev-environments.ts replaces the
+# ${VC_*} placeholders, base64-encodes the result, and delivers it through the
+# VM's Custom Script extension. Every other $shell reference is evaluated at
+# runtime on the VM.
 #
 # No `set -x` on purpose: it would leak the password / API key into the boot log.
 set -euo pipefail
 exec > >(tee -a /var/log/vcenv-bootstrap.log) 2>&1
 echo "=== vcenv bootstrap starting $(date -u) ==="
 
-# --- Injected by deploy.sh (envsubst) ---
+# --- Rendered by admin-tool/src/lib/dev-environments.ts ---
 student_user='${VC_STUDENT_USER}'
 student_password='${VC_STUDENT_PASSWORD}'
 llm_base_url='${VC_LLM_BASE_URL}'      # OpenAI-compatible endpoint (Novedu coding proxy)
