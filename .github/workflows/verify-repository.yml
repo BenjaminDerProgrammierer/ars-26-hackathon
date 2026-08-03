@@ -84,6 +84,7 @@ jobs:
       fail-fast: false
       matrix:
         project:
+          - example-projects/pi-dev-calendar
           - example-projects/festival-day-weaver
           - example-projects/whats-near-me
     steps:

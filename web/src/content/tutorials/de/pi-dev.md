@@ -106,6 +106,35 @@ Falls `npx` nach einer Bestätigung zur Installation des `skills`-Pakets fragt,
 bestätigt diese. Bei einem Netzwerkfehler prüft zuerst, ob GitHub und npm im
 Terminal erreichbar sind, und führt denselben Befehl erneut aus.
 
+## Mini-Projekt: Festival-Kalender
+
+Probiert den kompletten Ablauf an einem kleinen Projekt aus. Erstellt einen
+leeren Ordner, startet Pi darin und gebt ihm diesen Auftrag:
+
+> Verwende den Skill `ars-dataset`. Erstelle eine möglichst kleine Vite-App mit
+> Plain TypeScript, die den aktuellen Festival-Datensatz lädt und alle sicher
+> verknüpften öffentlichen Termine nach Tagen gruppiert als Kalender anzeigt.
+> Nutze die Datums- und Join-Logik des Skills, respektiere `link_allowed` und
+> zeige einen verständlichen Leerzustand, wenn der Export keine gültigen
+> Termine enthält. Führe danach den Build aus.
+
+Eine fertige Minimalversion könnt ihr als
+[ZIP-Datei herunterladen](/downloads/pi-dev-calendar.zip). Nach dem Entpacken
+installiert ihr den `ars-dataset`-Skill im Projektordner und startet die App:
+
+```sh
+npm install
+npm run dev
+```
+
+Vor jedem Start holt das Beispiel den aktuellen Export. Der Browser lädt nur
+die vom Skill vorbereiteten öffentlichen Kalenderzeilen. Das ist absichtlich
+ein zweistufiger Ablauf: Die Datumsangabe steckt im Export nur in einem
+menschenlesbaren Textfeld, und derzeit lassen sich die öffentlichen
+Kalenderzeilen nicht sicher mit öffentlichen Projekten verbinden. Das Beispiel
+erfindet deshalb keine Titel oder Termine, sondern zeigt bis zu einer Reparatur
+des Exports den Leerzustand.
+
 ## Den Überblick behalten
 
 - Brecht einen falschen Weg früh mit `Ctrl+C` ab.

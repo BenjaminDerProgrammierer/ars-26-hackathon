@@ -1,0 +1,96 @@
+:root {
+  font-family: Arial, sans-serif;
+  color: #171717;
+  background: #f3f3f3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2rem;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 3px solid;
+}
+
+header p,
+header span,
+footer {
+  font-size: 0.75rem;
+}
+
+h1 {
+  margin-right: auto;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  margin: 2rem 0;
+  background: #171717;
+  border: 1px solid #171717;
+}
+
+.day {
+  padding: 1rem;
+  background: white;
+}
+
+.day h2 {
+  min-height: 3rem;
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  text-transform: capitalize;
+}
+
+.event {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  padding: 0.8rem;
+  border-left: 4px solid #e73e07;
+  background: #f3f3f3;
+  color: inherit;
+  text-decoration: none;
+}
+
+.event time,
+.event span {
+  font-size: 0.75rem;
+}
+
+.status {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: white;
+  border-left: 4px solid #e73e07;
+  line-height: 1.6;
+}
+
+footer {
+  margin-top: 2rem;
+}
+
+@media (max-width: 620px) {
+  main {
+    padding: 1rem;
+  }
+
+  header {
+    display: block;
+  }
+}
