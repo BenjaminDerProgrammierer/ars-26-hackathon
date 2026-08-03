@@ -51,7 +51,6 @@ const copy = {
     statusLabel: {
       essential: "Use",
       recommended: "Recommended",
-      "in-progress": "Pending",
       optional: "Optional",
     },
   },
@@ -68,7 +67,6 @@ const copy = {
     statusLabel: {
       essential: "Verwenden",
       recommended: "Empfohlen",
-      "in-progress": "In Klärung",
       optional: "Optional",
     },
   },
@@ -188,10 +186,6 @@ function datasetHref(id: string): string {
 
   .status--recommended {
     color: #9d1448;
-  }
-
-  .status--in-progress {
-    color: #8a4b00;
   }
 
   .status--optional {

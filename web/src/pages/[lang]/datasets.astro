@@ -49,12 +49,6 @@ const copy = {
         description:
           "Reviewed sources that are ready for clearly documented hackathon use.",
       },
-      "in-progress": {
-        heading: "Decision in progress",
-        label: "Pending",
-        description:
-          "Promising sources with metadata, licensing, or preparation still to resolve.",
-      },
       optional: {
         heading: "Optional datasets",
         label: "Optional",
@@ -97,12 +91,6 @@ const copy = {
         label: "Empfohlen",
         description:
           "Geprüfte Quellen für klar dokumentierte Hackathon-Anwendungen.",
-      },
-      "in-progress": {
-        heading: "Entscheidung offen",
-        label: "In Klärung",
-        description:
-          "Vielversprechende Quellen mit offenen Metadaten-, Lizenz- oder Aufbereitungsfragen.",
       },
       optional: {
         heading: "Optionale Datensätze",
@@ -389,10 +377,6 @@ function slugFor(id: string): string {
 
   .status--recommended {
     color: #9d1448;
-  }
-
-  .status--in-progress {
-    color: #8a4b00;
   }
 
   .status--optional {

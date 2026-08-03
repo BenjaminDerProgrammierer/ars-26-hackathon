@@ -1,135 +1,101 @@
-# Final Linz Open Data verdicts
+# Linz Open Data collection
 
-The current consolidated assessment is the
-[2026-07-16 hackathon usability report](archive/2026-07-16-hackathon-usability.md).
+This directory contains the Linz datasets selected for the Ars Electronica
+Festival 2026 hackathon. The individual dataset pages are the current source of
+truth for description, provider, format, license, data vintage, limitations,
+and delivery status. Where preparation has been completed, the repository also
+contains a browser-friendly CSV or JSON snapshot and, in most cases, the script
+used to produce it.
 
-These are the authoritative dataset decisions for the Ars Electronica Festival
-2026 hackathon. Each published folder preserves Rainer's source verdict and adds
-the final decision after the full 820-record catalog review, live endpoint
-checks, festival export analysis, GitHub defect handoff, and a 2026-07-16
-publisher-directory delta crawl.
+The research and decisions that led to this collection are preserved as one
+chronological [project history](historic.md). That history explains why a
+dataset entered or left the portfolio; it is not a current readiness list.
 
-Each published dataset page provides compact frontmatter for status, optional
-sorting priority, format, license, and data vintage, followed by a short factual
-description, practical usage notes, and source links. Detailed review evidence
-remains in the research archive and consolidated report. Current catalog
-evidence was reviewed through 2026-07-16; Orthofotos 2023 and Stadtplan Linz
-2025 were added and checked on 2026-07-17. Street names, drinking fountains,
-and public toilets received prepared, validated CSV snapshots on 2026-07-23.
-The air-and-weather API status and its Land OÖ provider attribution were
-clarified on 2026-07-29.
-The affected verdicts link to the publisher fixes and live endpoint checks
-recorded in the relevant GitHub issues. The
-verdicts also incorporate the 2026-07-15 stakeholder follow-up: the data
-provider confirmed several fixes, escalated the air-quality failures, invited
-requests for missing or fresher data, and asked the hackathon team to approach
-LINZ AG directly for LINZ AG-controlled sources.
+## Status and preparation are different
 
-## How these verdicts were reached
+The `status` in each dataset page's frontmatter controls how the dataset appears
+on the hackathon website:
 
-The final set is the result of three complementary passes, retained in the
-[research archive](archive/):
-
-1. A title-and-description scan identified plausible festival combinations
-   across the Stadt Linz catalog.
-2. Benjamin's reproducible review inventoried all 820 catalog records, marked 19
-   records A and 13 B, and surfaced broader directions such as civic memory,
-   neighborhood change, elections, solar roofs, and long-term city imagery.
-3. Rainer's hands-on review downloaded 25 likely sources and checked their actual
-   payloads, formats, identifiers, freshness, endpoint behavior, and join paths to
-   the festival export. The consolidated review then applied portfolio-level
-   safety and preparation constraints, followed by endpoint and publisher checks
-   on 2026-07-15.
-
-Final decisions therefore weigh more than whether a source is interesting or
-technically downloadable. A default hackathon dataset also needs a credible join
-to festival venues, dates, entities, countries, or categories; a feasible
-prototype path; acceptable freshness and interpretation risk; and preparation
-cost proportionate to its value. This is why some technically good city datasets
-remain optional, pending, or outside the festival portfolio.
-
-## Decision meanings
-
-| Decision | Meaning |
+| Status | Current delivery meaning |
 |---|---|
-| **USE** | Include in the default hackathon bundle after only light normalization. |
-| **USE WITH PREPARATION** | Include only after the organizer supplies a converted snapshot, helper, or fallback. |
-| **OPTIONAL** | Offer as an explicitly secondary or experimental source. |
-| **DO NOT USE** | Exclude until the stated defect is fixed or the use case changes. |
+| `essential` | A primary dataset for participants. |
+| `recommended` | Directly useful, with documented and manageable caveats. |
+| `optional` | A secondary or experimental source. |
 
-## Final selection
+These labels describe current participant delivery. Historical reports used
+portfolio decisions such as **USE**, **USE WITH PREPARATION**, **OPTIONAL**, and
+**DO NOT USE** to record what organizers intended to do at the time. A source
+can therefore have been historically selected “with preparation” and now be
+`recommended` because that preparation has since been completed. Conversely, a
+live or downloadable source can have a prominent catalog status without a
+checked-in snapshot; its page must explain the remaining integration work.
 
-| Dataset | Final decision | Role |
+In the inventory below, **prepared** means that a normalized, browser-friendly
+artifact is checked into this repository. It does not mean that the source is
+current enough for operational, legal, accessibility, or safety decisions.
+
+## Current inventory
+
+| Dataset | Page status | Delivery in this repository |
 |---|---|---|
-| [Baumkataster](baumkataster/) | **USE** | Current geocoded urban-tree data; strongest standalone source. |
-| [Linztermine](linztermine/) | **USE WITH PREPARATION** | Combined event, occurrence, location, organizer, and category snapshot for the festival window. |
-| [Street names and meanings](strassennamen/) | **USE** | Two normalized CSVs with stable IDs, Wikidata links, and historical successor names. |
-| [Guest origin countries](herkunftslaender-gaeste/) | **USE** | Country join to festival contacts. |
-| [Playgrounds and sports facilities](spielplaetze/) | **USE** | Working geocoded CSV plus a repaired 2023 equipment Shapefile. |
-| [LINZ AG lines and stops](linz-ag-linien-2025/) | **USE WITH PREPARATION** | Static transit geometry; publish converted GeoJSON. |
-| [EFA journey planner](efa-fahrplanauskunft/) | **USE WITH PREPARATION** | Legacy live API without a provided adapter; browser-direct requests are blocked by CORS. |
-| [Boudicca.Events public API](boudicca-events/) | **USE WITH PREPARATION** | Snapshot and normalize the multi-source event API; preserve per-source provenance, attribution and a cached fallback. |
-| [Historical city maps](historische-stadtplaene/) | **USE WITH PREPARATION** | Pre-tile selected maps for then-and-now interfaces. |
-| [Stadtplan Linz 2025](stadtplan-linz-2025/) | **OPTIONAL** | Current municipal cartographic raster; crop, reproject, and optimize one variant before browser use. |
-| [3D city data](3d-geodaten-lod2-2022/) | **USE WITH PREPARATION** | Use the 2025 refresh and preconvert selected festival-area tiles; repair stale `/2022/` links in its index. |
-| [Public toilets](wc-anlagen/) | **USE** | Prepared 68-location CSV with WGS84 coordinates and normalized accessibility fields; service details remain dated. |
-| [Drinking fountains](trinkbrunnen/) | **USE** | Prepared 132-record CSV with 84 WGS84 locations; current operation and drinkability still require verification. |
-| [Air and weather](luftguete-messwerte/) | **OPTIONAL** | Five live air/weather stations; three unavailable light feeds and one unavailable Chemiepark feed; monitor and cache. |
-| [Defibrillators](defibrillatoren/) | **OPTIONAL** | Prototype-only safety layer; 2022 data is not operational guidance. |
-| [Public Wi-Fi](hotspots/) | **OPTIONAL** | Useful venue layer, but usage and locations are from 2022. |
-| [Orthophotos](orthofotos/) | **OPTIONAL** | Heavy experimental visual source, now including the 2023 edition, requiring selection and web tiling. |
-| [Short-term parking zones](kurzparkzonen/) | **OPTIONAL** | Utility layer with projected Shapefile conversion. |
-| [Cycling counter measurements](radverkehr-zaehlstellen/) | **OPTIONAL** | Historical 2024–2025 hourly counts and WGS84 counter locations for exploratory mobility analysis. |
-| [Hecken die Schmecken](hecken-die-schmecken/) | **OPTIONAL** | Small playful garnish with no coordinates and 2022 data. |
-| [Dog zones](hundezonen/) | **OPTIONAL** | Public downloads are repaired; convert the dated EPSG:31255 polygons and avoid current-rule claims. |
-| [Baulandreserven 2022](baulandreserven-2022/) | **OPTIONAL** | Corrected complete 2022 layer for niche, clearly dated land-use context. |
+| [Baumkataster](baumkataster/) | `essential` | **Prepared:** normalized CSV with WGS84 coordinates and a reproducible converter. |
+| [Boudicca.Events](boudicca-events/) | `essential` | Live JSON API; a normalized snapshot, source-aware attribution, deduplication, and fallback are still needed. |
+| [Baulandreserven 2022](baulandreserven-2022/) | `recommended` | **Prepared:** checked-in WGS84 GeoJSON; no conversion script is currently included. The 2022 layer is historical context, not a current availability statement. |
+| [Defibrillators](defibrillatoren/) | `recommended` | **Prepared:** normalized CSV and reproducible converter; 2022 data is for prototypes only. |
+| [Hecken die Schmecken](hecken-die-schmecken/) | `recommended` | **Prepared:** normalized CSV and reproducible converter; the source has no coordinates. |
+| [Guest origin countries](herkunftslaender-gaeste/) | `recommended` | **Prepared:** tidy quarterly CSV and reproducible converter. |
+| [Public Wi-Fi](hotspots/) | `recommended` | **Prepared:** joined location and monthly-use CSVs with a reproducible converter; status and use figures are from 2022. |
+| [Dog zones](hundezonen/) | `recommended` | **Prepared:** checked-in WGS84 GeoJSON with 140 features; no conversion script is currently included. Treat the 2023 rules as non-authoritative. |
+| [Linztermine](linztermine/) | `recommended` | **Prepared:** one joined JSON snapshot plus a reproducible converter for events, occurrences, places, organizers, and categories. Refresh shortly before the hackathon. |
+| [Playgrounds and sports facilities](spielplaetze/) | `recommended` | Downloadable geocoded CSV and equipment Shapefile; no normalized artifact or converter is checked in here. |
+| [Street names and meanings](strassennamen/) | `recommended` | **Prepared:** current and historical normalized CSVs with stable IDs and a reproducible converter. |
+| [Drinking fountains](trinkbrunnen/) | `recommended` | **Prepared:** normalized CSV with WGS84 coordinates and a reproducible converter; verify operation and drinkability before use. |
+| [Public toilets](wc-anlagen/) | `recommended` | **Prepared:** normalized CSV with WGS84 coordinates and a reproducible converter; verify current service details before use. |
+| [Historical city maps](historische-stadtplaene/) | `optional` | Large georeferenced source images; selected maps still need web tiling. |
+| [Short-term parking zones](kurzparkzonen/) | `optional` | **Prepared:** five checked-in WGS84 GeoJSON layers with 305 features; no conversion script is currently included. The 2022 data is not current parking or legal guidance. |
+| [LINZ AG lines and stops](linz-ag-linien-2025/) | `optional` | Downloadable transit geometry; no browser-ready WGS84 snapshot is checked in here. |
+| [Air and weather](luftguete-messwerte/) | `optional` | Rolling live API; applications need per-station failure handling, caching, and clear stale-value presentation. |
+| [Orthophotos](orthofotos/) | `optional` | Large source imagery; no festival-area web tiles are checked in here. |
+| [Cycling counter measurements](radverkehr-zaehlstellen/) | `optional` | Downloadable 2024–2025 counts and counter locations; release questions about attribution, time semantics, blanks, and grouping remain. |
+| [Stadtplan Linz 2025](stadtplan-linz-2025/) | `optional` | Georeferenced source raster; no cropped, reprojected, web-optimized artifact is checked in here. |
+| [3D city data](3d-geodaten-lod2-2022/) | `optional` | Large 2025 source tiles are documented; selected festival-area tiles still need conversion for browser use. |
+| [EFA journey planner](efa-fahrplanauskunft/) | `essential` | The live legacy API and usage path are documented; no shared adapter, cache, or fallback is provided, and browser-direct requests are blocked by CORS. |
 
-Reasons for removing several datasets from the published catalog are recorded
-in the [archive](archive/removed-datasets.md); removed entries are not linked as
-current dataset pages.
+The prepared collection currently covers 12 dataset folders. Linztermine,
+short-term parking zones, and dog zones are already converted; they are not
+future preparation tasks. For exact record counts, fields, downloads, and
+refresh commands, use the linked dataset pages.
 
-## Pending decisions and data requests
+## Festival-data integration
 
-| Candidate | Current status | Required decision or request |
-|---|---|---|
-| 2025 neighborhood statistics pack | **PREPARATION CANDIDATE** | Bundle population, one-year age counts, and 2014-system district geometry with encoding and blank-row cleanup. |
-| [Orthophoto image-recognition pack](orthofotos/) | **ORGANIZER DECISION PENDING** | Decide whether to prepare festival-area web tiles; raw 2019 imagery alone is about 11.8 GB. |
-| Institutional image archives | **DISCOVERY REQUEST** | Ask the Tabakfabrik, museums, and other institutions whether they can provide licensed, curated image material for AI-recognition experiments. |
+The Ars festival export's schema version 2 already supplies canonical record
+IDs, unique calendar and location IDs, and visibility fields. Those earlier
+schema gaps are no longer the integration blocker.
 
-These statuses are deliberately separate from the final selection: they record
-work that still needs a stakeholder decision or new source access.
+The current blocker is referential integrity after visibility filtering. Five
+exported calendar slots refer to projects that are absent, and 35 projects
+contain 75 references to absent calendar slots. There are also unresolved
+contact, project-hierarchy, and reverse location references. As a result, the
+current `event_rows()` import produces no timetable events. Repair or remove
+those references and verify a fresh public export before building cross-dataset
+joins; the checked-in July 20 export is retained only as a known-bad diagnostic
+snapshot. See the [July 28 referential-integrity report](../ars-dataset/discussions/2026-07-28-export-referential-integrity.md).
 
-## Broader catalog ideas retained from the research
+After that repair, join festival records by `canonical_id` and use only records
+allowed by the export's visibility fields. For spatial combinations, prefer
+verified child or parent locations and retain source provenance and vintage on
+every Linz-derived layer.
 
-The full catalog review found several worthwhile Linz projects that did not all
-become default festival datasets. Their ideas remain useful for future tracks:
+## Working with the collection
 
-| Direction | How it flows into the final set |
-|---|---|
-| Solar/green-roof potential plus 3D buildings | The visually strong 3D component remains a prepared showcase track; roof-potential data still needs a dedicated source audit and festival-area preparation. |
-| Neighborhood change atlas | District geometry, population, age structure, and construction series are analytically strong, but boundary changes and a weak direct festival join make this a separate civic-data track. |
-| Searchable civic memory | The council-transcript idea remains in the research archive, but its dataset page was removed from the published catalog. |
-| Democracy map | The election-data idea remains in the research archive; year-specific precinct joins and neutral interpretation would be required before publication. |
-| City change detector | Preserved through optional [orthophotos](orthofotos/); organizer-selected web tiles are required because the raw imagery is too large for a default bundle. |
-| City finance and resilience trends | Valuable standalone civic topics, but schema normalization, aggregated records, and weak festival joins put them outside this curated portfolio. |
+Start with the dataset page, not the historical report. It documents the
+student-facing schema, missing-value semantics, identifiers, coordinates,
+source links, warnings, and any refresh command. Prepared outputs use UTF-8 and
+WGS84 `lon`/`lat` for point maps; converted polygon layers are GeoJSON in
+EPSG:4326. Preserve the documented IDs and use compound keys where a page says
+an identifier is unique only within a file or layer.
 
-See [Benjamin's complete shortlist](archive/2026-07-13-reviews-benjamin/linz-hackathon-shortlist.md)
-for the original project concepts and caveats.
-
-## Global prerequisites
-
-Before spatial use, clean the festival export: correct six invalid Ars Electronica
-Center coordinates, generate canonical location/calendar IDs, resolve or inherit
-parent locations, and define which `pending` records are public. Prepared city
-outputs should include source URL, license, source vintage, retrieval timestamp,
-and a `prototype_only` flag where relevant.
-
-Open LINZ AG requests should cover timetable/GTFS or NeTEx data, realtime or
-service information, pool occupancy, and replacement access for recycling-point
-data. Scraping is a fallback only after an open feed request and a terms review.
-
-See the [current consolidated usability report](archive/2026-07-16-hackathon-usability.md)
-for all current decisions. The
-[original cross-dataset analysis](archive/2026-07-13-linz-open-data-hackathon-usability.md)
-and [2026-07-16 catalog delta](archive/2026-07-16-catalog-delta-usability.md)
-remain as research provenance.
+Live, safety-related, legal, and service-state data must be rechecked near the
+event. The dataset pages call out the applicable limits, including stale AED,
+Wi-Fi, fountain, toilet, parking, and dog-zone information. Historical or
+prototype-only layers must never be presented as current operational guidance.

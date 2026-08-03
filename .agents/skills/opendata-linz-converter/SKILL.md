@@ -158,7 +158,7 @@ Update the dataset `README.md` with exactly one frontmatter value for each:
 title:
 summary:
 provider:
-status: essential | recommended | optional | in-progress
+status: essential | recommended | optional
 priority: 0
 format:
 license:
@@ -180,10 +180,11 @@ The body should contain:
   can become stale.
 
 Set `recommended` only when the checked-in output is directly usable and the
-remaining caveats are understandable. Use `in-progress` when essential
-semantics, licensing, attribution, CRS, joins, or data quality remain
-unresolved. `essential` requires unusually strong relevance, freshness, and
-quality; conversion alone does not justify it.
+remaining caveats are understandable. Use `optional` for secondary or
+experimental sources. Track incomplete preparation and integration work in
+private task tracking instead of exposing another public readiness state.
+`essential` requires unusually strong relevance, freshness, and quality;
+conversion alone does not justify it.
 
 When preparation changes a portfolio decision or the user asks for it, update
 the matching row in `opendata-linz/README.md`. Do not rewrite historical
@@ -218,4 +219,4 @@ schema or readiness honestly, and rerun the full gate.
 Lead with what is ready. List each prepared output with record count and a
 clickable local link, then mention converters/documentation and the validation
 result. Call out unresolved caveats that affect student use. Do not bury a
-failed check or describe an `in-progress` dataset as ready.
+failed check.

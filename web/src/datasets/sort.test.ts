@@ -12,7 +12,7 @@ test("sorts datasets by status, descending priority, then title", () => {
     dataset("Apfel", "essential"),
     dataset("Birne", "recommended"),
     dataset("Ähre", "recommended"),
-    dataset("Alpha", "in-progress", 100),
+    dataset("Alpha", "optional", 100),
     dataset("Zitrone", "optional"),
   ];
 
@@ -21,7 +21,7 @@ test("sorts datasets by status, descending priority, then title", () => {
     dataset("Zebra", "recommended", 10),
     dataset("Ähre", "recommended"),
     dataset("Birne", "recommended"),
+    dataset("Alpha", "optional", 100),
     dataset("Zitrone", "optional"),
-    dataset("Alpha", "in-progress", 100),
   ]);
 });

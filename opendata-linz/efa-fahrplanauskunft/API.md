@@ -2,7 +2,7 @@
 title: "EFA API-Referenz"
 summary: "Vollständige Referenz zur Linzer EFA-Legacy-API"
 provider: "Stadt Linz / LINZ AG LINIEN"
-status: "in-progress"
+status: "optional"
 format: "HTTP-API mit JSON oder XML"
 license: "CC BY 4.0 mit ergänzenden LINZ-AG-Bedingungen"
 data_vintage: "Live-API; zuletzt geprüft am 23. Juli 2026"

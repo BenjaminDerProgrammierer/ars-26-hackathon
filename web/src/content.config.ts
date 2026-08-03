@@ -30,7 +30,7 @@ const datasets = defineCollection({
     title: z.string(),
     summary: z.string(),
     provider: z.string(),
-    status: z.enum(["essential", "recommended", "optional", "in-progress"]),
+    status: z.enum(["essential", "recommended", "optional"]),
     priority: z.number().default(0),
     format: z.string(),
     license: z.string(),

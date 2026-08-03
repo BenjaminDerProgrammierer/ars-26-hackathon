@@ -2,7 +2,6 @@ export const datasetStatusOrder = [
   "essential",
   "recommended",
   "optional",
-  "in-progress",
 ] as const;
 
 export type DatasetStatus = (typeof datasetStatusOrder)[number];
