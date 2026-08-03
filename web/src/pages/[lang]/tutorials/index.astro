@@ -100,7 +100,9 @@ const intro =
                   {String(walkthrough.data.order).padStart(2, "0")}
                 </p>
                 <h3>
-                  <a href={walkthroughUrl}>{walkthrough.data.title}</a>
+                  <a href={`${walkthroughUrl}ideenhilfe/`}>
+                    {walkthrough.data.title}
+                  </a>
                 </h3>
                 <p>{walkthrough.data.description}</p>
                 <nav aria-label={`Pfad für ${walkthrough.data.title}`}>
