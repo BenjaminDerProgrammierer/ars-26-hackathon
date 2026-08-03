@@ -35,3 +35,25 @@ test("leaves external and fragment links unchanged", () => {
     assert.equal(rewriteDatasetLinks(html, datasetBase, datasetSlugs), html);
   }
 });
+
+test("preserves queries and fragments while normalizing slug case", () => {
+  assert.equal(
+    rewriteDatasetLinks(
+      '<a href="LINZ-AG-LINIEN-2025?format=csv#fields">Lines</a>',
+      datasetBase,
+      datasetSlugs,
+    ),
+    '<a href="/en/datasets/linz-ag-linien-2025/?format=csv#fields">Lines</a>',
+  );
+});
+
+test("rejects dot-segment and backslash escapes", () => {
+  for (const link of [
+    "efa-fahrplanauskunft/../private",
+    "efa-fahrplanauskunft/%2e%2e/private",
+    "efa-fahrplanauskunft\\private",
+  ]) {
+    const html = `<a href="${link}">Private</a>`;
+    assert.equal(rewriteDatasetLinks(html, datasetBase, datasetSlugs), html);
+  }
+});
