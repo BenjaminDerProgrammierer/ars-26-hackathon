@@ -43,12 +43,8 @@ export const ui = {
     "nav.local.label": "Hackathon navigation",
 
     "footer.claim": "A sub-event of Ars Electronica Festival 2026.",
-    "footer.contact": "Contact",
-    "footer.imprint": "Imprint",
-    "footer.privacy": "Privacy",
 
     "lang.switch.label": "Language",
-    "lang.stub.note": "The full German version is coming soon.",
 
     "redeem.eyebrow": "Access code",
     "redeem.title": "Redeem your code",
@@ -82,12 +78,8 @@ export const ui = {
     "nav.local.label": "Hackathon-Navigation",
 
     "footer.claim": "Ein Sub-Event des Ars Electronica Festival 2026.",
-    "footer.contact": "Kontakt",
-    "footer.imprint": "Impressum",
-    "footer.privacy": "Datenschutz",
 
     "lang.switch.label": "Sprache",
-    "lang.stub.note": "Die vollständige deutsche Fassung folgt in Kürze.",
 
     "redeem.eyebrow": "Zugangscode",
     "redeem.title": "Code einlösen",
