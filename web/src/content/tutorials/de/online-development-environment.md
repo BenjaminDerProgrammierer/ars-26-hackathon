@@ -23,6 +23,8 @@ Ruft den Link bei „Code Server“ im Browser auf und gebt das Passwort ein.
 
 ![Passwort-Eingabe](../assets/online-development-environment-1.png)
 
+## Schritt 2: Entwicklungsumgebung einrichten
+
 ![Entwicklungsumgebung; untrusted](../assets/online-development-environment-2.png)
 
 Als Nächstes müsst ihr dem offenen Ordner vertrauen. Klickt oben auf „Manage“
@@ -47,6 +49,8 @@ sehen, an der ihr gerade arbeitet.
 dass pi.dev auf den geöffneten Projektordner zugreifen darf.
 
 ![Coding-Agent pi.dev](../assets/online-development-environment-7.png)
+
+## Weitere Schritte
 
 Wie ihr den Agent sinnvoll steuert, erfahrt ihr im Tutorial
 [Mit pi.dev arbeiten](../pi-dev/).

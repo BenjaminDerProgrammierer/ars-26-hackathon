@@ -10,7 +10,7 @@ Pi bereits installiert.
 
 ## Im richtigen Projekt starten
 
-Öffnet ein Terminal im Projektordner und startet Pi:
+Wenn ihr auf eurem eigenen Computer arbeitet, öffnet ein Terminal im Projektordner und startet Pi:
 
 ```sh
 cd pfad/zu/eurem-projekt
@@ -20,7 +20,7 @@ pi
 Pi darf auf alles in diesem Ordner zugreifen. Startet ihn deshalb nicht in einem
 übergeordneten Ordner mit privaten oder fremden Dateien.
 
-## Zuerst orientieren, dann ändern
+## Bei bestehenden Projekten: Zuerst orientieren, dann ändern
 
 Lasst Pi vor der ersten Änderung die vorhandene `README.md`, die
 Projektstruktur und die verfügbaren Prüfbefehle untersuchen:
@@ -39,7 +39,7 @@ Wiederkehrende Regeln gehören in eine `AGENTS.md` im Projekt:
 # Projektregeln
 
 - Führe nach Änderungen `npm run check` aus.
-- Ändere keine Datendateien.
+- Ändere keine Datesatz-dateien.
 - Halte API-Keys aus dem Repository.
 ```
 
@@ -82,7 +82,7 @@ danach neu, damit es die neuen Skills sicher erkennt:
 pi
 ```
 
-Nennt den passenden Skill im ersten Auftrag ausdrücklich. Zum Beispiel:
+Nennt den passenden Skill am besten ausdrücklich. Zum Beispiel:
 
 > Verwende den Skill `hackathon-datasets`. Finde den passendsten Datensatz für
 > eine Karte mit Trinkbrunnen, lies zuerst alle Hinweise und verlinkten
