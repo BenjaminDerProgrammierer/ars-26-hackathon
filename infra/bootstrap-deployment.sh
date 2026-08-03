@@ -226,12 +226,16 @@ if [[ "$skip_admin_roles" == false ]]; then
     "$storage_account_id"
 fi
 
-network_access="$(az storage account show \
+public_network_access="$(az storage account show \
   --ids "$storage_account_id" \
-  --query '[publicNetworkAccess,networkRuleSet.defaultAction]' \
+  --query 'publicNetworkAccess' \
   --output tsv)"
-[[ "$network_access" == $'Enabled\tAllow' ]] || fail \
-  "storage network access is not enabled with default Allow (found: $network_access)"
+network_default_action="$(az storage account show \
+  --ids "$storage_account_id" \
+  --query 'networkRuleSet.defaultAction' \
+  --output tsv)"
+[[ "$public_network_access" == "Enabled" && "$network_default_action" == "Allow" ]] || fail \
+  "storage network access is not enabled with default Allow (found: $public_network_access/$network_default_action)"
 az network vnet subnet show --ids "$subnet_id" --output none
 printf 'Verified storage network access and shared development subnet %s.\n' "$subnet_id"
 
