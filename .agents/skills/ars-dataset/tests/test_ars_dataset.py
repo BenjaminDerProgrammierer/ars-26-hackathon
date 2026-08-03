@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 import unittest
 from datetime import datetime
@@ -14,9 +15,20 @@ SPEC.loader.exec_module(ars_dataset)
 def valid_export():
     return {
         "_meta": {
+            "source": "Ars Electronica Festival 2026",
+            "website": "https://ars.electronica.art/negotiatinghumanity",
+            "author": "Ars Electronica",
             "generated_at": "2026-07-20T07:59:49.183Z",
+            "encoding": "UTF-8",
+            "schema_version": "2.0",
+            "export_filter": "all records",
+            "usage": {},
+            "quality": {},
             "databases": {
                 "projects": {"description": "Projects", "count": 1},
+                "contacts": {"description": "Contacts", "count": 0},
+                "locations": {"description": "Locations", "count": 0},
+                "calendar": {"description": "Calendar", "count": 0},
             },
         },
         "projects": [{
@@ -61,6 +73,7 @@ def valid_assigned_export():
     data = valid_export()
     slot = valid_calendar_entry()
     data["calendar"] = [slot]
+    data["_meta"]["databases"]["calendar"]["count"] = 1
     data["projects"][0]["calendar_ids"] = [slot["canonical_id"]]
     return data, slot
 
@@ -158,6 +171,15 @@ class SchemaV2HelperTests(unittest.TestCase):
         indexes = ars_dataset.build_indexes(data)
 
         self.assertFalse(indexes["projects"])
+
+    def test_build_indexes_does_not_mutate_source_records(self):
+        data = valid_export()
+        before = copy.deepcopy(data)
+
+        ars_dataset.build_indexes(data)
+
+        self.assertEqual(data, before)
+        self.assertNotIn("_key", data["projects"][0])
 
     def test_key_of_accepts_only_bare_canonical_ids(self):
         canonical_id = "0123456789abcdef0123456789abcdef"
@@ -277,6 +299,14 @@ class VerifyTests(unittest.TestCase):
     def test_valid_export_passes(self):
         self.assertFalse(self.verify())
 
+    def test_verify_does_not_mutate_export(self):
+        data = valid_export()
+        before = copy.deepcopy(data)
+
+        ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(data, before)
+
     def test_root_must_be_an_object(self):
         violations = ars_dataset.verify([], self.schema)
 
@@ -315,6 +345,14 @@ class VerifyTests(unittest.TestCase):
         )
         self.assertEqual(
             violations[("projects", "link_allowed", "inconsistent visibility")],
+            1,
+        )
+        self.assertEqual(
+            violations[("projects", "public_for_hackathon", "invalid value")],
+            1,
+        )
+        self.assertEqual(
+            violations[("projects", "link_allowed", "invalid value")],
             1,
         )
 
@@ -381,6 +419,19 @@ class VerifyTests(unittest.TestCase):
                     self.assertEqual(
                         violations[("calendar", field, "invalid value")], 1)
 
+    def test_assigned_slot_enforces_linked_project_item_bounds(self):
+        for linked_projects in ([], ["1" * 32, "2" * 32]):
+            with self.subTest(linked_projects=linked_projects):
+                data, slot = valid_assigned_export()
+                slot["Linked Projects"] = linked_projects
+
+                violations = ars_dataset.verify(data, self.schema)
+
+                self.assertEqual(
+                    violations[("calendar", "Linked Projects", "invalid value")],
+                    1,
+                )
+
     def test_duplicate_canonical_id_is_rejected(self):
         data = valid_export()
         duplicate = dict(data["projects"][0])
@@ -446,6 +497,7 @@ class VerifyTests(unittest.TestCase):
         slot = valid_calendar_entry()
         slot.update({"slot_status": "unassigned"})
         data["calendar"] = [slot]
+        data["_meta"]["databases"]["calendar"]["count"] = 1
 
         violations = ars_dataset.verify(data, self.schema)
 
@@ -463,6 +515,7 @@ class VerifyTests(unittest.TestCase):
             "Linked Projects": None,
         })
         data["calendar"] = [slot]
+        data["_meta"]["databases"]["calendar"]["count"] = 1
 
         self.assertFalse(ars_dataset.verify(data, self.schema))
 
@@ -528,10 +581,50 @@ class VerifyTests(unittest.TestCase):
         self.assertEqual(
             violations[("<root>", "unexpected_database", "unknown field")], 1)
 
-    def test_internal_index_key_is_allowed(self):
+    def test_upstream_internal_index_key_is_rejected(self):
         data = valid_export()
-        ars_dataset.build_indexes(data)
-        self.assertFalse(ars_dataset.verify(data, self.schema))
+        data["projects"][0]["_key"] = data["projects"][0]["canonical_id"]
+
+        violations = ars_dataset.verify(data, self.schema)
+
+        self.assertEqual(
+            violations[("projects", "_key", "unknown field")], 1)
+
+    def test_empty_metadata_is_rejected(self):
+        violations = self.verify(lambda data: data.update({"_meta": {}}))
+
+        for field in (
+                "source", "website", "author", "generated_at", "encoding",
+                "schema_version", "export_filter", "usage", "quality",
+                "databases"):
+            with self.subTest(field=field):
+                self.assertEqual(
+                    violations[("_meta", field, "missing required field")], 1)
+
+    def test_metadata_requires_every_database_count(self):
+        violations = self.verify(
+            lambda data: data["_meta"]["databases"].pop("calendar"))
+
+        self.assertEqual(
+            violations[(
+                "_meta", "databases.calendar", "missing required field",
+            )],
+            1,
+        )
+
+    def test_conditional_else_and_json_boolean_const_are_enforced(self):
+        conditional = {
+            "if": {"const": "yes"},
+            "then": {"const": "accepted"},
+            "else": {"const": "no"},
+        }
+        self.assertFalse(list(
+            ars_dataset._schema_violations(conditional, "no", {})))
+        self.assertEqual(
+            list(ars_dataset._schema_violations(
+                {"const": True}, 1, {})),
+            [((), "invalid value")],
+        )
 
 
 class DiffTests(unittest.TestCase):
@@ -588,6 +681,26 @@ class DiffTests(unittest.TestCase):
 
         self.assertNotIn("projects: 1 record id(s) added", differences)
         self.assertNotIn("projects: 1 record id(s) removed", differences)
+
+    def test_content_only_record_change_is_reported(self):
+        old = valid_export()
+        new = copy.deepcopy(old)
+        new["projects"][0]["Name EN"] = "Changed title"
+
+        differences = ars_dataset.diff(old, new)
+
+        self.assertIn("projects: 1 record(s) changed", differences)
+
+    def test_diff_does_not_mutate_either_export(self):
+        old = valid_export()
+        new = copy.deepcopy(old)
+        old_before = copy.deepcopy(old)
+        new_before = copy.deepcopy(new)
+
+        ars_dataset.diff(old, new)
+
+        self.assertEqual(old, old_before)
+        self.assertEqual(new, new_before)
 
 
 class SummaryTests(unittest.TestCase):

@@ -29,6 +29,11 @@ July 23 export, some of its counters still describe the unfiltered source
 population, so use actual array lengths for exported record counts. Values
 that exceed recommended lengths are reported but not truncated.
 
+The metadata block is required to include source, website, author, generation
+timestamp, encoding, schema version, export filter, usage rules, quality data,
+and one description/count entry for each of the four databases. Missing or
+unknown metadata fields are treated as schema drift.
+
 ## Common fields
 
 Every record in all four databases has these normalized fields:

@@ -9,6 +9,7 @@
     "_meta": {
       "type": "object",
       "description": "Metadata about the export",
+      "required": ["source", "website", "author", "generated_at", "encoding", "schema_version", "export_filter", "usage", "quality", "databases"],
       "properties": {
         "source":       { "type": "string" },
         "website":      { "type": "string" },
@@ -28,15 +29,17 @@
         },
         "databases": {
           "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "description": { "type": "string" },
-              "count":       { "type": "integer" }
-            }
-          }
+          "required": ["projects", "contacts", "locations", "calendar"],
+          "properties": {
+            "projects":  { "$ref": "#/$defs/DatabaseMetadata" },
+            "contacts":  { "$ref": "#/$defs/DatabaseMetadata" },
+            "locations": { "$ref": "#/$defs/DatabaseMetadata" },
+            "calendar":  { "$ref": "#/$defs/DatabaseMetadata" }
+          },
+          "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
     },
 
     "projects": {
@@ -74,6 +77,16 @@
   "additionalProperties": false,
 
   "$defs": {
+
+    "DatabaseMetadata": {
+      "type": "object",
+      "required": ["description", "count"],
+      "properties": {
+        "description": { "type": "string" },
+        "count":       { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
 
     "NullableString": {
       "oneOf": [

@@ -60,15 +60,14 @@ def links(record, field):
 
 
 def build_indexes(data):
-    """Return {db: {canonical_id: record}} and stamp records with ``_key``.
-    """
+    """Return ``{database: {canonical_id: record}}`` without mutating data."""
     indexes = {}
     for db in DATABASES:
         idx = {}
         for rec in data.get(db, []):
-            rec["_key"] = key_of(rec.get("canonical_id"))
-            if rec["_key"] is not None and rec["_key"] not in idx:
-                idx[rec["_key"]] = rec
+            key = key_of(rec.get("canonical_id"))
+            if key is not None and key not in idx:
+                idx[key] = rec
         indexes[db] = idx
     return indexes
 
@@ -246,28 +245,27 @@ def _is_datetime(value):
     return parsed.tzinfo is not None
 
 
-def _schema_violations(prop, value, defs, path=()):
-    """Yield (path, kind) violations for the schema subset used here."""
-    if "$ref" in prop:
-        target = defs[prop["$ref"].rsplit("/", 1)[-1]]
-        yield from _schema_violations(target, value, defs, path)
-        return
+def _json_equal(left, right):
+    """JSON Schema equality, keeping booleans distinct from JSON numbers."""
+    if isinstance(left, bool) or isinstance(right, bool):
+        return isinstance(left, bool) and isinstance(right, bool) and left == right
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        return left == right
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            _json_equal(a, b) for a, b in zip(left, right)
+        )
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(
+            _json_equal(left[key], right[key]) for key in left
+        )
+    return type(left) is type(right) and left == right
 
-    if "oneOf" in prop:
-        matching = [
-            branch for branch in prop["oneOf"]
-            if not list(_schema_violations(branch, value, defs, path))
-        ]
-        if len(matching) != 1:
-            yield path, "invalid value"
-        return
 
-    if "enum" in prop and value not in prop["enum"]:
-        yield path, "invalid value"
-        return
-
-    expected = prop.get("type")
-    valid_type = {
+def _matches_type(expected, value):
+    if isinstance(expected, list):
+        return any(_matches_type(option, value) for option in expected)
+    return {
         "null": value is None,
         "string": isinstance(value, str),
         "integer": isinstance(value, int) and not isinstance(value, bool),
@@ -276,11 +274,55 @@ def _schema_violations(prop, value, defs, path=()):
         "array": isinstance(value, list),
         "object": isinstance(value, dict),
     }.get(expected, True)
-    if not valid_type:
+
+
+def _schema_violations(prop, value, defs, path=()):
+    """Yield violations for the JSON Schema vocabulary used by this export."""
+    if isinstance(prop, bool):
+        if not prop:
+            yield path, "invalid value"
+        return
+
+    if "$ref" in prop:
+        target = defs[prop["$ref"].rsplit("/", 1)[-1]]
+        yield from _schema_violations(target, value, defs, path)
+
+    for branch in prop.get("allOf", []):
+        yield from _schema_violations(branch, value, defs, path)
+
+    if "oneOf" in prop:
+        matching = [
+            branch for branch in prop["oneOf"]
+            if not list(_schema_violations(branch, value, defs, path))
+        ]
+        if len(matching) != 1:
+            yield path, "invalid value"
+            return
+
+    if "if" in prop:
+        condition_matches = not list(
+            _schema_violations(prop["if"], value, defs, path)
+        )
+        branch = prop.get("then") if condition_matches else prop.get("else")
+        if branch is not None:
+            yield from _schema_violations(branch, value, defs, path)
+
+    if "const" in prop and not _json_equal(value, prop["const"]):
         yield path, "invalid value"
         return
 
-    if expected == "number":
+    if "enum" in prop and not any(
+        _json_equal(value, option) for option in prop["enum"]
+    ):
+        yield path, "invalid value"
+        return
+
+    expected = prop.get("type")
+    if expected is not None and not _matches_type(expected, value):
+        yield path, "invalid value"
+        return
+
+    if _is_finite_number(value):
         if "minimum" in prop and value < prop["minimum"]:
             yield path, "invalid value"
             return
@@ -288,23 +330,29 @@ def _schema_violations(prop, value, defs, path=()):
             yield path, "invalid value"
             return
 
-    if expected == "string" and prop.get("format") == "date-time":
+    if isinstance(value, str) and prop.get("format") == "date-time":
         if not _is_datetime(value):
             yield path, "invalid value"
-        return
+            return
 
-    if expected == "string" and "pattern" in prop:
+    if isinstance(value, str) and "pattern" in prop:
         if re.search(prop["pattern"], value) is None:
             yield path, "invalid value"
         return
 
-    if expected == "array":
+    if isinstance(value, list):
+        if "minItems" in prop and len(value) < prop["minItems"]:
+            yield path, "invalid value"
+            return
+        if "maxItems" in prop and len(value) > prop["maxItems"]:
+            yield path, "invalid value"
+            return
         item_schema = prop.get("items", {})
         for index, item in enumerate(value):
             yield from _schema_violations(item_schema, item, defs, path + (index,))
         return
 
-    if expected == "object":
+    if isinstance(value, dict):
         properties = prop.get("properties", {})
         for field in prop.get("required", []):
             if field not in value:
@@ -346,10 +394,13 @@ def verify(data, schema):
     """
     defs = schema.get("$defs", {})
     violations = Counter()
+    # A value may violate both its base schema and a conditional/allOf branch.
+    # Count one exported field once rather than inflating aggregated totals.
+    seen_schema_violations = set()
     for path, kind in _schema_violations(schema, data, defs):
-        # build_indexes adds this internal field; it is not export drift.
-        if len(path) > 2 and path[0] in DATABASES and path[2] == "_key":
+        if (path, kind) in seen_schema_violations:
             continue
+        seen_schema_violations.add((path, kind))
         violations[_violation_key(path, kind)] += 1
 
     # JSON Schema can constrain the individual relation fields, but cannot
@@ -431,9 +482,11 @@ def verify(data, schema):
         canonical_project_ref = key_of(project_ref)
         linked_projects = slot.get("Linked Projects")
         if status == "assigned":
-            if project_ref is None:
-                violations[("calendar", "project_ref", "invalid value")] += 1
-            if project_ref is None or linked_projects != [project_ref]:
+            if (canonical_project_ref is not None
+                    and isinstance(linked_projects, list)
+                    and len(linked_projects) == 1
+                    and key_of(linked_projects[0]) is not None
+                    and linked_projects != [project_ref]):
                 violations[("calendar", "Linked Projects", "invalid value")] += 1
             if (canonical_project_ref is not None
                     and canonical_project_ref not in project_ids):
@@ -441,11 +494,6 @@ def verify(data, schema):
             slot_id = key_of(slot.get("canonical_id"))
             if canonical_project_ref in project_ids and slot_id is not None:
                 expected_calendar_ids[canonical_project_ref].append(slot_id)
-        elif status == "unassigned":
-            if project_ref is not None:
-                violations[("calendar", "project_ref", "invalid value")] += 1
-            if linked_projects is not None:
-                violations[("calendar", "Linked Projects", "invalid value")] += 1
 
     # projects.calendar_ids is the complete reverse relation derived from the
     # authoritative assigned calendar slots. Compare as multisets so source
@@ -499,8 +547,8 @@ def diff(old, new):
         o_rows, n_rows = old.get(db, []), new.get(db, [])
         if len(o_rows) != len(n_rows):
             out.append(f"{db}: {len(o_rows)} -> {len(n_rows)} records")
-        o_fields = {f for r in o_rows for f in r if f != "_key"}
-        n_fields = {f for r in n_rows for f in r if f != "_key"}
+        o_fields = {f for r in o_rows for f in r}
+        n_fields = {f for r in n_rows for f in r}
         for f in sorted(n_fields - o_fields):
             out.append(f"{db}: field added: {f!r}")
         for f in sorted(o_fields - n_fields):
@@ -512,6 +560,24 @@ def diff(old, new):
             out.append(f"{db}: {len(added)} record id(s) added")
         if removed:
             out.append(f"{db}: {len(removed)} record id(s) removed")
+        old_by_key = {
+            key: record
+            for record in o_rows
+            for key in [record_key(record)]
+            if key is not None
+        }
+        new_by_key = {
+            key: record
+            for record in n_rows
+            for key in [record_key(record)]
+            if key is not None
+        }
+        changed = sum(
+            not _json_equal(old_by_key[key], new_by_key[key])
+            for key in old_by_key.keys() & new_by_key.keys()
+        )
+        if changed:
+            out.append(f"{db}: {changed} record(s) changed")
     return out
 
 
@@ -528,7 +594,9 @@ def summary(data):
     ]
     for db in DATABASES:
         rows = data.get(db, [])
-        keyless = sum(1 for r in rows if r.get("_key") is None)
+        keyless = sum(
+            1 for record in rows if key_of(record.get("canonical_id")) is None
+        )
         keyed = len(rows) - keyless
         lines.append(f"{db:9} {len(rows):4} records | {len(idx[db]):4} unique ids"
                      f" | {keyless:3} without id | {keyed - len(idx[db]):3} sharing an id")
