@@ -13,6 +13,7 @@ param redeemRateLimitsTableName string
 param webAppIdentityName string
 param githubDeploymentIdentityName string
 param logAnalyticsWorkspaceName string
+@minLength(3)
 param alertEmailAddress string
 
 var websiteContributorRoleId = 'de139f84-1756-47ae-9be6-808fbbe84772'
@@ -171,7 +172,7 @@ resource webAppAlertActionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
   properties: {
     enabled: true
     groupShortName: 'arsweb'
-    emailReceivers: empty(alertEmailAddress) ? [] : [
+    emailReceivers: [
       {
         name: 'Web operations'
         emailAddress: alertEmailAddress

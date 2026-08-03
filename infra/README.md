@@ -23,7 +23,7 @@ Deploy the resource group:
 az deployment group create \
   --resource-group ArsElectronicaHackathon \
   --template-file infra/main.bicep \
-  --parameters alertEmailAddress=you@example.com
+  --parameters alertEmailAddress=benjamin.p.hartmann@gmail.com
 ```
 
 Override `webAppContainerImage` to deploy a different public image tag or digest.
@@ -39,8 +39,8 @@ uses Azure Verified Modules for its VNet and NSG. The admin tool deploys each
 development-environment VM, NIC, public IP, and OS disk from
 `modules/development-environment.bicep`, which uses the AVM virtual-machine
 module.
-Set `alertEmailAddress` to route the alert to an operator; leaving it empty keeps
-the Azure Monitor alert active without email delivery.
+The HTTP 5xx alert routes to `benjamin.p.hartmann@gmail.com` by default. Override
+`alertEmailAddress` to route production alerts to another operator.
 The image must be publicly pullable unless registry authentication is configured
 separately. Each workflow run also publishes a commit-addressed `sha-<commit>`
 tag; use the registry-provided digest when an immutable image reference is

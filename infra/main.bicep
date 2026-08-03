@@ -51,8 +51,9 @@ param githubRepository string = 'ars-26-hackathon'
 @description('Name of the Log Analytics workspace for retained web app diagnostics.')
 param logAnalyticsWorkspaceName string = 'arselectronicahackathon-web-logs'
 
-@description('Email address that receives web app HTTP 5xx alerts. Leave empty to create the alert without email delivery.')
-param alertEmailAddress string = ''
+@description('Email address that receives web app HTTP 5xx alerts.')
+@minLength(3)
+param alertEmailAddress string = 'benjamin.p.hartmann@gmail.com'
 
 @description('Name of the shared virtual network for development-environment VMs.')
 param developmentEnvironmentVirtualNetworkName string = 'vcenv-vnet'
