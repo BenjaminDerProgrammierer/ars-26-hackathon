@@ -5,7 +5,7 @@ provider: "Stadt Linz / Linztermine.at"
 status: "recommended"
 format: "Eine UTF-8-JSON-Datei; Quelle: vier XML-APIs"
 license: "CC BY 4.0"
-data_vintage: "Live-Daten; Snapshot vom 23. Juli 2026"
+data_vintage: "Live-Daten; Snapshot vom 3. August 2026"
 ---
 
 ## Beschreibung
@@ -17,7 +17,7 @@ data_vintage: "Live-Daten; Snapshot vom 23. Juli 2026"
 - Veranstalter*innen;
 - fünf Hauptkategorien und 21 untergeordnete Tags.
 
-Der aktuelle Snapshot deckt den Zeitraum vom 5. bis 14. September 2026 ab. Er enthält 195 Veranstaltungen mit 689 einzelnen Terminen, 571 Orte und Unterorte, 1.619 Veranstalter*innen und 26 Kategorien oder Tags.
+Der aktuelle Snapshot deckt den Zeitraum vom 5. bis 14. September 2026 ab. Er enthält 211 Veranstaltungen mit 732 einzelnen Terminen, 571 Orte und Unterorte, 1.625 Veranstalter*innen und 26 Kategorien oder Tags.
 
 ## Download
 
@@ -27,7 +27,9 @@ Der aktuelle Snapshot deckt den Zeitraum vom 5. bis 14. September 2026 ab. Er en
 
 Ein Eintrag in `events` kann mehrere Einträge in `occurrences` besitzen. Für Kalenderansichten sind diese einzelnen Vorkommen zu verwenden. `location_id`, `organizer_id` und `tag_ids` verknüpfen Events mit den drei Registern.
 
-Der Live-Eventfeed verweist im aktuellen Zeitfenster bei 80 von 195 Events auf Orts-IDs, die im Ortsregister fehlen. `location_name` bleibt deshalb immer direkt am Event erhalten und ist auch bei einer fehlenden Referenz nutzbar. Veranstalter- und Tag-Referenzen sind vollständig auflösbar.
+Der Live-Eventfeed verweist im aktuellen Zeitfenster bei 87 von 211 Events auf Orts-IDs, die im Ortsregister fehlen. `location_name` bleibt deshalb immer direkt am Event erhalten und ist auch bei einer fehlenden Referenz nutzbar. Veranstalter- und Tag-Referenzen sind vollständig auflösbar.
+
+Alle Datums- und Zeitwerte aus dem Feed werden als Linzer Ortszeit interpretiert (`Europe/Vienna`) und mit ihrem UTC-Offset ausgegeben. Im Festival-Zeitfenster lautet der Offset `+02:00`; die Werte sind daher nicht als UTC zu behandeln.
 
 Die Felder `suitable_for_children` und `free_of_charge` können `true`, `false` oder `null` enthalten. `null` bedeutet, dass die Quelle keine Angabe liefert.
 
@@ -56,7 +58,7 @@ Das mitgelieferte Python-Skript verwendet nur die Standardbibliothek:
 python3 prepare_linztermine.py
 ```
 
-Datumsgrenzen und lokale XML-Eingaben können als Argumente übergeben werden. Das Skript korrigiert die fehlerhafte Encoding-Deklaration des Eventfeeds, löst HTML-Zeichenreferenzen auf, validiert IDs und schreibt die Ausgabe atomar.
+Datumsgrenzen und lokale XML-Eingaben können als Argumente übergeben werden. Bei lokalen Eingaben ist für reproduzierbare Builds zusätzlich ein zeitzonenbehaftetes `--retrieved-at` erforderlich. Das Skript korrigiert die fehlerhafte Encoding-Deklaration des Eventfeeds, löst HTML-Zeichenreferenzen auf, prüft die vollständige XML-Struktur, validiert IDs und schreibt die Ausgabe atomar.
 
 ## Quellen
 

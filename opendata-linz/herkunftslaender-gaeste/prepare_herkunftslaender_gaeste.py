@@ -40,7 +40,6 @@ COUNTRY_CODES = {
     "Belgien": "BE",
     "Brasilien": "BR",
     "Bulgarien": "BG",
-    "China 2)": "CN",
     "Dänemark": "DK",
     "Deutschland": "DE",
     "Estland": "EE",
@@ -83,7 +82,22 @@ COUNTRY_CODES = {
     "Zypern": "CY",
 }
 TOTAL_ORIGINS = {"Ausland"}
+GROUP_ORIGINS = {
+    "darunter Wien",
+    "Arab. Länder in Asien 1)",
+    "China 2)",
+    "Frankreich (inkl. Monaco)",
+    "übrige GUS 3)",
+    "ehem. Jugoslawien 4)",
+    "Schweiz, Liechtenstein",
+    "Südostasien 5)",
+    "Übriges Afrika",
+    "Übriges Asien",
+    "Zentral- und Südamerika 6)",
+    "Übriges Ausland",
+}
 EXPECTED_ORIGIN_COUNT = 58
+EXPECTED_ORIGINS = set(COUNTRY_CODES) | TOTAL_ORIGINS | GROUP_ORIGINS
 
 
 def parse_args() -> argparse.Namespace:
@@ -135,7 +149,9 @@ def origin_type(origin: str) -> str:
         return "land"
     if origin in TOTAL_ORIGINS:
         return "summe"
-    return "gruppe"
+    if origin in GROUP_ORIGINS:
+        return "gruppe"
+    raise ValueError(f"Unexpected origin label: {origin!r}")
 
 
 def make_id(origin: str, quarter: int) -> str:
@@ -232,11 +248,17 @@ def convert(input_path: Path, output_path: Path) -> None:
                 raise ValueError(
                     f"Expected {EXPECTED_ORIGIN_COUNT} origins, received {len(origins)}"
                 )
+            if origins != EXPECTED_ORIGINS:
+                raise ValueError(
+                    "Origin labels differ from the reviewed allowlist. "
+                    f"Missing: {sorted(EXPECTED_ORIGINS - origins)}; "
+                    f"unexpected: {sorted(origins - EXPECTED_ORIGINS)}"
+                )
 
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise

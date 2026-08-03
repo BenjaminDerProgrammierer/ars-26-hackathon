@@ -30,12 +30,17 @@ OUTPUT_FIELDS = [
     "Stadt",
     "Marke/Hersteller",
     "Standort",
+    "quell_lat",
+    "quell_lon",
     "lat",
     "lon",
+    "koordinatenstatus",
 ]
-ID_FIELDS = tuple(OUTPUT_FIELDS[1:])
+ID_FIELDS = tuple(SOURCE_FIELDS)
 EMPTY_MARKERS = {"", "-"}
 COORDINATE_DECIMAL_PLACES = 14
+LINZ_LAT_BOUNDS = (Decimal("48.1"), Decimal("48.5"))
+LINZ_LON_BOUNDS = (Decimal("14.0"), Decimal("14.6"))
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,9 +100,9 @@ def format_coordinate(
     return f"{coordinate:.{COORDINATE_DECIMAL_PLACES}f}"
 
 
-def make_id(row: dict[str, str], occurrence: int) -> str:
+def make_id(source_values: dict[str, str], occurrence: int) -> str:
     """Create a deterministic snapshot ID, including duplicate occurrence."""
-    key = "\x1f".join(row[field] for field in ID_FIELDS)
+    key = "\x1f".join(source_values[field] for field in ID_FIELDS)
     digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:20]
     suffix = "" if occurrence == 1 else f"_{occurrence}"
     return f"defi_{digest}{suffix}"
@@ -122,6 +127,7 @@ def convert(input_path: Path, output_path: Path) -> None:
     row_count = 0
     normalized_value_count = 0
     missing_coordinate_count = 0
+    out_of_bounds_coordinate_count = 0
 
     with (
         input_path.open("r", encoding="utf-8-sig", newline="") as source,
@@ -154,10 +160,10 @@ def convert(input_path: Path, output_path: Path) -> None:
                 if any(source_row[field] is None for field in SOURCE_FIELDS):
                     raise ValueError(f"Missing column value on line {line_number}")
 
-                row: dict[str, str] = {}
+                normalized_source: dict[str, str] = {}
                 for field in SOURCE_FIELDS[:-2]:
                     value, changed = normalize(source_row[field])
-                    row[field] = value
+                    normalized_source[field] = value
                     normalized_value_count += int(changed)
 
                 raw_lat, lat_changed = normalize(source_row["Koordinaten N"])
@@ -168,24 +174,41 @@ def convert(input_path: Path, output_path: Path) -> None:
                         f"Incomplete coordinate pair on line {line_number}"
                     )
 
-                row["lat"] = format_coordinate(
+                source_lat = format_coordinate(
                     raw_lat,
                     minimum=Decimal("-90"),
                     maximum=Decimal("90"),
                     line_number=line_number,
                 )
-                row["lon"] = format_coordinate(
+                source_lon = format_coordinate(
                     raw_lon,
                     minimum=Decimal("-180"),
                     maximum=Decimal("180"),
                     line_number=line_number,
                 )
-                missing_coordinate_count += int(row["lat"] == "")
+                missing_coordinate_count += int(source_lat == "")
+                in_linz = bool(source_lat) and (
+                    LINZ_LAT_BOUNDS[0] <= Decimal(source_lat) <= LINZ_LAT_BOUNDS[1]
+                    and LINZ_LON_BOUNDS[0] <= Decimal(source_lon) <= LINZ_LON_BOUNDS[1]
+                )
+                out_of_bounds_coordinate_count += int(bool(source_lat) and not in_linz)
+                normalized_source["Koordinaten N"] = source_lat
+                normalized_source["Koordinaten O"] = source_lon
+                row = {
+                    **{field: normalized_source[field] for field in SOURCE_FIELDS[:-2]},
+                    "quell_lat": source_lat,
+                    "quell_lon": source_lon,
+                    "lat": source_lat if in_linz else "",
+                    "lon": source_lon if in_linz else "",
+                    "koordinatenstatus": (
+                        "plausibel" if in_linz else "fehlt" if not source_lat else "ausserhalb_linz"
+                    ),
+                }
 
-                key = tuple(row[field] for field in ID_FIELDS)
+                key = tuple(normalized_source[field] for field in ID_FIELDS)
                 occurrence = occurrences.get(key, 0) + 1
                 occurrences[key] = occurrence
-                record_id = make_id(row, occurrence)
+                record_id = make_id(normalized_source, occurrence)
                 if record_id in seen_ids:
                     raise ValueError(
                         f"Generated ID collision on line {line_number}: {record_id}"
@@ -197,8 +220,8 @@ def convert(input_path: Path, output_path: Path) -> None:
 
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
@@ -209,6 +232,10 @@ def convert(input_path: Path, output_path: Path) -> None:
     print(f"Preserved {duplicate_count:,} duplicate source rows")
     print(f"Normalized {normalized_value_count:,} source values")
     print(f"Preserved {missing_coordinate_count:,} empty coordinate pairs")
+    print(
+        f"Excluded {out_of_bounds_coordinate_count:,} out-of-bounds coordinate "
+        "pairs from web-map fields"
+    )
 
 
 def main() -> None:

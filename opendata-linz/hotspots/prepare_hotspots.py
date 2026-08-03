@@ -11,6 +11,7 @@ import hashlib
 import os
 from pathlib import Path
 import re
+import shutil
 import tempfile
 
 
@@ -63,8 +64,11 @@ USAGE_OUTPUT_FIELDS = [
 ]
 EXPECTED_LOCATION_COUNT = 134
 EXPECTED_USAGE_LOCATION_COUNT = 107
+EXPECTED_UNLINKED_USAGE_NAMES = {"Rotes Kreuz"}
 COORDINATE_DECIMAL_PLACES = 14
 VALID_STATUSES = {"ok", "neu", "offline", "defekt"}
+LINZ_LAT_BOUNDS = (Decimal("48.1"), Decimal("48.5"))
+LINZ_LON_BOUNDS = (Decimal("14.0"), Decimal("14.6"))
 
 # Three source typos or spelling variants can be matched unambiguously. The
 # usage name "Rotes Kreuz" is deliberately absent because two locations match.
@@ -210,15 +214,15 @@ def read_locations(
                 raise ValueError(f"Missing location name on line {line_number}")
             lat = parse_coordinate(
                 source_row["Latitude"],
-                minimum=Decimal("-90"),
-                maximum=Decimal("90"),
+                minimum=LINZ_LAT_BOUNDS[0],
+                maximum=LINZ_LAT_BOUNDS[1],
                 field="latitude",
                 line_number=line_number,
             )
             lon = parse_coordinate(
                 source_row["Longitude"],
-                minimum=Decimal("-180"),
-                maximum=Decimal("180"),
+                minimum=LINZ_LON_BOUNDS[0],
+                maximum=LINZ_LON_BOUNDS[1],
                 field="longitude",
                 line_number=line_number,
             )
@@ -287,11 +291,12 @@ def resolve_location_id(
 
 def read_usage(
     input_path: Path, locations_by_name: dict[str, list[dict[str, str]]]
-) -> tuple[list[dict[str, str]], int]:
+) -> tuple[list[dict[str, str]], int, set[str]]:
     rows: list[dict[str, str]] = []
     seen_names: set[str] = set()
     seen_ids: set[str] = set()
     linked_names = 0
+    unlinked_names: set[str] = set()
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as source:
         reader = csv.DictReader(source, strict=True)
@@ -314,6 +319,8 @@ def read_usage(
 
             location_id = resolve_location_id(name, locations_by_name)
             linked_names += int(bool(location_id))
+            if not location_id:
+                unlinked_names.add(name)
             for date_field in USAGE_SOURCE_FIELDS[1:]:
                 month_date = datetime.strptime(date_field, "%d.%m.%Y")
                 record_id = make_id("nutzung", name, month_date.strftime("%Y-%m"))
@@ -341,12 +348,18 @@ def read_usage(
             f"Expected {EXPECTED_USAGE_LOCATION_COUNT} usage locations, "
             f"received {len(seen_names)}"
         )
-    return rows, linked_names
+    if unlinked_names != EXPECTED_UNLINKED_USAGE_NAMES:
+        raise ValueError(
+            "Unexpected usage/location join result. "
+            f"Expected unresolved names {sorted(EXPECTED_UNLINKED_USAGE_NAMES)}, "
+            f"received {sorted(unlinked_names)}"
+        )
+    return rows, linked_names, unlinked_names
 
 
-def write_rows(
+def prepare_output(
     output_path: Path, fieldnames: list[str], rows: list[dict[str, str]]
-) -> None:
+) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         "w",
@@ -370,11 +383,48 @@ def write_rows(
             writer.writerows(rows)
             temporary.flush()
             os.fsync(temporary.fileno())
-            os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
+            os.chmod(temporary_path, 0o644)
+            return temporary_path
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
+
+
+def publish_outputs(outputs: list[tuple[Path, Path]]) -> None:
+    """Publish related files as one rollback-safe transaction."""
+    backups: list[tuple[Path, Path | None]] = []
+    try:
+        for _, output_path in outputs:
+            backup_path: Path | None = None
+            if output_path.exists():
+                with tempfile.NamedTemporaryFile(
+                    dir=output_path.parent,
+                    prefix=f".{output_path.name}.",
+                    suffix=".bak",
+                    delete=False,
+                ) as backup:
+                    backup_path = Path(backup.name)
+                try:
+                    shutil.copy2(output_path, backup_path)
+                except Exception:
+                    backup_path.unlink(missing_ok=True)
+                    raise
+            backups.append((output_path, backup_path))
+        for temporary_path, output_path in outputs:
+            os.replace(temporary_path, output_path)
+    except Exception:
+        for output_path, backup_path in backups:
+            if backup_path is None:
+                output_path.unlink(missing_ok=True)
+            elif backup_path.exists():
+                os.replace(backup_path, output_path)
+        raise
+    finally:
+        for temporary_path, _ in outputs:
+            temporary_path.unlink(missing_ok=True)
+        for _, backup_path in backups:
+            if backup_path is not None:
+                backup_path.unlink(missing_ok=True)
 
 
 def convert(
@@ -389,9 +439,23 @@ def convert(
         raise ValueError("Input and output paths must all be different")
 
     location_rows, locations_by_name = read_locations(locations_input)
-    usage_rows, linked_names = read_usage(usage_input, locations_by_name)
-    write_rows(locations_output, LOCATION_OUTPUT_FIELDS, location_rows)
-    write_rows(usage_output, USAGE_OUTPUT_FIELDS, usage_rows)
+    usage_rows, linked_names, _ = read_usage(usage_input, locations_by_name)
+    locations_temporary = prepare_output(
+        locations_output, LOCATION_OUTPUT_FIELDS, location_rows
+    )
+    try:
+        usage_temporary = prepare_output(
+            usage_output, USAGE_OUTPUT_FIELDS, usage_rows
+        )
+    except Exception:
+        locations_temporary.unlink(missing_ok=True)
+        raise
+    publish_outputs(
+        [
+            (locations_temporary, locations_output),
+            (usage_temporary, usage_output),
+        ]
+    )
 
     missing_values = sum(not row["anzahl_clients"] for row in usage_rows)
     print(f"Wrote {len(location_rows):,} locations to {locations_output}")

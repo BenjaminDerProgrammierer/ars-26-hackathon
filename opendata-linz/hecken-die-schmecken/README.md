@@ -18,7 +18,13 @@ Die aufbereitete Datei enthält 20 Standorte essbarer Beerensträucher mit Stand
 
 ## Verwendungshinweise
 
-Die Quelle enthält keine Koordinaten. Eine Kartendarstellung benötigt daher eine manuelle Geokodierung der deutschsprachigen Ortsangaben. Für Verknüpfungen innerhalb dieser Datei ist `id` zu verwenden. Pflanzenbestand und Zugänglichkeit sind für 2026 nicht bestätigt.
+Die Quelle enthält keine Koordinaten. Eine Kartendarstellung benötigt daher eine manuelle Geokodierung der deutschsprachigen Ortsangaben. Die Felder heißen `standort`, `beschreibung` und `art`; `id` wird ausschließlich aus der in dieser Quelle eindeutigen Standortbezeichnung gebildet und bleibt deshalb bei Korrekturen an Beschreibung oder Pflanzenart stabil. Pflanzenbestand und Zugänglichkeit sind für 2026 nicht bestätigt.
+
+## Aktualisierung
+
+```sh
+python3 prepare_hecken_die_schmecken.py
+```
 
 ## Quellen
 

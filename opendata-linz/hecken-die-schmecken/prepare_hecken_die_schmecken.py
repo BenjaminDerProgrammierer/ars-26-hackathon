@@ -12,8 +12,7 @@ import tempfile
 
 
 SOURCE_FIELDS = ["Standort", "Beschreibung", "Art"]
-OUTPUT_FIELDS = ["id", *SOURCE_FIELDS]
-ID_FIELDS = tuple(SOURCE_FIELDS)
+OUTPUT_FIELDS = ["id", "standort", "beschreibung", "art"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,12 +50,10 @@ def normalize(value: str | None) -> tuple[str, bool]:
     return normalized, normalized != original
 
 
-def make_id(row: dict[str, str], occurrence: int) -> str:
-    """Create a deterministic snapshot ID, including duplicate occurrence."""
-    key = "\x1f".join(row[field] for field in ID_FIELDS)
-    digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:20]
-    suffix = "" if occurrence == 1 else f"_{occurrence}"
-    return f"hecke_{digest}{suffix}"
+def make_id(standort: str) -> str:
+    """Create a stable ID from the source's unique location designation."""
+    digest = hashlib.sha256(standort.encode("utf-8")).hexdigest()[:20]
+    return f"hecke_{digest}"
 
 
 def validate_header(fieldnames: list[str] | None) -> None:
@@ -73,7 +70,7 @@ def convert(input_path: Path, output_path: Path) -> None:
         raise ValueError("Input and output paths must be different")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    occurrences: dict[tuple[str, ...], int] = {}
+    seen_locations: set[str] = set()
     seen_ids: set[str] = set()
     row_count = 0
     normalized_value_count = 0
@@ -110,38 +107,48 @@ def convert(input_path: Path, output_path: Path) -> None:
                 if any(source_row[field] is None for field in SOURCE_FIELDS):
                     raise ValueError(f"Missing column value on line {line_number}")
 
-                row: dict[str, str] = {}
+                normalized: dict[str, str] = {}
                 for field in SOURCE_FIELDS:
                     value, changed = normalize(source_row[field])
-                    row[field] = value
+                    normalized[field] = value
                     normalized_value_count += int(changed)
                     empty_value_count += int(value == "")
 
-                key = tuple(row[field] for field in ID_FIELDS)
-                occurrence = occurrences.get(key, 0) + 1
-                occurrences[key] = occurrence
-                record_id = make_id(row, occurrence)
+                standort = normalized["Standort"]
+                if not standort:
+                    raise ValueError(f"Missing Standort on line {line_number}")
+                if standort in seen_locations:
+                    raise ValueError(
+                        f"Duplicate Standort on line {line_number}: {standort!r}"
+                    )
+                seen_locations.add(standort)
+                record_id = make_id(standort)
                 if record_id in seen_ids:
                     raise ValueError(
                         f"Generated ID collision on line {line_number}: {record_id}"
                     )
                 seen_ids.add(record_id)
 
-                writer.writerow({"id": record_id, **row})
+                writer.writerow(
+                    {
+                        "id": record_id,
+                        "standort": standort,
+                        "beschreibung": normalized["Beschreibung"],
+                        "art": normalized["Art"],
+                    }
+                )
                 row_count += 1
 
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
 
-    duplicate_count = sum(count - 1 for count in occurrences.values())
     print(f"Wrote {row_count:,} rows to {output_path}")
-    print(f"Generated {len(seen_ids):,} unique snapshot IDs")
-    print(f"Preserved {duplicate_count:,} duplicate source rows")
+    print(f"Generated {len(seen_ids):,} stable unique IDs from Standort")
     print(f"Normalized {normalized_value_count:,} source values")
     print(f"Preserved {empty_value_count:,} empty values")
 

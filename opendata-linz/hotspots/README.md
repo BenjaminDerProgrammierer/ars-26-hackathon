@@ -23,6 +23,12 @@ Für Karten sind `lon` und `lat` aus `Hotspot-Standorte.csv` zu verwenden. `stat
 
 In `Hotspot-Nutzung.csv` bezeichnet jede Zeile genau einen Monat. Leere Werte in `anzahl_clients` sind unbekannt und dürfen nicht als null Clients interpretiert werden. `standort_id` verknüpft 106 der 107 Nutzungsnamen mit der Standortdatei. Nur `Rotes Kreuz` bleibt leer, weil dafür zwei mögliche Standorte existieren. Anwendungen sollten nicht selbst raten.
 
+## Aktualisierung
+
+```sh
+python3 prepare_hotspots.py
+```
+
 ## Quellen
 
 - [data.gv.at Katalog der Standorte](https://www.data.gv.at/katalog/datasets/b2068d46-de7f-4a22-a563-4dea59b1e6f2)

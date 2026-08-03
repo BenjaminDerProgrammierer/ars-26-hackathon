@@ -20,7 +20,13 @@ Die aufbereitete Datei enthält 232 Quartalswerte zu Ankünften und Übernachtun
 
 `quartal` hat die Werte 1 bis 4. `ankuenfte` und `uebernachtungen` sind nichtnegative ganze Zahlen. Für eindeutige Länder enthält `iso2` einen zweistelligen ISO-Ländercode; bei Summen und Ländergruppen bleibt das Feld leer. Mit `herkunft_typ` können Anwendungen zwischen `land`, `gruppe` und `summe` unterscheiden. Für Ländervergleiche sollte nach `herkunft_typ = land` gefiltert werden.
 
-Die Bezeichnungen in `herkunft` bleiben unverändert aus der Quelle erhalten. Insbesondere Zeilen mit Fußnoten oder zusammengefassten Ländern dürfen nicht als einzelne Länder interpretiert werden.
+Die Bezeichnungen in `herkunft` bleiben unverändert aus der Quelle erhalten. Der Konverter prüft alle 58 Bezeichnungen gegen eine feste, geprüfte Liste, damit neue Quellwerte nicht stillschweigend als Gruppen erscheinen. Insbesondere Zeilen mit Fußnoten oder zusammengefassten Ländern dürfen nicht als einzelne Länder interpretiert werden: `China 2)` ist eine solche Gruppe und erhält deshalb keinen ISO-Code.
+
+## Aktualisierung
+
+```sh
+python3 prepare_herkunftslaender_gaeste.py
+```
 
 ## Quellen
 

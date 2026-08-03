@@ -8,6 +8,8 @@ import csv
 from datetime import datetime
 import os
 from pathlib import Path
+import re
+import shutil
 import tempfile
 
 
@@ -58,6 +60,7 @@ CURRENT_OUTPUT_FIELDS = [
     "strasse_wikidata_url",
     "benannt_nach",
     "person_wikidata_id",
+    "weitere_person_wikidata_ids",
     "person_wikidata_url",
     "person_name",
     "person_geschlecht",
@@ -74,6 +77,7 @@ HISTORICAL_OUTPUT_FIELDS = [
     "detail_url",
     "benannt_nach",
     "person_wikidata_id",
+    "weitere_person_wikidata_ids",
     "person_wikidata_url",
     "person_name",
     "person_geschlecht",
@@ -85,6 +89,7 @@ HISTORICAL_OUTPUT_FIELDS = [
     "jahr_benennung",
     "jahr_loeschung",
 ]
+WIKIDATA_ID_PATTERN = re.compile(r"Q[1-9][0-9]*")
 
 
 def parse_args() -> argparse.Namespace:
@@ -129,6 +134,45 @@ def date_only(value: str | None, *, line_number: int, field: str) -> str:
         ) from error
 
 
+def wikidata_person(
+    identifier_value: str | None,
+    url_value: str | None,
+    *,
+    line_number: int,
+) -> tuple[str, str, str]:
+    """Return one primary ID, any additional IDs, and a canonical URL."""
+    identifiers = [part.strip() for part in clean(identifier_value).split(",")]
+    identifiers = [identifier for identifier in identifiers if identifier]
+    if any(
+        not WIKIDATA_ID_PATTERN.fullmatch(identifier) for identifier in identifiers
+    ):
+        raise ValueError(
+            f"Invalid Wikidata person ID on line {line_number}: {identifier_value!r}"
+        )
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError(f"Duplicate Wikidata person ID on line {line_number}")
+
+    source_url = clean(url_value)
+    if not identifiers:
+        if source_url:
+            raise ValueError(
+                f"Wikidata person URL without an ID on line {line_number}: "
+                f"{source_url!r}"
+            )
+        return "", "", ""
+
+    primary_id = identifiers[0]
+    canonical_url = f"https://www.wikidata.org/wiki/{primary_id}"
+    if (
+        source_url.startswith("https://www.wikidata.org/wiki/")
+        and source_url != canonical_url
+    ):
+        raise ValueError(
+            f"Mismatched Wikidata person URL on line {line_number}: {source_url!r}"
+        )
+    return primary_id, "|".join(identifiers[1:]), canonical_url
+
+
 def validate_row(
     row: dict[str | None, str | None],
     fields: list[str],
@@ -158,7 +202,9 @@ def read_rows(
         return result
 
 
-def write_rows(path: Path, fields: list[str], rows: list[dict[str, str]]) -> None:
+def prepare_output(
+    path: Path, fields: list[str], rows: list[dict[str, str]]
+) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         "w",
@@ -178,11 +224,48 @@ def write_rows(path: Path, fields: list[str], rows: list[dict[str, str]]) -> Non
             writer.writerows(rows)
             temporary.flush()
             os.fsync(temporary.fileno())
-            os.replace(temporary_path, path)
-            path.chmod(0o644)
+            os.chmod(temporary_path, 0o644)
+            return temporary_path
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
+
+
+def publish_outputs(outputs: list[tuple[Path, Path]]) -> None:
+    """Publish related files as one rollback-safe transaction."""
+    backups: list[tuple[Path, Path | None]] = []
+    try:
+        for _, output_path in outputs:
+            backup_path: Path | None = None
+            if output_path.exists():
+                with tempfile.NamedTemporaryFile(
+                    dir=output_path.parent,
+                    prefix=f".{output_path.name}.",
+                    suffix=".bak",
+                    delete=False,
+                ) as backup:
+                    backup_path = Path(backup.name)
+                try:
+                    shutil.copy2(output_path, backup_path)
+                except Exception:
+                    backup_path.unlink(missing_ok=True)
+                    raise
+            backups.append((output_path, backup_path))
+        for temporary_path, output_path in outputs:
+            os.replace(temporary_path, output_path)
+    except Exception:
+        for output_path, backup_path in backups:
+            if backup_path is None:
+                output_path.unlink(missing_ok=True)
+            elif backup_path.exists():
+                os.replace(backup_path, output_path)
+        raise
+    finally:
+        for temporary_path, _ in outputs:
+            temporary_path.unlink(missing_ok=True)
+        for _, backup_path in backups:
+            if backup_path is not None:
+                backup_path.unlink(missing_ok=True)
 
 
 def convert_current(path: Path) -> list[dict[str, str]]:
@@ -197,6 +280,21 @@ def convert_current(path: Path) -> list[dict[str, str]]:
         if record_id in seen_ids:
             raise ValueError(f"Duplicate ID on line {line_number}: {record_id}")
         seen_ids.add(record_id)
+        person_id, additional_person_ids, person_url = wikidata_person(
+            source["Wikidata Person ID"],
+            source["Wikidata Person Link"],
+            line_number=line_number,
+        )
+        street_id, additional_street_ids, street_url = wikidata_person(
+            source["Wikidata ID"],
+            source["Wikidata Link"],
+            line_number=line_number,
+        )
+        if additional_street_ids:
+            raise ValueError(
+                f"Multiple Wikidata street IDs on line {line_number}: "
+                f"{source['Wikidata ID']!r}"
+            )
         output.append(
             {
                 "id": record_id,
@@ -205,11 +303,12 @@ def convert_current(path: Path) -> list[dict[str, str]]:
                 "katastralgemeinde": clean(source["KG"]),
                 "beschreibung": clean(source["Beschreibung"]),
                 "detail_url": clean(source["Link"]).replace("http://", "https://", 1),
-                "strasse_wikidata_id": clean(source["Wikidata ID"]),
-                "strasse_wikidata_url": clean(source["Wikidata Link"]),
+                "strasse_wikidata_id": street_id,
+                "strasse_wikidata_url": street_url,
                 "benannt_nach": clean(source["Benannt nach"]),
-                "person_wikidata_id": clean(source["Wikidata Person ID"]),
-                "person_wikidata_url": clean(source["Wikidata Person Link"]),
+                "person_wikidata_id": person_id,
+                "weitere_person_wikidata_ids": additional_person_ids,
+                "person_wikidata_url": person_url,
                 "person_name": clean(source["Wikidata Person Name"]),
                 "person_geschlecht": clean(source["Wikidata Person Geschlecht"]),
                 "person_beruf": clean(source["Wikidata Person Beruf"]),
@@ -243,6 +342,11 @@ def convert_historical(path: Path) -> list[dict[str, str]]:
         if record_id in seen_ids:
             raise ValueError(f"Duplicate ID on line {line_number}: {record_id}")
         seen_ids.add(record_id)
+        person_id, additional_person_ids, person_url = wikidata_person(
+            source["Wikidata"],
+            source["Wikidata Link"],
+            line_number=line_number,
+        )
         output.append(
             {
                 "id": record_id,
@@ -252,8 +356,9 @@ def convert_historical(path: Path) -> list[dict[str, str]]:
                 "beschreibung": clean(source["Beschreibung"]),
                 "detail_url": clean(source["Link"]),
                 "benannt_nach": clean(source["Benannt nach"]),
-                "person_wikidata_id": clean(source["Wikidata"]),
-                "person_wikidata_url": clean(source["Wikidata Link"]),
+                "person_wikidata_id": person_id,
+                "weitere_person_wikidata_ids": additional_person_ids,
+                "person_wikidata_url": person_url,
                 "person_name": clean(source["Wikidata Name"]),
                 "person_geschlecht": clean(source["Wikidata Geschlecht"]),
                 "person_beruf": clean(source["Wikidata Beruf"]),
@@ -278,10 +383,28 @@ def convert_historical(path: Path) -> list[dict[str, str]]:
 
 def main() -> None:
     args = parse_args()
+    input_paths = {args.current_input.resolve(), args.historical_input.resolve()}
+    output_paths = {args.current_output.resolve(), args.historical_output.resolve()}
+    if len(input_paths) != 2 or len(output_paths) != 2 or input_paths & output_paths:
+        raise ValueError("Input and output paths must all be different")
     current = convert_current(args.current_input)
     historical = convert_historical(args.historical_input)
-    write_rows(args.current_output, CURRENT_OUTPUT_FIELDS, current)
-    write_rows(args.historical_output, HISTORICAL_OUTPUT_FIELDS, historical)
+    current_temporary = prepare_output(
+        args.current_output, CURRENT_OUTPUT_FIELDS, current
+    )
+    try:
+        historical_temporary = prepare_output(
+            args.historical_output, HISTORICAL_OUTPUT_FIELDS, historical
+        )
+    except Exception:
+        current_temporary.unlink(missing_ok=True)
+        raise
+    publish_outputs(
+        [
+            (current_temporary, args.current_output),
+            (historical_temporary, args.historical_output),
+        ]
+    )
     print(f"Wrote {len(current):,} current streets to {args.current_output}")
     print(f"Wrote {len(historical):,} historical streets to {args.historical_output}")
 

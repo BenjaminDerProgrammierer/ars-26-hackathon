@@ -177,8 +177,8 @@ def convert(input_path: Path, output_path: Path) -> None:
                 row_count += 1
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise

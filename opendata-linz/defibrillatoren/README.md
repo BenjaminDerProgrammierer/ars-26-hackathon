@@ -18,9 +18,15 @@ Die aufbereitete Datei enthält 282 veröffentlichte AED-Einträge mit Gebäude 
 
 ## Verwendungshinweise
 
-Fünf Einträge besitzen keine Koordinaten; drei davon auch keine Adresse, Postleitzahl oder Stadt. Mehrere Geräte können denselben Punkt besitzen. Für Verknüpfungen innerhalb dieser Datei ist `id` zu verwenden.
+Fünf Einträge besitzen keine Quellkoordinaten; drei davon auch keine Adresse, Postleitzahl oder Stadt. Ein weiterer Eintrag nennt Wien und liegt mit `quell_lon = 16.338724` deutlich außerhalb von Linz, obwohl seine Postleitzahl `4030` lautet. Seine Quellwerte bleiben in `quell_lon` und `quell_lat` erhalten, während `lon` und `lat` leer bleiben. `koordinatenstatus` unterscheidet `plausibel`, `fehlt` und `ausserhalb_linz`. Mehrere Geräte können denselben Punkt besitzen. Für Verknüpfungen innerhalb dieser Datei ist `id` zu verwenden.
 
 Wegen des Alters und fehlender Angaben zu Zugang, Betriebsbereitschaft und Öffnungszeiten darf die Datei ausschließlich für Prototypen und nicht als Notfallinformation eingesetzt werden.
+
+## Aktualisierung
+
+```sh
+python3 prepare_defibrillatoren.py
+```
 
 ## Quellen
 

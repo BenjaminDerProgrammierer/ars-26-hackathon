@@ -27,7 +27,10 @@ Geometrien und Koordinaten sind nicht enthalten.
 
 `id` ist innerhalb der jeweiligen Datei eindeutig; `quell_id` bewahrt die
 numerische ID der Stadt Linz. Personendaten und Wikidata-Felder sind nur für
-einen Teil der Straßen vorhanden. Datumswerte wurden auf `YYYY-MM-DD`
+einen Teil der Straßen vorhanden. `person_wikidata_id` enthält immer höchstens
+eine ID und `person_wikidata_url` immer die dazugehörige kanonische Wikidata-URL.
+Falls die Quelle weitere Personen-IDs nennt, stehen sie durch `|` getrennt in
+`weitere_person_wikidata_ids`. Datumswerte wurden auf `YYYY-MM-DD`
 vereinheitlicht. Freie historische Jahresangaben wie `um 1800` bleiben als Text
 erhalten.
 

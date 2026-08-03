@@ -20,6 +20,12 @@ Die aufbereitete Datei umfasst 27.004 von der Stadt Linz betreute Bäume mit Gat
 
 Für Karten sind `lon` und `lat` zu verwenden. Für Verknüpfungen innerhalb dieser Datei ist `id` zu verwenden, nicht `BaumNr`. Ein Datensatz besitzt keine `Flaeche`; dieses bereits in der Quelle leere Feld bleibt leer. Der Kronendurchmesser ist kein gemessener Schattenwert.
 
+## Aktualisierung
+
+```sh
+python3 prepare_baumkataster.py
+```
+
 ## Quellen
 
 - [data.gv.at Katalog](https://www.data.gv.at/katalog/datasets/f660cf3f-afa9-4816-aafb-0098a36ca57d)

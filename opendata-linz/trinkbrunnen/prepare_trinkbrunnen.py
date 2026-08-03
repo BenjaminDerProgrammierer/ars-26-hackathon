@@ -150,6 +150,7 @@ def convert(input_path: Path, output_path: Path) -> None:
     seen_ids: set[str] = set()
     row_count = 0
     geocoded_count = 0
+    converted_coordinate_count = 0
 
     with (
         input_path.open(encoding="utf-8-sig", newline="") as source,
@@ -205,6 +206,7 @@ def convert(input_path: Path, output_path: Path) -> None:
                     field="water-meter",
                 )
                 geocoded_count += int(bool(lon))
+                converted_coordinate_count += int(bool(lon)) + int(bool(meter_lon))
                 writer.writerow(
                     {
                         "id": record_id,
@@ -267,15 +269,19 @@ def convert(input_path: Path, output_path: Path) -> None:
                 row_count += 1
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
 
     print(f"Wrote {row_count:,} fountains to {output_path}")
     print(f"Generated {len(seen_ids):,} unique IDs")
-    print(f"Converted {geocoded_count:,} coordinates to WGS84")
+    print(
+        f"Converted {converted_coordinate_count:,} coordinate pairs to WGS84 "
+        f"({geocoded_count:,} fountain, "
+        f"{converted_coordinate_count - geocoded_count:,} water-meter)"
+    )
 
 
 def main() -> None:

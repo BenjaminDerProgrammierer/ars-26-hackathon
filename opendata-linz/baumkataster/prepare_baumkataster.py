@@ -9,7 +9,11 @@ from decimal import Decimal, InvalidOperation
 import hashlib
 import os
 from pathlib import Path
+import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from coordinate_conversion import epsg31255_to_wgs84  # noqa: E402
 
 
 SOURCE_FIELDS = [
@@ -33,6 +37,11 @@ ID_FIELDS = ("Flaeche", "BaumNr", "lon", "lat")
 EMPTY_MARKERS = {"", "-"}
 OUTPUT_FIELDS = ["id", *SOURCE_FIELDS]
 COORDINATE_DECIMAL_PLACES = 14
+PROJECTED_X_BOUNDS = (Decimal("60000"), Decimal("90000"))
+PROJECTED_Y_BOUNDS = (Decimal("330000"), Decimal("370000"))
+LINZ_LON_BOUNDS = (Decimal("14.0"), Decimal("14.6"))
+LINZ_LAT_BOUNDS = (Decimal("48.1"), Decimal("48.5"))
+COORDINATE_TOLERANCE = Decimal("0.00002")
 
 
 def parse_args() -> argparse.Namespace:
@@ -149,6 +158,35 @@ def convert(input_path: Path, output_path: Path) -> None:
                     )
                 row["lon"] = f"{lon:.{COORDINATE_DECIMAL_PLACES}f}"
                 row["lat"] = f"{lat:.{COORDINATE_DECIMAL_PLACES}f}"
+                try:
+                    projected_x = Decimal(row["XPos"])
+                    projected_y = Decimal(row["YPos"])
+                except InvalidOperation as error:
+                    raise ValueError(
+                        f"Invalid EPSG:31255 coordinate on line {line_number}"
+                    ) from error
+                if (
+                    not projected_x.is_finite()
+                    or not projected_y.is_finite()
+                    or not PROJECTED_X_BOUNDS[0] <= projected_x <= PROJECTED_X_BOUNDS[1]
+                    or not PROJECTED_Y_BOUNDS[0] <= projected_y <= PROJECTED_Y_BOUNDS[1]
+                    or not LINZ_LON_BOUNDS[0] <= lon <= LINZ_LON_BOUNDS[1]
+                    or not LINZ_LAT_BOUNDS[0] <= lat <= LINZ_LAT_BOUNDS[1]
+                ):
+                    raise ValueError(
+                        f"Coordinate outside plausible Linz bounds on line {line_number}"
+                    )
+                converted_lon, converted_lat = epsg31255_to_wgs84(
+                    float(projected_x), float(projected_y)
+                )
+                if (
+                    abs(Decimal(str(converted_lon)) - lon) > COORDINATE_TOLERANCE
+                    or abs(Decimal(str(converted_lat)) - lat) > COORDINATE_TOLERANCE
+                ):
+                    raise ValueError(
+                        "EPSG:31255 and WGS84 coordinates disagree on line "
+                        f"{line_number}"
+                    )
 
                 key = tuple(row[field] for field in ID_FIELDS)
                 if key in seen_keys:
@@ -169,8 +207,8 @@ def convert(input_path: Path, output_path: Path) -> None:
 
             temporary.flush()
             os.fsync(temporary.fileno())
+            os.chmod(temporary_path, 0o644)
             os.replace(temporary_path, output_path)
-            output_path.chmod(0o644)
         except Exception:
             temporary_path.unlink(missing_ok=True)
             raise
