@@ -10,12 +10,50 @@ Azure deployments must use:
 
 Do not commit credentials, secrets, or environment-specific access tokens.
 
-## Deploy
+## Bootstrap deployment
+
+Run the idempotent bootstrap from the repository root while authenticated with
+both the Azure CLI and GitHub CLI:
+
+```sh
+./infra/bootstrap-deployment.sh
+```
+
+The Azure identity must be able to deploy the resource-group template and
+create role assignments (for example, an Owner at resource-group scope). The
+GitHub identity must be a repository administrator and the package owner or an
+organization member allowed to manage the package.
+
+The command creates or updates the `ArsElectronicaHackathon` resource group and
+all resources in `main.bicep`, including the GitHub deployment identity, its
+`main`-branch federated credential, and the shared development-environment VNet.
+It then:
+
+- writes `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` as
+  GitHub Actions repository variables;
+- grants the signed-in Azure identity the scoped Virtual Machine Contributor,
+  Network Contributor, Storage Table Data Contributor, and Storage Blob Data
+  Contributor roles needed to run the local admin tool;
+- verifies that the storage data endpoints are reachable over the public
+  network and that the shared VM subnet exists; and
+- makes the GHCR web package public when it exists.
+
+The package is only created by the first successful `Publish web container`
+workflow run. If the bootstrap reports that it does not exist, run that workflow
+once and rerun the same bootstrap command. Changing package visibility requires
+a GitHub CLI token with `write:packages`; add it with
+`gh auth refresh -s write:packages` if GitHub returns HTTP 403.
+
+Use `--admin-principal-id` together with `--admin-principal-type` to grant the
+admin-tool roles to a different Azure identity, or use `--skip-admin-roles` and
+`--skip-github` for a partial bootstrap. Run the command with `--help` for all
+options. It prints the non-secret Azure settings required by
+`admin-tool/.env` when it completes.
+
+## Manual deployment
 
 The `Publish web container` GitHub Actions workflow builds `web/Dockerfile` and
-publishes `ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest`. After
-the first workflow run, set that GHCR package's visibility to **Public** so App
-Service can pull it anonymously.
+publishes `ghcr.io/benjaminderprogrammierer/ars-26-hackathon-web:latest`.
 
 Deploy the resource group:
 
@@ -25,6 +63,9 @@ az deployment group create \
   --template-file infra/main.bicep \
   --parameters alertEmailAddress=benjamin.p.hartmann@gmail.com
 ```
+
+Manual deployments do not configure the GitHub repository or admin-tool RBAC;
+use the bootstrap command for those prerequisites.
 
 Override `webAppContainerImage` to deploy a different public image tag or digest.
 

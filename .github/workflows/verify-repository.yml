@@ -71,6 +71,11 @@ jobs:
       - name: Validate Bicep template
         run: az bicep build --file infra/main.bicep --stdout >/dev/null
 
+      - name: Check deployment bootstrap script
+        run: |
+          bash -n infra/bootstrap-deployment.sh
+          infra/bootstrap-deployment.sh --help >/dev/null
+
   example-projects:
     runs-on: ubuntu-latest
     permissions:

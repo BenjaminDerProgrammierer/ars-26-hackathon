@@ -33,6 +33,9 @@ It also needs permission to create and manage virtual machines, disks, network
 interfaces, and public IP addresses in the `ArsElectronicaHackathon` resource
 group. The shared `vcenv-vnet`, `vcenv-subnet`, and `vcenv-nsg` must already be
 deployed from `infra/main.bicep` before an environment is created.
+Run [`infra/bootstrap-deployment.sh`](../infra/bootstrap-deployment.sh) from the
+repository root to deploy that shared infrastructure, verify network access,
+and grant these roles to the signed-in Azure identity.
 The Azure CLI and its Bicep support must be installed and authenticated for the
 same subscription; the Express application deploys each VM through
 `infra/modules/development-environment.bicep`.
