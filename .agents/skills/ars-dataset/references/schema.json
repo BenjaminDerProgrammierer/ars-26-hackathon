@@ -95,6 +95,13 @@
       ]
     },
 
+    "NullableDateTime": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+
     "NullableHttpUrl": {
       "oneOf": [
         { "type": "string", "pattern": "^https?://" },
@@ -619,7 +626,7 @@
     "CalendarEntry": {
       "type": "object",
       "description": "A single time slot, either assigned to a project or explicitly unassigned.",
-      "required": ["id", "canonical_id", "id_source", "Linked Projects", "Status Web", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "project_ref", "slot_status"],
+      "required": ["id", "canonical_id", "id_source", "Linked Projects", "Status Web", "start_at", "end_at", "status_web", "visibility_rule", "public_for_hackathon", "link_allowed", "project_ref", "slot_status"],
       "allOf": [
         { "$ref": "#/$defs/VisibilityInvariant" },
         {
@@ -673,6 +680,14 @@
         "Time": {
           "$ref": "#/$defs/NullableString",
           "description": "Full time range as human-readable string, e.g. '9. September 2026 15:15 (MESZ) → 16:15'"
+        },
+        "start_at": {
+          "$ref": "#/$defs/NullableDateTime",
+          "description": "Machine-readable start datetime in ISO 8601 format with UTC offset; null when no date could be parsed"
+        },
+        "end_at": {
+          "$ref": "#/$defs/NullableDateTime",
+          "description": "Machine-readable end datetime in ISO 8601 format with UTC offset; null when no end could be parsed"
         },
         "Arrive by": {
           "$ref": "#/$defs/NullableString",

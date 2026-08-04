@@ -60,6 +60,8 @@ def valid_calendar_entry():
         "id_source": "notion",
         "Linked Projects": [project_id],
         "Status Web": "pending",
+        "start_at": "2026-09-09T15:15:00+02:00",
+        "end_at": "2026-09-09T16:15:00+02:00",
         "status_web": "pending",
         "visibility_rule": "hidden",
         "public_for_hackathon": False,
@@ -524,6 +526,29 @@ class VerifyTests(unittest.TestCase):
             lambda data: data["projects"][0].pop("Status Web"))
         self.assertEqual(
             violations[("projects", "Status Web", "missing required field")], 1)
+
+    def test_calendar_datetimes_are_required_and_nullable(self):
+        data, slot = valid_assigned_export()
+        slot["start_at"] = None
+        slot["end_at"] = None
+        self.assertFalse(ars_dataset.verify(data, self.schema))
+
+        for field in ("start_at", "end_at"):
+            with self.subTest(field=field, case="missing"):
+                data, slot = valid_assigned_export()
+                slot.pop(field)
+                violations = ars_dataset.verify(data, self.schema)
+                self.assertEqual(
+                    violations[("calendar", field, "missing required field")],
+                    1,
+                )
+
+            with self.subTest(field=field, case="malformed"):
+                data, slot = valid_assigned_export()
+                slot[field] = "September 9, 2026 15:15"
+                violations = ars_dataset.verify(data, self.schema)
+                self.assertEqual(
+                    violations[("calendar", field, "invalid value")], 1)
 
     def test_database_must_be_an_array(self):
         violations = self.verify(lambda data: data.update({"projects": {}}))
