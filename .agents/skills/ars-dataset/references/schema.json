@@ -219,7 +219,7 @@
           "oneOf": [
             {
               "type": "string",
-              "enum": ["Collection","Project","Exhibition","Guided Tour","Workshop","Symposium","Conference","Keynote","Lecture & Talk","Networking Event","Panel Discussion","Performance","Concert","Experience","Event","Meet the Artist","Open Lab","Award Ceremony","Screening"]
+              "enum": ["Collection","Project","Exhibition","Guided Tour","Workshop","Symposium","Conference","Keynote","Lecture & Talk","Networking Event","Panel Discussion","Performance","Concert","Experience","Event","Meet the Artist","Open Lab","Award Ceremony","Screening","Deep Dive"]
             },
             { "type": "null" }
           ],

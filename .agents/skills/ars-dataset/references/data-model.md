@@ -88,7 +88,7 @@ collections (316 records in the current filtered export).
 | Field | Type | Description |
 |---|---|---|
 | `Name EN` / `Name DE` | string or null | Project title |
-| `Category` | string or null | Programme type; observed values include `Project`, `Exhibition`, `Workshop`, `Performance`, `Panel Discussion`, and others |
+| `Category` | string or null | Programme type; observed values include `Project`, `Exhibition`, `Workshop`, `Performance`, `Panel Discussion`, `Deep Dive`, and others |
 | `Artists` | string or null | Artist names with country codes |
 | `Subtitle EN/DE` | string or null | Subtitle |
 | `Web Preview Text EN/DE` | string or null | Listing summary; 300 characters is an editorial recommendation |
