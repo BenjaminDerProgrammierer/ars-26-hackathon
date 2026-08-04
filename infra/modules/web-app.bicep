@@ -150,6 +150,19 @@ resource webAppCustomHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2024-
   ]
 }
 
+module managedCertificate 'managed-certificate.bicep' = if (!empty(webAppCustomHostname)) {
+  name: 'managed-certificate-${uniqueString(webAppName, webAppCustomHostname)}'
+  params: {
+    location: location
+    webAppName: webAppName
+    webAppCustomHostname: webAppCustomHostname
+    appServicePlanName: appServicePlanName
+  }
+  dependsOn: [
+    webAppCustomHostnameBinding
+  ]
+}
+
 resource githubWebAppRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(existingWebApp.id, githubDeploymentIdentity.id, 'Website Contributor')
   scope: existingWebApp

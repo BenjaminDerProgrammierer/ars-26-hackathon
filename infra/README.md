@@ -50,9 +50,11 @@ admin-tool roles to a different Azure identity, or use `--skip-admin-roles` and
 options. It prints the non-secret Azure settings required by
 `admin-tool/.env` when it completes.
 
-The bootstrap does not bind the production custom hostname because App Service
-requires its `asuid` TXT ownership record to exist first. Once DNS is ready,
-rerun it with `--custom-hostname hackathon.ars.electronica.art`.
+The bootstrap does not bind or secure the production custom hostname unless it
+is explicitly supplied because App Service requires its CNAME and `asuid` TXT
+ownership records to exist first. Once DNS is ready, rerun it with
+`--custom-hostname hackathon.ars.electronica.art`. The deployment then creates
+an App Service Managed Certificate and binds it to the hostname with SNI SSL.
 
 ## Manual deployment
 
@@ -74,14 +76,15 @@ use the bootstrap command for those prerequisites.
 Override `webAppContainerImage` to deploy a different public image tag or digest.
 
 The template creates a single-worker Linux App Service plan, a container web app
-listening on port 80 with `hackathon.ars.electronica.art` bound as its custom
-hostname, a Log Analytics workspace, retained diagnostics, an HTTP 5xx alert, a
-user-assigned managed identity, and the shared VNet, subnet, and NSG used by the
-admin tool's development-environment VMs. The NSG permits inbound TCP traffic on
-ports 22, 80, 443, and 8080. The identity is attached to the web app and receives
-`Storage Table Data Reader` on the `AccessCodes` table only. The shared network
-uses Azure Verified Modules for its VNet and NSG. The admin tool deploys each
-development-environment VM, NIC, public IP, and OS disk from
+listening on port 80 with `hackathon.ars.electronica.art` secured by an App
+Service Managed Certificate and SNI SSL binding, a Log Analytics workspace,
+retained diagnostics, an HTTP 5xx alert, a user-assigned managed identity, and
+the shared VNet, subnet, and NSG used by the admin tool's development-environment
+VMs. The NSG permits inbound TCP traffic on ports 22, 80, 443, and 8080. The
+identity is attached to the web app and receives `Storage Table Data Reader` on
+the `AccessCodes` table only. The shared network uses Azure Verified Modules for
+its VNet and NSG. The admin tool deploys each development-environment VM, NIC,
+public IP, and OS disk from
 `modules/development-environment.bicep`, which uses the AVM virtual-machine
 module.
 The HTTP 5xx alert routes to `benjamin.p.hartmann@gmail.com` by default. Override
