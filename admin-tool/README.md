@@ -97,9 +97,9 @@ the abandoned record is marked failed when the dashboard next reads it.
 - Create a separate OpenRouter API key for every VM, use the default guardrail,
   and configure its spending limit and expiration from the creation
   dialog.
-- Configure pi with its built-in OpenRouter provider and the guardrail's sole
-  available model. The model and fixed OpenRouter endpoint are not editable in
-  the creation dialog.
+- Configure pi with its built-in OpenRouter provider and a model selected from
+  the default guardrail's available models in the creation dialog. The fixed
+  OpenRouter endpoint is not editable.
 - List and search environments, with bulk start, stop, delete, and redeem-key
   actions.
 - Use a renewable blob lease to allow only one environment deployment or bulk

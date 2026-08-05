@@ -76,11 +76,12 @@ export type DevEnvironment = {
 
 export type StartDeploymentRequest = {
   count: number;
+  modelId: string;
   apiKeyLimit: number | null;
   apiKeyExpiresAt?: Date;
 };
 
-export type StartDeploymentInput = StartDeploymentRequest & { modelId: string };
+export type StartDeploymentInput = StartDeploymentRequest;
 
 export type EnvironmentBulkAction = "start" | "stop" | "delete";
 export type EnvironmentOperationStatus = "running" | "completed" | "partial" | "failed";
@@ -343,6 +344,13 @@ export function validateStartDeploymentInput(value: unknown): StartDeploymentReq
   if (!Number.isInteger(body.count) || (body.count as number) < 1 || (body.count as number) > 45) {
     throw new Error("Environment count must be an integer between 1 and 45");
   }
+  if (typeof body.modelId !== "string" || !body.modelId.trim()) {
+    throw new Error("OpenRouter model is required");
+  }
+  const modelId = body.modelId.trim();
+  if (modelId.length > 256) {
+    throw new Error("OpenRouter model must be 256 characters or fewer");
+  }
   let apiKeyLimit: number | null = null;
   if (body.apiKeyLimit !== undefined && body.apiKeyLimit !== null && body.apiKeyLimit !== "") {
     if (typeof body.apiKeyLimit !== "number" || !Number.isFinite(body.apiKeyLimit)) {
@@ -371,6 +379,7 @@ export function validateStartDeploymentInput(value: unknown): StartDeploymentReq
 
   return {
     count: body.count as number,
+    modelId,
     apiKeyLimit,
     ...(apiKeyExpiresAt ? { apiKeyExpiresAt } : {}),
   };

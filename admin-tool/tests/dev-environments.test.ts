@@ -94,10 +94,12 @@ test("validates Azure virtual machine creation options", () => {
   assert.deepEqual(
     validateStartDeploymentInput({
       count: 12,
+      modelId: "mistralai/mistral-medium-3.5",
       apiKeyLimit: 5,
     }),
     {
       count: 12,
+      modelId: "mistralai/mistral-medium-3.5",
       apiKeyLimit: 5,
     },
   );
@@ -108,6 +110,7 @@ test("rejects unsupported deployment values", () => {
     () =>
       validateStartDeploymentInput({
         count: 46,
+        modelId: "mistralai/mistral-medium-3.5",
       }),
     /between 1 and 45/,
   );
@@ -115,6 +118,7 @@ test("rejects unsupported deployment values", () => {
     () =>
       validateStartDeploymentInput({
         count: 2,
+        modelId: "mistralai/mistral-medium-3.5",
         apiKeyExpiresAt: "2020-01-01T00:00:00.000Z",
       }),
     /expiration must be in the future/,
@@ -123,9 +127,18 @@ test("rejects unsupported deployment values", () => {
     () =>
       validateStartDeploymentInput({
         count: 2,
+        modelId: "mistralai/mistral-medium-3.5",
         apiKeyLimit: -1,
       }),
     /non-negative/,
+  );
+  assert.throws(
+    () =>
+      validateStartDeploymentInput({
+        count: 2,
+        modelId: "",
+      }),
+    /model is required/,
   );
 });
 

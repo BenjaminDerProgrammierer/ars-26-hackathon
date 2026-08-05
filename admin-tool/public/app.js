@@ -15,7 +15,7 @@ const state = {
   environmentSelected: new Set(),
   environmentOperation: null,
   environmentConfigured: false,
-  environmentModel: null,
+  environmentModels: [],
   environmentRedeemPending: new Set(),
 };
 const LOCALE = "de-AT";
@@ -709,9 +709,9 @@ async function loadEnvironmentStatus(refreshStates = false) {
   }
   lastAppliedEnvironmentLoad = requestSequence;
   state.environmentOperation = payload.operation;
-  state.environmentConfigured = payload.configured && Boolean(payload.model);
+  state.environmentModels = payload.models;
+  state.environmentConfigured = payload.configured && payload.models.length > 0;
   state.environments = payload.environments;
-  state.environmentModel = payload.model;
   state.environmentSelected = new Set(
     [...state.environmentSelected].filter((name) =>
       state.environments.some((environment) => environment.name === name),
@@ -723,9 +723,20 @@ async function loadEnvironmentStatus(refreshStates = false) {
   $("#environment-storage-account").textContent = payload.accountName || "Not configured";
   $("#environment-table-name").textContent = payload.tableName;
   $("#environment-image").textContent = payload.image || "Not configured";
-  $("#environment-model-id").value = payload.model
-    ? `${payload.model.name} (${payload.model.id})`
-    : "Exactly one guardrail model is required";
+  const modelSelect = $("#environment-model-id");
+  const selectedModelId = modelSelect.value;
+  modelSelect.innerHTML = payload.models.length
+    ? payload.models
+        .map(
+          (model) =>
+            `<option value="${escapeHtml(model.id)}">${escapeHtml(model.name)} (${escapeHtml(model.id)})</option>`,
+        )
+        .join("")
+    : '<option value="">No guardrail models available</option>';
+  if (payload.models.some(({ id }) => id === selectedModelId)) {
+    modelSelect.value = selectedModelId;
+  }
+  modelSelect.disabled = payload.models.length === 0;
   renderEnvironments();
   renderEnvironmentOperation();
   setConnection(
@@ -828,10 +839,11 @@ $("#environment-create-form").addEventListener("submit", async (event) => {
   const form = event.currentTarget;
   const data = new FormData(form);
   const count = Number(data.get("count"));
+  const modelId = String(data.get("modelId"));
+  const model = state.environmentModels.find(({ id }) => id === modelId);
   const confirmed = await requestConfirmation({
     title: `Create ${count} development environment${count === 1 ? "" : "s"}?`,
-    message:
-      "Ubuntu LTS virtual machines and one OpenRouter API key using the default guardrail per environment will be created.",
+    message: `Ubuntu LTS virtual machines and one OpenRouter API key using the default guardrail per environment will be created with ${model?.name || modelId}.`,
     confirmLabel: "Create environments",
   });
   if (!confirmed) return;
@@ -842,6 +854,7 @@ $("#environment-create-form").addEventListener("submit", async (event) => {
       method: "POST",
       body: JSON.stringify({
         count,
+        modelId,
         apiKeyLimit: nullableNumber(data.get("apiKeyLimit")),
         apiKeyExpiresAt: data.get("apiKeyExpiresAt")
           ? new Date(data.get("apiKeyExpiresAt")).toISOString()

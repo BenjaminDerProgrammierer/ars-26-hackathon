@@ -331,10 +331,7 @@ router.get("/dev-environments/status", async (request, response) => {
   const openRouterContext = context.configured ? await getHackathonContext() : null;
   response.json({
     ...context,
-    model:
-      openRouterContext?.guardrail.availableModels.length === 1
-        ? openRouterContext.guardrail.availableModels[0]
-        : null,
+    models: openRouterContext?.guardrail.availableModels ?? [],
     environments: context.configured
       ? await listDevEnvironments({ refresh: request.query.refresh === "true" })
       : [],
@@ -362,15 +359,11 @@ router.post("/dev-environments", async (request, response) => {
     }
   })();
   const { guardrail } = await getHackathonContext();
-  const model = guardrail.availableModels[0];
-  if (guardrail.availableModels.length !== 1 || !model) {
-    throw new HttpError("Development environments require exactly one guardrail model", 503);
+  if (!guardrail.availableModels.some(({ id }) => id === input.modelId)) {
+    throw new HttpError("The selected model is not available through the default guardrail");
   }
   try {
-    const operation = await startDevEnvironmentCreation({
-      ...input,
-      modelId: model.id,
-    });
+    const operation = await startDevEnvironmentCreation(input);
     response.status(202).json({ operation });
   } catch (error: unknown) {
     if (error instanceof EnvironmentOperationConflictError) {
