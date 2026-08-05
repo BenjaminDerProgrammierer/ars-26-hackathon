@@ -1,6 +1,6 @@
 # Ars Festival RAG Search
 
-A small, inspectable command-line example of semantic search and
+A small, inspectable web and command-line example of semantic search and
 retrieval-augmented generation (RAG) over the public Ars Electronica Festival
 2026 project dataset. It uses OpenRouter for embeddings and generation, while a
 plain JSON file and in-memory cosine similarity keep the retrieval mechanics
@@ -39,6 +39,16 @@ are not committed.
 ```sh
 npm run prepare-data
 npm run build-index
+npm run ui
+```
+
+Open `http://127.0.0.1:3000` to ask questions in the web interface. The UI calls
+a small local Node.js server; the OpenRouter key and vector index are never sent
+to the browser. Set `HOST` or `PORT` in `.env` if the defaults need to change.
+
+The original command-line entry points remain available:
+
+```sh
 npm run search -- "art about machine consciousness"
 npm run ask -- "Which projects explore AI and human identity?"
 ```

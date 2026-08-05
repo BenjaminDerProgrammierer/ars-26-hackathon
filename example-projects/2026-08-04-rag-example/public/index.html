@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore public Ars Electronica Festival 2026 projects with retrieval-augmented search.">
+    <title>Festival Project Search // Ars Electronica 2026</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#search">Skip to project search</a>
+    <header class="institutional-header">
+      <a class="wordmark" href="https://ars.electronica.art/" rel="noreferrer">ARS ELECTRONICA</a>
+      <span>Festival 2026 // Linz</span>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-kicker">PUBLIC FESTIVAL DATA // RAG EXAMPLE</div>
+        <h1 id="page-title"><strong>Ask the festival.</strong><br>Discover what connects us.</h1>
+        <p class="hero-copy">Search public projects from Ars Electronica Festival 2026 in everyday language. Each answer stays grounded in the retrieved festival records.</p>
+
+        <form id="search" class="search-form">
+          <label for="question">What would you like to explore?</label>
+          <div class="search-row">
+            <textarea id="question" name="question" rows="2" maxlength="1000" required placeholder="Which projects explore AI and human identity?"></textarea>
+            <button type="submit">Ask <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="example-row" aria-label="Example questions">
+            <span>Try:</span>
+            <button type="button" data-question="Which projects explore AI and human identity?">AI + identity</button>
+            <button type="button" data-question="Show me art about climate and the environment.">Climate + environment</button>
+            <button type="button" data-question="What projects involve sound or music?">Sound + music</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="results" class="results" aria-live="polite" aria-busy="false" hidden>
+        <div class="results-heading">
+          <p class="section-label">GROUNDED ANSWER</p>
+          <p id="result-query" class="result-query"></p>
+        </div>
+        <div class="answer-layout">
+          <article>
+            <h2>What the records say</h2>
+            <div id="answer" class="answer-copy"></div>
+          </article>
+          <aside aria-labelledby="sources-title">
+            <div class="sources-header">
+              <h2 id="sources-title">Retrieved sources</h2>
+              <span id="source-count"></span>
+            </div>
+            <ol id="sources" class="source-list"></ol>
+          </aside>
+        </div>
+      </section>
+
+      <section class="method" aria-labelledby="method-title">
+        <p class="section-label">HOW THIS WORKS</p>
+        <div>
+          <h2 id="method-title">Vectors retrieve.<br><strong>Festival records answer.</strong></h2>
+          <p>Your question is compared with a local index of public project descriptions. The most relevant records are passed to a language model, which is instructed to answer only from that evidence and cite it by number.</p>
+        </div>
+        <ol>
+          <li><span>01</span> Embed the question</li>
+          <li><span>02</span> Retrieve related projects</li>
+          <li><span>03</span> Answer with sources</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      <span>ARS ELECTRONICA FESTIVAL 2026</span>
+      <span>Future Begins // Negotiating Humanity</span>
+    </footer>
+  </body>
+</html>
