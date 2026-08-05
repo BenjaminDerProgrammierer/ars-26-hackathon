@@ -1,20 +1,22 @@
 ---
 title: "Über den Hackathon"
-intro: "Drei Tage Bauen mit Festivaldaten, offenen Daten der Stadt Linz und AI Coding Agents — mitten im Ars Electronica Festival 2026."
+intro: "Zwei Tage lang entwickelt ihr mitten im Ars Electronica Festival 2026 neue Projekte mit Festivaldaten, offenen Daten der Stadt Linz und KI-gestützten Coding-Tools. Am dritten Tag werden die besten Ideen ausgezeichnet."
 ---
 
-Der AI Hackathon ist ein offizielles Sub-Event des Ars Electronica Festival
-2026, **Future Begins / Negotiating Humanity**, und findet vom 11. bis 13.
-September 2026 in der Grand Garage in Linz statt. Teams von zwei bis fünf
-Personen bauen Prototypen, die den Programmdatensatz des Festivals mit offenen
-Daten der Stadt Linz verbinden.
+Der AI Hackathon ist ein offizielles Event des Ars Electronica Festival 2026,
+das unter dem Thema **NEGOTIATING HUMANITY** stattfindet. Am 11. und 12.
+September entwickelt ihr in der Grand Garage in Linz alleine oder in Teams von
+zwei bis fünf Personen Prototypen, die den Programmdatensatz des Festivals mit
+offenen Daten der Stadt Linz verbinden. Die Preisverleihung findet am 13.
+September im Rahmen des Festivals statt.
 
 > **Anmeldeschluss ist der 31. August 2026.** Die Teilnahme ist kostenlos, eine
 > Anmeldung ist erforderlich. [Jetzt auf der Partizipationsplattform der Stadt Linz anmelden](https://partizipation.linz.at/de-AT/projects/ki-hackathon-ars-electronica).
 
 ## Auf einen Blick
 
-- **Hackathon:** 11.–13. September 2026 in der Grand Garage in Linz
+- **Hackathon:** 11.–12. September 2026 in der Grand Garage in Linz und
+  Siegerehrung am 13. September 2026 um 12 Uhr am Hauptplatz Linz
 - **Anmeldung:** 21. Juli bis 31. August 2026
 - **Kosten:** Kostenlos; eine Anmeldung genügt
 - **Mindestalter:** 14 Jahre
@@ -29,8 +31,9 @@ Daten der Stadt Linz verbinden.
 
 **Linz neu entdecken.**
 
-Entwickelt beim dreitägigen KI-Hackathon kreative digitale Projekte mit
-Festivaldaten und offenen Daten der Stadt Linz.
+Entwickelt beim zweitägigen KI-Hackathon kreative digitale Projekte mit
+Festivaldaten und offenen Daten der Stadt Linz. Am 12. September stellt ihr
+eure Projekte oder Demos der Jury in kurzen Pitches vor.
 
 Mithilfe von KI-Tools und begleitet von Mentor\*innen macht ihr aus euren Ideen
 konkrete Projekte: smarte Guides, interaktive Karten, Storytelling-Tools,
@@ -81,7 +84,7 @@ außerdem die optionale webbasierte Entwicklungsumgebung anfordern.
 ## Ars Electronica Festival 2026
 
 Das Festival findet von 9. bis 13. September 2026 in der Linzer Innenstadt
-statt. Unter dem Motto **Negotiating Humanity** beschäftigen sich
+statt. Unter dem Motto **NEGOTIATING HUMANITY** beschäftigen sich
 internationale Künstler:innen, Wissenschaftler:innen und Innovator:innen mit
 der Frage, was Menschsein im Zeitalter von KI, globalen Krisen und
 technologischen Umbrüchen bedeutet. Das Programm umfasst Ausstellungen,
@@ -91,7 +94,8 @@ Performances, Konzerte, Konferenzen und interaktive Formate.
 
 ## Wie die Gewinner:innen ausgewählt werden
 
-Eine Jury aus Festivalkurator:innen, Stadtvertreter:innen und Engineers bewertet
-alle Einreichungen. Am 13. September 2026 stimmt die Jury ab; anschließend
-werden die Gewinnerteams bei der Siegerehrung ausgezeichnet. Bewertet werden
-Idee, Umsetzung und die Qualität der Verbindung zwischen den beiden Datenwelten.
+Eine Jury bewertet alle Einreichungen. Nach den kurzen Projekt-Pitches am 12.
+September 2026 stimmt sie über die Einreichungen ab. Die Gewinnerteams werden
+am 13. September bei der Siegerehrung ausgezeichnet. Bewertet werden Idee,
+Kreativität, Originalität, Umsetzung und die Qualität der Verbindung zwischen
+den beiden Datenwelten.
