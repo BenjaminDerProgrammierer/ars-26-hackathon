@@ -10,23 +10,24 @@ Pi bereits installiert.
 
 ## Im richtigen Projekt starten
 
-Wenn ihr auf eurem eigenen Computer arbeitet, öffnet ein Terminal im Projektordner und startet Pi:
+Wenn ihr auf eurem eigenen Computer arbeitet, öffnet ein Terminal im Projektordner und startet Pi (Alles nach `#` ist ein Kommentar und muss nicht eingegeben werden):
 
 ```sh
-cd pfad/zu/eurem-projekt
-pi
+cd pfad/zu/eurem-projekt # Change Directory - Ordner ändern - Hiermit navigiert ihr in den Ordner eures Projekts. Wenn ihr die Online-Entwicklungsumgebung nutzt, ist der Projektordner bereits geöffnet, und ihr könnt diesen Schritt überspringen.
+pi # Startet den Coding Agent pi.dev.
 ```
 
 Pi darf auf alles in diesem Ordner zugreifen. Startet ihn deshalb nicht in einem
 übergeordneten Ordner mit privaten oder fremden Dateien.
+
+Wenn ihr Pi beenden wollt, drückt `Strg`+`C`. Pi merkt sich den Gesprächskontext nur während der laufenden Sitzung. Wenn ihr Pi neu startet, beginnt es wieder mit einem leeren Kontext. Verwendet `pi resume`, um trotzdem den letzten Gesprächskontext zu laden.
 
 ## Bei bestehenden Projekten: Zuerst orientieren, dann ändern
 
 Lasst Pi vor der ersten Änderung die vorhandene `README.md`, die
 Projektstruktur und die verfügbaren Prüfbefehle untersuchen:
 
-> Lies die README und untersuche das Projekt. Erkläre mir kurz, wie es aufgebaut
-> ist und welche Befehle Änderungen prüfen. Ändere noch keine Dateien.
+> Lies die README und untersuche das Projekt. Erkläre mir kurz, wie es aufgebaut ist.
 
 Gebt danach einen überschaubaren Auftrag. Lasst Pi die Änderung selbst prüfen
 und bittet um eine kurze Zusammenfassung der betroffenen Dateien.
@@ -43,7 +44,7 @@ Wiederkehrende Regeln gehören in eine `AGENTS.md` im Projekt:
 - Halte API-Keys aus dem Repository.
 ```
 
-So müsst ihr wichtige Rahmenbedingungen nicht in jedem Prompt wiederholen.
+Ihr könnt auch Pi darum bitten, die Regeln in der `AGENTS.md` zu dokumentieren. So müsst ihr wichtige Rahmenbedingungen nicht in jedem Prompt wiederholen.
 
 ## Hackathon-Skills installieren
 
@@ -64,19 +65,9 @@ npx skills@latest add BenjaminDerProgrammierer/ars-26-hackathon \
 
 `npx` lädt das aktuelle `skills`-Werkzeug bei Bedarf automatisch. Der Befehl
 installiert die Skills nur für dieses Projekt unter `.pi/skills/` und legt eine
-`skills-lock.json` an. Ihr braucht dafür Node.js, `npm`, Git und Internetzugang;
-in der bereitgestellten Online-Entwicklungsumgebung ist alles vorhanden. Die
-Installation enthält Programme und Anweisungen, die der Agent ausführen darf.
-Installiert daher nur Skills aus Quellen, denen ihr vertraut.
+`skills-lock.json` an. Die Installation enthält Programme und Anweisungen, die der Agent ausführen darf.
 
-Prüft anschließend die Installation:
-
-```sh
-npx skills@latest list --agent pi
-```
-
-In der Ausgabe müssen `ars-dataset` und `hackathon-datasets` stehen. Startet Pi
-danach neu, damit es die neuen Skills sicher erkennt:
+Startet Pi danach neu, damit es die neuen Skills sicher erkennt:
 
 ```sh
 pi
@@ -146,3 +137,8 @@ des Exports den Leerzustand.
 
 Pi kann Arbeit beschleunigen, aber nicht entscheiden, ob eure Daten,
 Sicherheitsannahmen und Projektergebnisse korrekt sind. Prüft eure Demo selbst.
+
+## Als nächstes: Vibe Coding und Prompts
+
+Als nächstes lernt ihr, wie ihr eure Ideen in überprüfbare Schritte zerlegt und
+einen Coding Agent sinnvoll anleitet. Lest dazu das Tutorial „Vibe Coding und Prompts“.

@@ -25,32 +25,43 @@ Ruft den Link bei „Code Server“ im Browser auf und gebt das Passwort ein.
 
 ## Schritt 2: Entwicklungsumgebung einrichten
 
-![Entwicklungsumgebung; untrusted](../assets/online-development-environment-2.png)
+Jetzt müsst ihr den Ordner öffnen, in dem ihr arbeiten wollt. Klickt dazu auf Drei Striche → File → Open Folder und wählt den Ordner `website` aus.
+
+![Entwicklungsumgebung; open file](../assets/online-development-environment-2.png)
+
+![Open File; ~](../assets/online-development-environment-3.png)
+
+![Open FIle; ~/website](../assets/online-development-environment-4.png)
 
 Als Nächstes müsst ihr dem offenen Ordner vertrauen. Klickt oben auf „Manage“
 und dann auf „Trust“.
 
-![Workspace Trust window](../assets/online-development-environment-3.png)
-
-![Entwicklungsumgebung; trusted](../assets/online-development-environment-4.png)
+![Workspace Trust window](../assets/online-development-environment-5.png)
 
 Öffnet nun über das horizontal geteilte Rechteck oben rechts ein Terminal.
 
+![Workspace Trust window](../assets/online-development-environment-6.png)
+
 Gebt `npm run dev` ein, um den Entwicklungsserver zu starten.
 
-![Terminal mit laufendem Entwicklungsserver](../assets/online-development-environment-5.png)
+![Terminal; npm run dev](../assets/online-development-environment-7.png)
 
 Öffnet den Link bei „Dev server“ aus euren Zugangsdaten, um die Webseite zu
 sehen, an der ihr gerade arbeitet.
 
-![Startseite der Webseite](../assets/online-development-environment-6.png)
+![Startseite der Webseite](../assets/online-development-environment-8.png)
 
 Öffnet über das Plus-Zeichen ein zweites Terminal, gebt `pi` ein und bestätigt,
 dass pi.dev auf den geöffneten Projektordner zugreifen darf.
 
-![Coding-Agent pi.dev](../assets/online-development-environment-7.png)
+![Coding-Agent pi.dev; Trust](../assets/online-development-environment-9.png)
+
+Fragt zum Beispiel nach, was die Dateien im Ordner `website` machen, und ihr bekommt eine Antwort von pi.dev.
+
+> Erkläre die Dateien in diesem Ordner.
+
+![Coding-Agent pi.dev; Erste Antwort](../assets/online-development-environment-10.png)
 
 ## Weitere Schritte
 
-Wie ihr den Agent sinnvoll steuert, erfahrt ihr im Tutorial
-[Mit pi.dev arbeiten](../pi-dev/).
+Wie ihr den Agent sinnvoll steuert, erfahrt ihr im nächsten Tutorial „Vibe Coding und Prompts“.
