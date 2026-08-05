@@ -1,0 +1,4 @@
+.env
+node_modules/
+data/documents.json
+data/vector-index.json
