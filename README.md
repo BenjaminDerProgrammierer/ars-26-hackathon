@@ -2,7 +2,7 @@
 
 Materials and services for the AI hackathon at
 [Ars Electronica Festival 2026](https://ars.electronica.art/negotiatinghumanity/en/)
-(*Future Begins / Negotiating Humanity*, September 2026, Linz). Participants
+(Future Begins / *NEGOTIATING HUMANITY*, September 2026, Linz). Participants
 build applications that combine the festival program with open data from the
 City of Linz.
 

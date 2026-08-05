@@ -4,7 +4,7 @@ intro: "For two days, you will develop new projects with festival data, City of 
 ---
 
 The AI Hackathon is an official event of Ars Electronica Festival 2026, held
-under the theme **NEGOTIATING HUMANITY**. On September 11 and 12, you will work
+under the theme *NEGOTIATING HUMANITY*. On September 11 and 12, you will work
 alone or in teams of two to five at Grand Garage in Linz to develop prototypes
 that combine the festival program dataset with open data from the City of Linz.
 The award ceremony takes place on September 13 as part of the festival.
@@ -78,7 +78,7 @@ browser-based development environment during registration.
 ## Ars Electronica Festival 2026
 
 The wider festival runs from September 9–13, 2026, across central Linz. Under
-the theme **NEGOTIATING HUMANITY**, international artists, researchers, and
+the theme *NEGOTIATING HUMANITY*, international artists, researchers, and
 innovators examine what it means to be human amid AI, global crises, and
 technological change. Its program includes exhibitions, performances,
 concerts, conferences, and interactive formats.

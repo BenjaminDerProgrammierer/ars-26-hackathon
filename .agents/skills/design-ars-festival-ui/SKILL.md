@@ -1,6 +1,6 @@
 ---
 name: design-ars-festival-ui
-description: Create, critique, or refine UI/UX concepts for Ars Electronica Festival 2026 sub-event websites in the visual language of “Future Begins / Negotiating Humanity.” Use for page structure, information architecture, navigation, visual hierarchy, color, typography, imagery, responsive behavior, interaction principles, wireframes, mockups, design briefs, and design reviews. Keep guidance framework-agnostic and avoid implementation details.
+description: Create, critique, or refine UI/UX concepts for Ars Electronica Festival 2026 sub-event websites in the visual language of “Future Begins / NEGOTIATING HUMANITY.” Use for page structure, information architecture, navigation, visual hierarchy, color, typography, imagery, responsive behavior, interaction principles, wireframes, mockups, design briefs, and design reviews. Keep guidance framework-agnostic and avoid implementation details.
 ---
 
 # Design Ars Festival UI

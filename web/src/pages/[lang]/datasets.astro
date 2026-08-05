@@ -28,8 +28,8 @@ const copy = {
     festival: {
       eyebrow: "Start here // Official Festival dataset",
       title: "Festival 2026 Program Dataset",
-      summary:
-        "The current Negotiating Humanity program dataset in one JSON file.",
+      summaryBefore: "The current",
+      summaryAfter: "program dataset in one JSON file.",
       provider: "Ars Electronica",
       format: "JSON",
       vintage: "Updated regularly",
@@ -71,8 +71,8 @@ const copy = {
     festival: {
       eyebrow: "Hier beginnen // Offizieller Festival-Datensatz",
       title: "Festival 2026 Programmdatensatz",
-      summary:
-        "Der aktuelle Programmdatensatz von Negotiating Humanity in einer JSON-Datei.",
+      summaryBefore: "Der aktuelle Programmdatensatz von",
+      summaryAfter: "in einer JSON-Datei.",
       provider: "Ars Electronica",
       format: "JSON",
       vintage: "Regelmäßig aktualisiert",
@@ -134,7 +134,10 @@ function slugFor(id: string): string {
           <p class="provider">{copy.festival.provider}</p>
         </div>
         <div class="festival-body">
-          <p class="summary">{copy.festival.summary}</p>
+          <p class="summary">
+            {copy.festival.summaryBefore} <em>{t("site.theme")}</em>{" "}
+            {copy.festival.summaryAfter}
+          </p>
           <p>{copy.festival.description}</p>
           <dl>
             <div>

@@ -73,6 +73,16 @@ Build identity through contrast within one family:
 
 Use `//` sparingly as a textual separator where it strengthens the festival voice. Avoid faux-terminal treatments, excessive monospacing, or generic sci-fi typography.
 
+#### Festival theme mark
+
+The festival theme must always be written as `NEGOTIATING HUMANITY`. When it
+appears inside paragraph or body text, italicize the complete two-word phrase:
+*NEGOTIATING HUMANITY*. Label-style uses such as headers and navigation remain
+roman. Do not depend on visual text transformation alone; the underlying text
+must also be uppercase so copying, indexing, and assistive output preserve the
+canonical spelling. `Future Begins` is a separate title and remains roman
+unless another context explicitly requires emphasis.
+
 ### Composition and rhythm
 
 Use three spatial modes:
@@ -191,6 +201,8 @@ Before approving a concept, verify that:
 - hierarchy works before color and imagery are considered;
 - color roles remain consistent and are never the sole carrier of meaning;
 - IBM Plex Sans is used with expressive but disciplined weight contrast;
+- every occurrence of the festival theme is uppercase, and occurrences inside
+  paragraph or body text are italicized as *NEGOTIATING HUMANITY*;
 - media is specific, credited, and meaningfully cropped;
 - global and local navigation are distinct;
 - planning information is easier to access than promotional copy;
@@ -200,4 +212,4 @@ Before approving a concept, verify that:
 
 ## 10. Provenance
 
-These principles were derived from the official [Ars Electronica Festival 2026 “Future Begins / Negotiating Humanity” site](https://ars.electronica.art/negotiatinghumanity/en/) and its home, theme, program, and locations pages as observed on 2026-07-13. They describe visual and UX patterns; they do not grant rights to logos, photographs, artwork, or other protected assets and do not replace official brand approval.
+These principles were derived from the official [Ars Electronica Festival 2026 “Future Begins / *NEGOTIATING HUMANITY*” site](https://ars.electronica.art/negotiatinghumanity/en/) and its home, theme, program, and locations pages as observed on 2026-07-13. They describe visual and UX patterns; they do not grant rights to logos, photographs, artwork, or other protected assets and do not replace official brand approval.

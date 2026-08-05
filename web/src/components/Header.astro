@@ -15,7 +15,7 @@ const t = useTranslations(lang);
   <div class="wrap bar">
     <a class="affiliation" href={href(lang)}>
       <strong>{t("site.affiliation")}</strong>
-      <span class="theme">{t("site.theme")}</span>
+      <span class="theme">{t("site.themePrefix")} {t("site.theme")}</span>
     </a>
     <LanguageSwitch lang={lang} availableLangs={availableLangs} />
   </div>

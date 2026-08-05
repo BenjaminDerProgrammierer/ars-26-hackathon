@@ -30,7 +30,8 @@ export const ui = {
   en: {
     "site.title": "AI Hackathon",
     "site.affiliation": "Ars Electronica Festival 2026",
-    "site.theme": "Future Begins / NEGOTIATING HUMANITY",
+    "site.themePrefix": "Future Begins /",
+    "site.theme": "NEGOTIATING HUMANITY",
     "site.datePlace": "September 11–12, 2026 // Grand Garage, Linz",
 
     "nav.home": "Hackathon",
@@ -65,7 +66,8 @@ export const ui = {
   de: {
     "site.title": "AI Hackathon",
     "site.affiliation": "Ars Electronica Festival 2026",
-    "site.theme": "Future Begins / NEGOTIATING HUMANITY",
+    "site.themePrefix": "Future Begins /",
+    "site.theme": "NEGOTIATING HUMANITY",
     "site.datePlace": "11.–12. September 2026 // Grand Garage, Linz",
 
     "nav.home": "Hackathon",

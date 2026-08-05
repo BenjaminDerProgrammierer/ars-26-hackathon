@@ -6,7 +6,7 @@ description: Handle the Ars Electronica Festival 2026 hackathon dataset - downlo
 # Ars Electronica Festival 2026 – Hackathon Dataset Handling
 
 The dataset is one JSON file exported from the festival CMS for the
-*Negotiating Humanity* festival. It holds four interlinked databases plus a
+*NEGOTIATING HUMANITY* festival. It holds four interlinked databases plus a
 `_meta` block with usage rules, quality reports, `generated_at`, record counts,
 and the active export filter.
 
